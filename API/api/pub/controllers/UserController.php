@@ -40,23 +40,22 @@
 			return $this->SelectUserFromID($userId);
 		}
 
-                public function GetUserFromLoginID($loginId)
-                {       
-                        $arr = $this->SelectUserFromLoginID($loginId);
-			return $arr;	
-                }
+        public function GetUserFromLoginID($loginId)
+        {       
+            $arr = $this->SelectUserFromLoginID($loginId);
+            return $arr;	
+        }
 
 		private function arrayToObject($array)
 		{
 			$tUser = new User;
-                        //convertArray to User Object
-                        foreach($usrArray as $item=>$value)
-                        {
-                                $tUser->$item = $value;
-                        }
+            //convertArray to User Object
+            foreach($usrArray as $item=>$value)
+            {
+                    $tUser->$item = $value;
+            }
 			
 			return $tUser;
 		}
-
 	}
 ?>
