@@ -51,6 +51,7 @@
             //GetUserFromLoginID
             
             $xUser = new UserController;
+            $failure = true;
 
             if ($this->get_request_method() != "GET")
             {
@@ -67,13 +68,29 @@
                 $userId = $_GET['userId'];
                 $xUser = $xUser->GetUserFromID($userId);
             }
+        
+            if ($xUser->userId == -999)
+            {
+                $failure = true;
+            }
+            else
+            {
+                $failure = false;
+            }
 
+            if ($failure == true)
+            {
+                $resp = array('status' => "failure", 'response' => "user not found");
+            }
+            else
+            {
+                //convert object to array for json
+                $xUser = get_object_vars($xUser);
 
-            //convert object to array for json
-            $xUser = get_object_vars($xUser);
-
-            $xUser = array('status' => "success", 'response' => $xUser);            
-            $this->response($this->json($xUser),200);
+                $resp = array('status' => "success", 'response' => $xUser);            
+            }
+            
+            $this->response($this->json($resp),200);
         }
 
         private function User_ModifyUser()

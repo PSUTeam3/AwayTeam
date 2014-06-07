@@ -57,6 +57,8 @@
         public function SelectUserFromID($id)
         {
             global $db;
+            $tUser = new User;
+
             if ($id)
             {
                 $query = "select * from user where userId=" . myEsc($id);
@@ -76,14 +78,16 @@
                 {
                     $tUser->$item = $value;
                 }
-                return $tUser;
             }
             
+            return $tUser;
         }
 
         public function SelectUserFromLoginID($loginId)
         {
             global $db;
+            $tUser = new User; 
+
             if ($loginId)
             {
                 $query = "select * from user where loginId='" . myEsc($loginId) . "'";
@@ -99,15 +103,18 @@
                 {
                     $result[] = $rlt;
                 }
-
+                
                 //convert array to object
                 foreach($result[0] as $item=>$value)
                 {
                     $tUser->$item = $value;
                 }
 
-                return $tUser;
             } 
+            //if a user is found it will send the information
+            //if a user isnt found it will send a blank user where the id is -999...
+            //-999 will indicate a not found state.
+            return $tUser;
         }
 
 
