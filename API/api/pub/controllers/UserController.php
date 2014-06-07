@@ -11,7 +11,7 @@
 		{
 			
 			$tUser = new User;
-			$tUser = arrayToObject($usrArray);
+			$tUser = $this->arrayToObject($usrArray);
 			$code = $tUser->UpdateUser();
 			
 			//send return code
@@ -23,7 +23,7 @@
 		{
 			$tUser = new User;
 
-			$tUser = arrayToObject($usrArray);
+			$tUser = $this->arrayToObject($usrArray);
 
 			$newUid = $tUser->InsertUser();
 			//gets new UserID #
@@ -51,7 +51,7 @@
 		{
 			$tUser = new User;
             //convertArray to User Object
-            foreach($usrArray as $item=>$value)
+            foreach($array as $item=>$value)
             {
                     $tUser->$item = $value;
             }

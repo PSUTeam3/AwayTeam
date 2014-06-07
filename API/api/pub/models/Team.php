@@ -1,7 +1,5 @@
 <?php
-    
-    //Owner: David Vu
-    
+
     include_once('/home/awayteam/api/pub/apiconfig.php');
     
     class Team
@@ -89,14 +87,14 @@
         
         public function DeleteTeam($teamId) {
             global $db;
-            if($teamId) {
+            if($teamId) }
                 $query = "delete from team where teamId = " . myEsc($teamId);
                 $sql = mysql_query($query, $db);
                 return $result;
             }            
         }
         
-        public function InsertTeam() {
+        public function InsertUser() {
             $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged) values ('%s','%d','%s','%s')",
                 myEsc($this->teamName),
                 myEsc($this->teamLocationId),
@@ -109,6 +107,5 @@
             
             return $id;
         }
- ?>
         
     
