@@ -132,8 +132,11 @@
 
         public function InsertUser()
         {
+            if ($this->loginId == "")
+            {
+                return -999;
+            }
             global $db;
-
             $query = sprintf("insert into user (email,loginId,password,firstname,lastName,cellPhone,emergencyPhone) values ('%s','%s','%s','%s','%s','%s','%s')",
                 myEsc($this->email),
                 myEsc($this->loginId),

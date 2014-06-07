@@ -41,8 +41,17 @@
             //pass user info as array
             $usrArray = $this->_request;
             $newUid = $xUser->CreateUser($usrArray);
+           
+            $jsonMsg = array(); 
+            if ($newUid > -999)
+            {
+                $jsonMsg = array('status' => 'success', 'response'=> $newUid);
+            }
+            else
+            {
+                $jsonMsg = array('status' => 'failure', 'response'=> -999);
+            }
 
-            $jsonMsg = array('status' => 'success', 'response'=> $newUid);
             $this->response($this->json($jsonMsg),200);
         }
 
