@@ -29,7 +29,146 @@
                 $this->response('',404);                
             // If the method not exist with in this class, response would be "Page not found".
         }
-        
+
+        private function User_AuthenticatePassword()
+        {
+            $xUser = new UserController;
+            $failure = true;
+    
+            if ($this->get_request_method() != "POST")
+            {
+                $this->response('', 406);
+            }        
+            
+            $authArray = $this->_request;
+
+            if (isset($authArray['loginId']))
+            {
+                $xUser = $xUser->GetUserFromLoginID($authArray['loginId']);
+                if ($xUser->userId <> "-999")
+                {
+                    if (isset($authArray['password']))
+                    {   
+                        //validate hash
+                        $good = $xUser->ValidatePasswordHash($authArray['password']);
+                        if ($good)
+                        {
+                            $retArray = array ('response' => 'success', 'userIdentifier' => $xUser->userIdentifier, 'userSecret' => $xUser->userSecret);
+                            $failure = false;
+                        }
+                        else
+                        {
+                            //bad password
+                            $retArray = array ('response' => 'failure', 'message' => 'bad password');
+                            $failure = true;
+                        }
+                    }   
+                    else
+                    {   
+                        //did not submit password
+                        $failure = true;
+                        $retArray = array ('response' => 'failure', 'message' => 'password not submitted');
+                    }   
+                }
+                else
+                {
+                    //user not found
+                    $failure = true;
+                    $retArray = array ('response' => 'failure', 'message' => 'user not found');
+                }
+                
+            }   
+            else
+            {
+                //did not submit user
+                $failure = true;
+                $retArray = array ('response' => 'failure', 'message' => 'user not submitted');
+            }
+
+            if ($failure)
+            {
+                $this->response($this->json($retArray),401);
+            }
+            else
+            {
+                $this->response($this->json($retArray),200);
+            }            
+             
+            // expect loginId and password
+            // return userIdentifier and userSecret
+        }       
+
+        private function User_ChangePassword()
+        {
+            //MUST BE AUTHENTICATED
+            $xUser = new UserController;
+            $failed = true;
+            if ($this->get_request_method() != "POST")
+            {
+                $this->response('', 406);
+            }
+
+            $info = $this->_request;
+            
+            //check authentication; assign user; change password.
+            if (isset($info['loginId']))
+            {
+                //if challenge failed
+                //{
+                //['AWT-AUTH'] aka $userIdentifier
+                //['AWT-AUTH-CHALLENGE'] aka $challenge
+                //}
+                $xUser = $xUser->GetUserFromLoginID($info['loginId']);
+                if ($xUser->userId <> "-999")
+                {
+                    if (isset($info['newPassword']))
+                    {
+                        $ret = $xUser->ChangeUserPassword($info['newPassword']);
+                        if ($ret)
+                        {
+                            //change successful
+                            $retArray = array ('response' => 'success', 'message' => 'password changed');
+                            $failed = false;
+                        }
+                        else
+                        {
+                            //change failed
+                            $retArray = array ('response' => 'failed', 'message' => 'password change failed');
+                            $failed = true;
+                        }   
+                    }
+                    else
+                    {
+                        //new password not set
+                        $retArray = array ('response' => 'failed', 'message' => 'newPassword not set');
+                        $failed = true;
+                    }
+                }
+                else
+                {
+                    //user not found
+                    $retArray = array ('response' => 'failed', 'message' => 'user not found');
+                    $failed = true;
+                }
+            }
+            else
+            {
+                //user not submitted
+                $retArray = array ('response' => 'failed', 'message' => 'user not submitted');
+                $failed = true;
+            }
+
+            if ($failed)
+            {
+                $this->response($this->json($retArray),401);
+            }
+            else
+            {
+                $this->response($this->json($retArray),200);
+            }
+
+        }
+ 
         private function User_CreateUser()
         {
             $xUser = new UserController;
@@ -95,7 +234,10 @@
             {
                 //convert object to array for json
                 $xUser = get_object_vars($xUser);
-
+                unset($xUser['userSalt']);
+                unset($xUser['userIdentifier']);
+                unset($xUser['userSecret']);
+                unset($xUser['password']);
                 $resp = array('status' => "success", 'response' => $xUser);            
             }
             

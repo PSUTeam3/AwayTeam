@@ -28,10 +28,17 @@
         return mysql_real_escape_string($str);
     }
 
+    function getTime()
+    {
+        $mTime = microtime(true);
+        $mTime = round($mTime, 0);
+
+        return $mTime;
+    }
+
     function logIt($str)
     {
         file_put_contents ('/tmp/phplogtest.txt', $str . "\n", FILE_APPEND | LOCK_EX);
-
     }
 
 ?>
