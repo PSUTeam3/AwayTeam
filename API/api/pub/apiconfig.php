@@ -1,35 +1,37 @@
 <?php
-        error_reporting(E_ALL);
+    //OWNER: S.NAIMOLI
 
-	$db = NULL;
-	$db = dbConnect();
+    error_reporting(E_ALL);
 
-        function dbConnect()
-	{
-		global $db;
-	        $DB_SERVER = "localhost";
-	        $DB_USER = "awayteam";
-       		$DB_PASSWORD = "awayteam";
-        	$DB_NAME = "awayteam";
+    $db = NULL;
+    $db = dbConnect();
 
-	        $db = mysql_connect($DB_SERVER,$DB_USER,$DB_PASSWORD);
-		if($db)
-		{
-			$sel = mysql_select_db($DB_NAME,$db);
-		}
+    function dbConnect()
+    {
+        global $db;
+        $DB_SERVER = "localhost";
+        $DB_USER = "awayteam";
+        $DB_PASSWORD = "awayteam";
+        $DB_NAME = "awayteam";
 
-		return $db;
+        $db = mysql_connect($DB_SERVER,$DB_USER,$DB_PASSWORD);
+        if($db)
+        {
+            $sel = mysql_select_db($DB_NAME,$db);
         }
 
-	function myEsc($str)
-	{
-		return mysql_real_escape_string($str);
-	}
+        return $db;
+    }
 
-	function logIt($str)
-	{
-		file_put_contents ('/tmp/phplogtest.txt', $str . "\n", FILE_APPEND | LOCK_EX);
+    function myEsc($str)
+    {
+        return mysql_real_escape_string($str);
+    }
 
-	}
+    function logIt($str)
+    {
+        file_put_contents ('/tmp/phplogtest.txt', $str . "\n", FILE_APPEND | LOCK_EX);
+
+    }
 
 ?>

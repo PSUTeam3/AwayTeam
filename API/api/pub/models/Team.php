@@ -1,7 +1,7 @@
 <?php
 
     include_once('/home/awayteam/api/pub/apiconfig.php');
-	
+    
     class Team
     {
         //class attributes
@@ -32,4 +32,4 @@
             $query = sprintf("update team set 
         }
         
-	
+    

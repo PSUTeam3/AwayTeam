@@ -1,4 +1,5 @@
 <?php
+    //OWNER: S. NAIMOLI
 
 	require_once('/home/awayteam/api/pub/models/User.php');
 	require_once('/home/awayteam/api/pub/apiconfig.php');
