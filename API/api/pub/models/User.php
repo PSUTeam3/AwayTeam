@@ -243,10 +243,12 @@
                 }
                 return false; //no matches
             }
+            else
             {
                 //failed
                 return false;
             }
+
             return false; //something went wrong
         }
 
