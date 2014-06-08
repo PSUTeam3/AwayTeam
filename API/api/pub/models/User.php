@@ -45,12 +45,12 @@
         {
             global $db; //finish...
             $query = sprintf("update user set email='%s', firstName='%s', lastName='%s', cellPhone='%s', emergencyPhone='%s', loginId='%s' where userId=%d", 
-            myEsc($this->email), 
+            myEsc(strtolower($this->email)), 
             myEsc($this->firstName),
             myEsc($this->lastName),
             myEsc($this->cellPhone),
             myEsc($this->emergencyPhone),
-            myEsc($this->loginId),
+            myEsc(strtolower($this->loginId)),
             myEsc($this->userId));
             
             //send back code if successful or not
@@ -88,6 +88,56 @@
             return $tUser;
         }
 
+        public function LoginIDExist($loginId)
+        {
+            global $db;
+
+            if ($loginId)
+            {
+                $loginId = strtolower($loginId);
+                $query = "select count(loginId) as num from user where loginId='" . myEsc($loginId) . "'";
+            }
+    
+            $sql = mysql_query($query, $db);
+
+               
+            $data=mysql_fetch_assoc($sql);
+    
+            if ($data['num'] == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        public function EmailExist($email)
+        {
+            global $db;
+
+            if ($email)
+            {
+                $email = strtolower($email);
+                $query = "select count(email) as num from user where email='" . myEsc($email) . "'";
+            }
+
+            $sql = mysql_query($query, $db);
+
+            $data=mysql_fetch_assoc($sql);
+
+            if ($data['num'] == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+
         public function SelectUserFromLoginID($loginId)
         {
             global $db;
@@ -95,6 +145,7 @@
 
             if ($loginId)
             {
+                $loginId = strtolower($loginId);
                 $query = "select * from user where loginId='" . myEsc($loginId) . "'";
             }
 
@@ -160,7 +211,7 @@
 
             //select userSecret,userIdentifier from user where loginId=$loginId and userIdentifier='$userIdentifier'
             $query = sprintf("select userSecret, userIdentifier from user where loginId='%s' and userIdentifier='%s'",
-                myEsc($loginId),
+                myEsc(strtolower($loginId)),
                 myEsc($userIdentifier));
 
             $userIdentifer      = "";
@@ -259,30 +310,55 @@
             {
                 return -999;
             }
+
             global $db;
 
-            $secArr = $this->GenerateSecrets($this->password);
+           // $tmpUser = new UserController;
+           // $tmpUser = $tmpUser->SelectUserFromLoginID($this->loginId);
+
+            $id = -9999;
+            //make case if then for email and loginId and then make next block if good
+
+            $loginIdCheck = $this->LoginIDExist($this->loginId);
+            $emailCheck = $this->EmailExist($this->email);
+
+            if (($loginIdCheck == false)&&($emailCheck == false))
+            {
+                $secArr = $this->GenerateSecrets($this->password);
         
-            $this->userSalt         = $secArr['salt'];
-            $this->password         = $secArr['password'];
-            $this->userIdentifier   = $secArr['identifier'];
-            $this->userSecret       = $secArr['secret'];
+                $this->userSalt         = $secArr['salt'];
+                $this->password         = $secArr['password'];
+                $this->userIdentifier   = $secArr['identifier'];
+                $this->userSecret       = $secArr['secret'];
 
-            $query = sprintf("insert into user (email,loginId,password,firstname,lastName,cellPhone,emergencyPhone,userSalt,userIdentifier,userSecret) values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')",
-                myEsc($this->email),
-                myEsc($this->loginId),
-                myEsc($this->password),
-                myEsc($this->firstName),
-                myEsc($this->lastName),
-                myEsc($this->cellPhone),
-                myEsc($this->emergencyPhone),
-                myEsc($this->userSalt),
-                myEsc($this->userIdentifier),
-                myEsc($this->userSecret));
+                $query = sprintf("insert into user (email,loginId,password,firstname,lastName,cellPhone,emergencyPhone,userSalt,userIdentifier,userSecret) values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')",
+                    myEsc(strtolower($this->email)),
+                    myEsc(strtolower($this->loginId)),
+                    myEsc($this->password),
+                    myEsc($this->firstName),
+                    myEsc($this->lastName),
+                    myEsc($this->cellPhone),
+                    myEsc($this->emergencyPhone),
+                    myEsc($this->userSalt),
+                    myEsc($this->userIdentifier),
+                    myEsc($this->userSecret));
 
-            $id = -999;
-            mysql_query($query, $db);
-            $id = mysql_insert_id();
+                mysql_query($query, $db);
+                $id = mysql_insert_id();
+            }
+            else
+            {
+                if (!$loginIdCheck)
+                {
+                    $id = -999;
+                }
+
+                if (!$emailCheck)
+                {
+                    $id = -998;
+                }
+                //user exists in db already... reject
+            }
 
             return $id;
         }
