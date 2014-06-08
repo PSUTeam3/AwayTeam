@@ -113,11 +113,34 @@
             //check authentication; assign user; change password.
             if (isset($info['loginId']))
             {
-                //if challenge failed
-                //{
-                //['AWT-AUTH'] aka $userIdentifier
-                //['AWT-AUTH-CHALLENGE'] aka $challenge
-                //}
+                if (isset($info['AWT_AUTH']) && isset($info['AWT_AUTH_CHALLENGE']))
+                {
+                    $userIdentifier = $info['AWT_AUTH'];
+                    $challenge      = $info['AWT_AUTH_CHALLENGE'];
+
+                    $good = $xUser->ValidateAuthenticationChallange($info['loginId'], $userIdentifier, $challenge);
+
+                    if ($good == false)
+                    {
+                        $x = array('response' => 'failure', 'message' => 'auth required');
+                        $this->response($this->json($x), 200);
+                        exit;
+                    }
+                    else
+                    {
+                        //$x = array('response' => 'good');
+                        //$this->response($this->json($x), 200);
+                        //exit;
+                    }
+                }
+                else
+                {
+                    //fail
+                    $x = array('response' => 'failure', 'message' => 'auth required');
+                    $this->response($this->json($x), 401);
+
+                    exit;
+                }
                 $xUser = $xUser->GetUserFromLoginID($info['loginId']);
                 if ($xUser->userId <> "-999")
                 {
