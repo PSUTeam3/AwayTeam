@@ -3,7 +3,7 @@
     //Owner: David Vu
     
     require_once('/home/awayteam/api/pub/models/User.php');
-	require_once('/home/awayteam/api/pub/apiconfig.php');
+    require_once('/home/awayteam/api/pub/apiconfig.php');
     
     class TeamController extends Team
     {
