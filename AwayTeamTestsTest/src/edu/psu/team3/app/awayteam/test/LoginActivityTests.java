@@ -1,10 +1,11 @@
-package edu.psu.team3.app.awayteam.tests;
+package edu.psu.team3.app.awayteam.test;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import edu.psu.team3.app.awayteam.*;
+import edu.psu.team3.app.awayteam.R;
 
 /**
  * JUnit Test class for the Login Activity
@@ -110,7 +111,8 @@ public class LoginActivityTests extends
 		mUsernameView.setText(testUsername);
 		mPasswordView.setText(testPassword);
 		mTestActivity.attemptLogin();
-		AssertEquals(mTestActivity.loginMsg, testLoginMsg);
+//		AssertEquals(mTestActivity.loginMsg, testLoginMsg);
+		assertFalse(true);
 	}
 	
 	// Test for correct and incorrect logins
@@ -118,14 +120,15 @@ public class LoginActivityTests extends
 		mUsernameView.setText(testUsername);
 		mPasswordView.setText(testBadPassword);
 		mTestActivity.attemptLogin();		
-		assertEquals(mTestActivity.loginSuccess,"false");
+//		assertEquals(mTestActivity.loginSuccess,"false");
 		String textViewErrMsg = mPasswordView.getError().toString();
 		assertEquals(textViewErrMsg, R.string.error_invalid_password);
 		
 		mUsernameView.setText(testUsername);
 		mPasswordView.setText(testPassword);
 		mTestActivity.attemptLogin();
-		assertEquals(mTestActivity.loginSuccess,"true");
+//		assertEquals(mTestActivity.loginSuccess,"true");
+		assertFalse(true);
 	}
 
 }
