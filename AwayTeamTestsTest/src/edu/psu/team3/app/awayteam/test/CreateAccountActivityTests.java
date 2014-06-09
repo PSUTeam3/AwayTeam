@@ -1,10 +1,11 @@
-package edu.psu.team3.app.awayteam.tests;
+package edu.psu.team3.app.awayteam.test;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import edu.psu.team3.app.awayteam.*;
+import edu.psu.team3.app.awayteam.R;
 
 /**
  * JUnit Test class for the Create Account Activity
@@ -163,16 +164,17 @@ public class CreateAccountActivityTests extends
 
 	// Tests for correct name interpretation
 	public void testNameView_nameInterpretation(){
-		mNameView.setText(testName);
-		mTestActivity.parseName();  //TODO: build in access to name parsing
-		assertEquals(mTestActivity.mLastName,"Doe");
-		assertEquals(mTestActivity.mFirstName,"John");
-		mNameView.setText(testLongName);
-		assertEquals(mTestActivity.mLastName,"Doe");
-		assertEquals(mTestActivity.mFirstName,"John");
-		mNameView.setText(testShortName);
-		assertEquals(mTestActivity.mLastName,"");
-		assertEquals(mTestActivity.mFirstName,"Johnny");
+//		mNameView.setText(testName);
+//		mTestActivity.parseName();  //TODO: build in access to name parsing
+//		assertEquals(mTestActivity.mLastName,"Doe");
+//		assertEquals(mTestActivity.mFirstName,"John");
+//		mNameView.setText(testLongName);
+//		assertEquals(mTestActivity.mLastName,"Doe");
+//		assertEquals(mTestActivity.mFirstName,"John");
+//		mNameView.setText(testShortName);
+//		assertEquals(mTestActivity.mLastName,"");
+//		assertEquals(mTestActivity.mFirstName,"Johnny");
+		assertFalse(true);
 	}
 
 	// Ensure that before login, status spinner is invisible
@@ -201,7 +203,8 @@ public class CreateAccountActivityTests extends
 		mPhoneView.setText(testPhone);
 		mEPhoneView.setText(testPhone);
 		mTestActivity.attemptCreate();
-		AssertEquals(mTestActivity.createMsg, testCreateMsg);
+//		AssertEquals(mTestActivity.createMsg, testCreateMsg);
+		assertFalse(true);
 	}
 	
 	// Test for correct and incorrect logins
@@ -214,10 +217,11 @@ public class CreateAccountActivityTests extends
 			mPhoneView.setText(testPhone);
 			mEPhoneView.setText(testPhone);
 			mTestActivity.attemptCreate();		
-			assertEquals(mTestActivity.accountSuccess,"false");
+//			assertEquals(mTestActivity.accountSuccess,"false");
 			assertEquals(mUsernameView.getError(), "Username Taken");
 			mUsernameView.setText(testUsername);
 			mTestActivity.attemptCreate();
-			assertEquals(mTestActivity.AccountSuccess,"true");
+//			assertEquals(mTestActivity.AccountSuccess,"true");
+			assertFalse(true);
 		}
 }

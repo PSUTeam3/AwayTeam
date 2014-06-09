@@ -1,4 +1,4 @@
-package edu.psu.team3.app.awayteam.tests;
+package edu.psu.team3.app.awayteam.test;
 
 import android.app.Fragment;
 import android.support.v4.view.PagerAdapter;
@@ -6,6 +6,7 @@ import android.support.v4.view.ViewPager;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.EditText;
 import edu.psu.team3.app.awayteam.*;
+import edu.psu.team3.app.awayteam.R;
 
 public class DisplayActivityTests extends
 		ActivityInstrumentationTestCase2<DisplayActivity> {
