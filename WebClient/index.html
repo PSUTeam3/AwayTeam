@@ -1,39 +1,225 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script type="text/javascript" src = "js/jquery-1.11.1.min.js"></script>
-    <title>AwayTeam</title>
-    <style type="text/css">
-        #loginbox{
-            width:240px;
-            height: 140px;
-            margin:0px auto;
-            margin-top:300px;
-        }
-    </style>
-</head>
-<body>
-<div id = "loginbox">
-    <input id = "username" type = "text" placeholder = "your username"/>
-    <br>
-    <input id = "password" type = "password" placeholder = "your password"/>
-    <br>
-    <button>Sign in</button>
-</div>
-<div id = "container"></div>
-
-<script type="text/javascript">
-	
-$("button").click(function(){
-
-    var username = $("#username").val();
-    var password = $("#password").val();
+    <meta charset="utf-8">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.js"> </script>
+    <script type="text/javascript" src="js/plugins.js"></script>
+    <script type="text/javascript" src="js/globalFunctions.js"></script>
+    <link type="text/css" rel="stylesheet" href="css/style.css" />
     
-    var test = "test";
+    <title>AwayTeam</title>
+</head>
 
-});
 
-</script>
+<body>
+    <div class="progressSpinner"></div>
+    <div id = "loginbox">
+        <form id="loginForm">
+            <input id = "username" name="loginId" type = "text" placeholder = "Username"/>
+            <br/>
+            <input id = "password" name="password" type = "password" placeholder = "Password"/>
+        </form>
+        <div id="notRegisteredLabel">
+            <label>Not registered yet?</label>
+            <a id="modal_trigger" href="#modal" onClick="return false;">Register Here</a>
+        </div>
+        <br/>
+        <div class="action_btns">
+            <div class="one_button"><a href="#" id="loginButton" class="btn" onClick="return false;">Sign In</a></div>
+        </div>
+    </div>
+
+    <div id = "container">
+        <div id="modal" class="popupContainer" style="display:none;">
+            <header class="popupHeader">
+                <span class="header_title">Register</span>
+                <span class="modal_close"><img class="closeButton"></img></span>
+            </header>
+            
+            <section class="popupBody">
+                <!-- Social Login -->
+                <div class="social_login">
+                    <div class="">
+                        <a href="#" class="social_box fb" onClick="return false;">
+                            <span class="icon"><img class="fbIcon"></img></span>
+                            <span class="icon_title">Connect with Facebook</span>
+                            
+                        </a>
+
+                        <a href="#" class="social_box google" onClick="return false;">
+                            <span class="icon"><img class="googleIcon"></img></span>
+                            <span class="icon_title">Connect with Google</span>
+                        </a>
+                    </div>
+
+                    <div class="centeredText">
+                        <span>Or use your Email address</span>
+                    </div>
+
+                    <div class="action_btns">
+                        <div class="one_button"><a href="#" id="register_form" class="btn" onClick="return false;">Sign up</a></div>
+                    </div>
+                </div>
+
+                <!-- Username & Password Login form -->
+                <div class="user_login">
+                    <form>
+                        <label>Email / Username</label>
+                        <input type="text" />
+                        <br />
+
+                        <label>Password</label>
+                        <input type="password" />
+                        <br />
+
+                        <div class="checkbox">
+                            <input id="remember" type="checkbox" />
+                            <label for="remember">Remember me on this computer</label>
+                        </div>
+
+                        <div class="action_btns">
+                            <div class="one_half"><a href="#" class="btn back_btn" onClick="return false;">Back</a></div>
+                            <div class="one_half last"><a href="#" class="btn btn_red" onClick="return false;">Login</a></div>
+                        </div>
+                    </form>
+
+                    <a href="#" class="forgot_password" onClick="return false;">Forgot password?</a>
+                </div>
+
+                <!-- Register Form -->
+                <div class="user_register">
+                    <form id="userRegistrationForm" autocomplete="on">
+                        <label>First Name</label>
+                        <input type="text" name="firstName" />
+                        <br />
+
+                        <label>Last Name</label>
+                        <input type="text" name="lastName" />
+                        <br />
+
+                        <label>Username</label>
+                        <input type="text" name="loginId" />
+                        <br />
+
+                        <label>Email Address</label>
+                        <input type="email" name="email"/>
+                        <br />
+
+                        <label>Password</label>
+                        <input type="password" name="password"/>
+                        <br />
+
+                        <label>Confirm Password</label>
+                        <input type="password"/>
+                        <br />
+
+                        <label>Cell Phone</label>
+                        <input id="cellPhoneInput" type="text" name="cellPhone"/>
+                        <br />
+
+                        <!-- <div class="checkbox">
+                            <input id="send_updates" type="checkbox" />
+                            <label for="send_updates">Send me occasional email updates</label>
+                        </div> -->
+
+                        <div class="action_btns">
+                            <div class="one_half"><a href="#" class="btn back_btn" onClick="return false;">Back</a></div>
+                            <div class="one_half last"><a href="#" class="btn btn_red" id="registerButton" onClick="return false;">Register</a></div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        $(window).load(function() {
+            var phones = [{ "mask": "(###) ###-####"}, { "mask": "(###) ###-##############"}];
+            var phoneInputs = $('.phoneNumber');
+            $('.phoneNumber').inputmask({ 
+                mask: phones, 
+                greedy: false, 
+                definitions: { '#': { validator: "[0-9]", cardinality: 1}} 
+            });
+        });
+    	
+        $("#loginButton").click(function(){
+            $('body').addClass("loading");
+            var formParams = $("#loginForm").formParams();
+            authenticate(formParams, function(data){
+
+               $('body').removeClass("loading");
+               alert("made it here");
+               alert("trying to eval data");
+               //var obj = eval("(" + data + ")");
+               //alert(obj);
+               alert(data.response);
+               alert(data.userSecret);
+               alert(data.userIdentifier);
+
+            }, function(jqXHR, textStatus, errorThrown){
+               $('body').removeClass("loading");
+               alert("something went wrong");
+               alert(jqXHR);
+               alert(textStatus);
+               alert(errorThrown);
+            });
+        });
+
+        $("#registerButton").click(function(event) {
+           //$('body').addClass("loading");
+           var formParams = $("#userRegistrationForm").formParams();
+           createUser(formParams, function(data){
+
+              $('body').removeClass("loading");
+               //var obj = eval("(" + data + ")");
+               //alert(obj);
+               alert(data.response);
+               alert(data.userSecret);
+               alert(data.userIdentifier);
+
+           }, function(jqXHR, textStatus, errorThrown){
+                $('body').removeClass("loading");
+                   alert("something went wrong");
+                   alert(jqXHR);
+                   alert(textStatus);
+                   alert(errorThrown);
+           });
+        });
+
+        $("#modal_trigger").leanModal({top : 200, overlay : 0.6, closeButton: ".modal_close" });
+            $(function(){
+                // Calling Login Form
+                $("#login_form").click(function(){
+                    $(".social_login").hide();
+                    $(".user_login").show();
+                    return false;
+                });
+
+                // Calling Register Form
+                $("#register_form").click(function(){
+                    $(".social_login").hide();
+                    $(".user_register").show();
+                    return false;
+                });
+
+                // Going back to Social Forms
+                $(".back_btn").click(function(){
+                    $(".user_login").hide();
+                    $(".user_register").hide();
+                    $(".social_login").show();
+                    return false;
+                });
+
+                $("#registration").click(function(){
+                    return false;
+                });
+
+            })
+
+    </script>
 
 </body>
 </html>
