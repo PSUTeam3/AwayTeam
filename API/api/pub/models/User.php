@@ -97,7 +97,10 @@
                 $loginId = strtolower($loginId);
                 $query = "select count(loginId) as num from user where loginId='" . myEsc($loginId) . "'";
             }
-    
+   
+             
+            file_put_contents ('/tmp/phplogtest.txt', "got here\n", FILE_APPEND | LOCK_EX);
+            file_put_contents ('/tmp/phplogtest.txt', $loginId . "\n", FILE_APPEND | LOCK_EX);
             $sql = mysql_query($query, $db);
 
                
@@ -347,6 +350,11 @@
 
                 mysql_query($query, $db);
                 $id = mysql_insert_id();
+                
+                if ($id >= 0)
+                {
+                    $this->userId = $id;
+                }
             }
             else
             {

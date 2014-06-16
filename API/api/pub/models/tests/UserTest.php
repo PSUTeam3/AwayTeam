@@ -1,6 +1,7 @@
 <?php
 
 require_once('/home/awayteam/api/pub/models/User.php');
+require_once('/home/awayteam/api/pub/apiconfig.php');
 
 //should generate 2 over failures for the whole class
 
@@ -14,6 +15,29 @@ class UserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(-999, $usr->userId);
         $this->assertEquals("", $usr->loginId);
         $this->assertEquals("xx", $usr->cellPhone);  //expectedFailure
+    }
+
+    public function testGetUser()
+    {
+        $newUser = new User;
+        $getUser = new User;
+        
+        dbConnect();
+
+        $newUser->loginId = "test";
+        $newUser->email   = "test@test.com";
+        $newUser->firstName = "john";
+        $newUser->lastName = "doe";
+        $newUser->password = "1234";
+        $newUser->cellPhone = "5555555555";
+        $newUser->emergencyPhone = "55555555";
+
+        $id = $newUser->InsertUser();
+
+        $getUser = $getUser->SelectUserFromID($id);
+        
+        $this->assertEquals($newUser, $getUser);
+        
     }
 
     public function testPasswordHashAccuracy()
