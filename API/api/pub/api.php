@@ -156,28 +156,28 @@
                         else
                         {
                             //change failed
-                            $retArray = array ('response' => 'failed', 'message' => 'password change failed');
+                            $retArray = array ('response' => 'failure', 'message' => 'password change failed');
                             $failed = true;
                         }   
                     }
                     else
                     {
                         //new password not set
-                        $retArray = array ('response' => 'failed', 'message' => 'newPassword not set');
+                        $retArray = array ('response' => 'failure', 'message' => 'newPassword not set');
                         $failed = true;
                     }
                 }
                 else
                 {
                     //user not found
-                    $retArray = array ('response' => 'failed', 'message' => 'user not found');
+                    $retArray = array ('response' => 'failure', 'message' => 'user not found');
                     $failed = true;
                 }
             }
             else
             {
                 //user not submitted
-                $retArray = array ('response' => 'failed', 'message' => 'user not submitted');
+                $retArray = array ('response' => 'failure', 'message' => 'user not submitted');
                 $failed = true;
             }
 
@@ -207,11 +207,11 @@
             $jsonMsg = array(); 
             if ($newUid > -999)
             {
-                $jsonMsg = array('status' => 'success', 'response'=> $newUid);
+                $jsonMsg = array('response' => 'success', 'message'=> $newUid);
             }
             else
             {
-                $jsonMsg = array('status' => 'failure', 'response'=> -999);
+                $jsonMsg = array('response' => 'failure', 'message'=> $newUid);
             }
 
             $this->response($this->json($jsonMsg),200);
@@ -251,7 +251,7 @@
 
             if ($failure == true)
             {
-                $resp = array('status' => "failure", 'response' => "user not found");
+                $resp = array('response' => "failure", 'message' => "user not found");
             }
             else
             {
@@ -261,7 +261,7 @@
                 unset($xUser['userIdentifier']);
                 unset($xUser['userSecret']);
                 unset($xUser['password']);
-                $resp = array('status' => "success", 'response' => $xUser);            
+                $resp = array('response' => "success", 'message' => $xUser);            
             }
             
             $this->response($this->json($resp),200);
@@ -279,7 +279,7 @@
             $array1         = $this->_response;
             $response       = $xUser->ModifyUser($array1);
 
-            $jsonstr        = array('status' => $response);
+            $jsonstr        = array('response' => $response);
 
             $this->response($this->json($jsonstr),200);
 
