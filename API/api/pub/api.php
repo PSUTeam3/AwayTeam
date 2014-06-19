@@ -30,6 +30,50 @@
             // If the method not exist with in this class, response would be "Page not found".
         }
 
+        private function User_LoginIDExist()
+        {
+            $xUser = new UserController;
+            $failure = true;
+            $resp = false;
+
+            if ($this->get_request_Method() != "GET")
+            {
+                $this->response('', 406);
+            }
+    
+            if (isset($_GET['loginId']) && strlen($_GET['loginId']) > 0)
+            {
+               $resp = $xUser->LoginIDExist($_GET['loginId']); 
+               $failure = false;
+            }
+            else
+            {
+                $failure = true;
+                $resp = false;
+            }
+
+            if ($failure)
+            {
+                $retArray = array ('response' => 'failure', 'message' => 'loginId not submitted');
+                $this->response($this->json($retArray),401);
+            }
+            else
+            {
+                if ($resp)
+                {
+                    $retArray = array ('response' => 'success', 'message' => 'not available');
+                    // if true - user is taken
+                }
+                else
+                {
+                    $retArray = array ('response' => 'success', 'message' => 'available');
+                    // if false - user is available
+                }
+                $this->response($this->json($retArray),200);
+            }
+
+        }
+
         private function User_AuthenticatePassword()
         {
             $xUser = new UserController;
