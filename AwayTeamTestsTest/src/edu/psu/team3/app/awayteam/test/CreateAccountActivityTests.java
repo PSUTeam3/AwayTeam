@@ -1,7 +1,14 @@
 package edu.psu.team3.app.awayteam.test;
 
+import android.app.Activity;
+import android.app.Instrumentation.ActivityMonitor;
+import android.content.Context;
+import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.TouchUtils;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import edu.psu.team3.app.awayteam.*;
@@ -39,6 +46,7 @@ public class CreateAccountActivityTests extends
 	String testName = "John Doe";
 	String testLongName = "John A Doe";
 	String testShortName = "Johnny";
+	String testReverseName = "Doe, John A";
 	String testEmail = "j@doe.com";
 	String testBadEmail = "johndoe";
 	String testPhone = "1234567890";
@@ -54,6 +62,11 @@ public class CreateAccountActivityTests extends
 	private EditText mEPhoneView;
 	private View mCreateFormView;
 	private View mCreateStatusView;
+	private Button mCreateButton;
+	private Button mCheckButton;
+
+	// intent
+	Intent mIntent;
 
 	public CreateAccountActivityTests() {
 		super(CreateAccountActivity.class);
@@ -81,30 +94,24 @@ public class CreateAccountActivityTests extends
 				.findViewById(R.id.emer_phone_input);
 		mCreateFormView = mTestActivity.findViewById(R.id.create_form);
 		mCreateStatusView = mTestActivity.findViewById(R.id.create_status);
-
-		// clear out any values
-		mUsernameView.setText("");
-		mPassword1View.setText("");
-		mPassword2View.setText("");
-		mNameView.setText("");
-		;
-		mPhoneView.setText("");
-		mEPhoneView.setText("");
-		mEmailView.setText("");
+		mCreateButton = (Button) mTestActivity
+				.findViewById(R.id.account_submit_button);
+		mCheckButton = (Button) mTestActivity
+				.findViewById(R.id.username_check_button);
 	}
 
 	/**
 	 * Ensure that the preconditions will lead to a successful test
 	 */
 	public void testPreconditions() {
-		assertNotNull("mTestActivity is null", mTestActivity);
+		assertNotNull(mTestActivity);
 	}
 
 	/**
 	 * Use this section to destroy data for the next test
 	 */
 	public void tearDown() throws Exception {
-		// no tear down activities yet
+		super.tearDown();
 	}
 
 	/**
@@ -113,35 +120,73 @@ public class CreateAccountActivityTests extends
 	 */
 
 	// test all the errors that should be shown for invalid input
-	public void testInputViews_validation() {
+	public void testZInputViews_validation() {
+		// clear out any values
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mUsernameView.setText("");
+				mPassword1View.setText("");
+				mPassword2View.setText("");
+				mNameView.setText("");
+				mPhoneView.setText("");
+				mEPhoneView.setText("");
+				mEmailView.setText("");
+			}
+		});
+
 		// required fields
-		mTestActivity.attemptCreate();
-		assertEquals(mUsernameView.getError(), R.string.error_field_required);
-		assertEquals(mPassword1View.getError(), R.string.error_field_required);
-		assertEquals(mPassword2View.getError(), R.string.error_field_required);
-		assertEquals(mNameView.getError(), R.string.error_field_required);
-		assertEquals(mEmailView.getError(), R.string.error_field_required);
-		assertEquals(mPhoneView.getError(), R.string.error_field_required);
+		TouchUtils.clickView(this, mCreateButton);
+		assertEquals(mUsernameView.getError(), mTestActivity.getResources()
+				.getString(R.string.error_field_required));
+		assertEquals(mPassword1View.getError(), mTestActivity.getResources()
+				.getString(R.string.error_field_required));
+		assertEquals(mPassword2View.getError(), mTestActivity.getResources()
+				.getString(R.string.error_field_required));
+		assertEquals(mNameView.getError(), mTestActivity.getResources()
+				.getString(R.string.error_field_required));
+		assertEquals(mEmailView.getError(), mTestActivity.getResources()
+				.getString(R.string.error_field_required));
+		assertEquals(mPhoneView.getError(), mTestActivity.getResources()
+				.getString(R.string.error_field_required));
 		// Valid usernames
-		mUsernameView.setText(testTakenUsername);
-		mTestActivity.attemptCreate();
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mUsernameView.setText(testTakenUsername);
+
+			}
+		});
+		TouchUtils.clickView(this, mCheckButton);
 		assertEquals(mUsernameView.getError(), "Username Taken");// TOOD: code
 																	// this into
 																	// a string
 																	// resource
 		// invalid password
-		mPassword1View.setText("1");
-		assertEquals(mPassword1View.getError(), R.string.error_invalid_password);// TOOD:
-																					// code
-																					// this
-																					// into
-																					// a
-																					// string
-																					// resource
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mPassword1View.setText("1");
+			}
+		});
+		TouchUtils.clickView(this, mCreateButton);
+		assertEquals(mPassword1View.getError(), mTestActivity.getResources()
+				.getString(R.string.error_invalid_password));// TOOD:
+		// code
+		// this
+		// into
+		// a
+		// string
+		// resource
 		// non-matching passwords
-		mPassword1View.setText(testPassword);
-		mPassword2View.setText(testBadPassword);
-		mTestActivity.attemptCreate();
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mPassword1View.setText(testPassword);
+				mPassword2View.setText(testBadPassword);
+			}
+		});
+		TouchUtils.clickView(this, mCreateButton);
 		assertEquals(mPassword2View.getError(), "Paswords do not match");// TODO:
 																			// place
 																			// this
@@ -149,79 +194,157 @@ public class CreateAccountActivityTests extends
 																			// string
 																			// resource
 		// invalid phone
-		mPhoneView.setText(testBadPhone);
-		mTestActivity.attemptCreate();
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mPhoneView.setText(testBadPhone);
+			}
+		});
+		TouchUtils.clickView(this, mCreateButton);
 		assertEquals(mPhoneView.getError(), "Invalid phone number"); // TODO:
 																		// place
 																		// into
 																		// string
 																		// resource
 		// invalid email
-		mEmailView.setText(testBadEmail);
-		mTestActivity.attemptCreate();
-		assertEquals(mEmailView.getError(), R.string.error_invalid_email);
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mEmailView.setText(testBadEmail);
+			}
+		});
+		TouchUtils.clickView(this, mCreateButton);
+		assertEquals(mEmailView.getError(), mTestActivity.getResources()
+				.getString(R.string.error_invalid_email));
 	}
 
 	// Tests for correct name interpretation
-	public void testNameView_nameInterpretation(){
-//		mNameView.setText(testName);
-//		mTestActivity.parseName();  //TODO: build in access to name parsing
-//		assertEquals(mTestActivity.mLastName,"Doe");
-//		assertEquals(mTestActivity.mFirstName,"John");
-//		mNameView.setText(testLongName);
-//		assertEquals(mTestActivity.mLastName,"Doe");
-//		assertEquals(mTestActivity.mFirstName,"John");
-//		mNameView.setText(testShortName);
-//		assertEquals(mTestActivity.mLastName,"");
-//		assertEquals(mTestActivity.mFirstName,"Johnny");
-		assertFalse(true);
+	public void testNameView_nameInterpretation1() {
+		// clear out any values
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mUsernameView.setText("");
+				mPassword1View.setText("");
+				mPassword2View.setText("");
+				mNameView.setText(testName);
+				mPhoneView.setText("");
+				mEPhoneView.setText("");
+				mEmailView.setText("");
+			}
+		});
+
+		TouchUtils.clickView(this, mCreateButton);
+		assertEquals(mTestActivity.getLastName(), "Doe");
+		assertEquals(mTestActivity.getFirstName(), "John");
+	}
+
+	public void testNameView_nameInterpretation2() {
+		// clear out any values
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mNameView.setText(testLongName);
+			}
+		});
+
+		TouchUtils.clickView(this, mCreateButton);
+		assertEquals(mTestActivity.getLastName(), "Doe");
+		assertEquals(mTestActivity.getFirstName(), "John");
+	}
+
+	public void testNameView_nameInterpretation3() {
+		// clear out any values
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mUsernameView.setText("");
+				mPassword1View.setText("");
+				mPassword2View.setText("");
+				mNameView.setText(testReverseName);
+				mPhoneView.setText("");
+				mEPhoneView.setText("");
+				mEmailView.setText("");
+			}
+		});
+
+		TouchUtils.clickView(this, mCreateButton);
+		assertEquals(mTestActivity.getLastName(), "Doe");
+		assertEquals(mTestActivity.getFirstName(), "John");
+	}
+
+	public void testNameView_nameInterpretation4() {
+		// clear out any values
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mUsernameView.setText("");
+				mPassword1View.setText("");
+				mPassword2View.setText("");
+				mNameView.setText(testShortName);
+				mPhoneView.setText("");
+				mEPhoneView.setText("");
+				mEmailView.setText("");
+			}
+		});
+
+		TouchUtils.clickView(this, mCreateButton);
+		assertEquals(mTestActivity.getLastName(), "");
+		assertEquals(mTestActivity.getFirstName(), "Johnny");
 	}
 
 	// Ensure that before login, status spinner is invisible
 	public void testLoginFormView_visibility() {
 		assertEquals(mCreateFormView.getVisibility(), View.VISIBLE);
-		assertEquals(mCreateStatusView.getVisibility(), View.INVISIBLE);
-		mUsernameView.setText(testTakenUsername);
-		mPassword1View.setText(testPassword);
-		mPassword2View.setText(testPassword);
-		mNameView.setText(testName);
-		mEmailView.setText(testEmail);
-		mPhoneView.setText(testPhone);
-		mEPhoneView.setText(testPhone);
-		mTestActivity.attemptCreate();
-		assertEquals(mCreateFormView.getVisibility(), View.INVISIBLE);
-		assertEquals(mCreateStatusView.getVisibility(), View.VISIBLE);
+		assertEquals(mCreateStatusView.getVisibility(), View.GONE);
 	}
-	
+
 	// Test for correct account data being sent
 	public void testAttemptCreate_valuesPassed() {
-		mUsernameView.setText(testUsername);
-		mPassword1View.setText(testPassword);
-		mPassword2View.setText(testPassword);
-		mNameView.setText(testName);
-		mEmailView.setText(testEmail);
-		mPhoneView.setText(testPhone);
-		mEPhoneView.setText(testPhone);
-		mTestActivity.attemptCreate();
-//		AssertEquals(mTestActivity.createMsg, testCreateMsg);
+
+		// mUsernameView.setText(testUsername);
+		// mPassword1View.setText(testPassword);
+		// mPassword2View.setText(testPassword);
+		// mNameView.setText(testName);
+		// mEmailView.setText(testEmail);
+		// mPhoneView.setText(testPhone);
+		// mEPhoneView.setText(testPhone);
+		// mTestActivity.attemptCreate();
+		// // AssertEquals(mTestActivity.createMsg, testCreateMsg);
 		assertFalse(true);
 	}
-	
+
 	// Test for correct and incorrect logins
-		public void testAttemptCreate_loginResults(){
-			mUsernameView.setText(testTakenUsername);
-			mPassword1View.setText(testPassword);
-			mPassword2View.setText(testPassword);
-			mNameView.setText(testName);
-			mEmailView.setText(testEmail);
-			mPhoneView.setText(testPhone);
-			mEPhoneView.setText(testPhone);
-			mTestActivity.attemptCreate();		
-//			assertEquals(mTestActivity.accountSuccess,"false");
-			assertEquals(mUsernameView.getError(), "Username Taken");
-			mUsernameView.setText(testUsername);
-			mTestActivity.attemptCreate();
-//			assertEquals(mTestActivity.AccountSuccess,"true");
-			assertFalse(true);
-		}
+	public void testAttemptCreate_loginResults() {
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mUsernameView.setText(testTakenUsername);
+				mPassword1View.setText(testPassword);
+				mPassword2View.setText(testPassword);
+				mNameView.setText(testName);
+				mEmailView.setText(testEmail);
+				mPhoneView.setText(testPhone);
+				mEPhoneView.setText(testPhone);
+			}
+		});
+		TouchUtils.clickView(this, mCreateButton);
+
+		assertEquals(mUsernameView.getError(), "Username Taken");
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mUsernameView.setText(testUsername);
+			}
+		});
+		ActivityMonitor monitor = getInstrumentation().addMonitor(
+				DisplayActivity.class.getName(), null, true);
+		TouchUtils.clickView(this, mCreateButton);
+		DisplayActivity displayActivity = (DisplayActivity) monitor
+				.waitForActivityWithTimeout(5000);
+		assertNotNull(displayActivity);
+		displayActivity.finish();
+	}
+	
+	
 }

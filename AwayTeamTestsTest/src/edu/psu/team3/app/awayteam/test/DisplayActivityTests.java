@@ -37,28 +37,31 @@ public class DisplayActivityTests extends
 	 * Ensure that the preconditions will lead to a successful test
 	 */
 	public void testPreconditions() {
-		assertNotNull("mTestActivity is null", mTestActivity);
-		assertNotNull("mViewPager is null", mViewPager);
+		assertNotNull(mTestActivity);
+		assertNotNull(mViewPager);
 	}
 
 	/**
 	 * Use this section to destroy data for the next test
 	 */
 	public void tearDown() throws Exception {
-		// no tear down activities yet
+		super.tearDown();
 	}
 
 	/**
 	 * ------------------------------------------------------------------------
 	 * Test functions below:
 	 */
-	
-	//test pager setup
-	public void testPager_navigation(){
-		PagerAdapter mPagerAdapter =mViewPager.getAdapter();
-		int titleCount = mTestActivity.getResources().getStringArray(R.array.tab_titles).length;
-		assertEquals(mPagerAdapter.getCount(),titleCount);		
-		assertEquals(mTestActivity.getActionBar().getTabCount(),titleCount);
+
+	// test pager setup
+	public void testPager_navigation() {
+		PagerAdapter mPagerAdapter = mViewPager.getAdapter();
+		int titleCount = mTestActivity.getResources().getStringArray(
+				R.array.tab_titles).length;
+		assertEquals(mPagerAdapter.getCount(), titleCount);
+		assertEquals(mTestActivity.getActionBar().getTabCount(), titleCount);
+		
+		
 	}
 
 }

@@ -1,6 +1,5 @@
 package edu.psu.team3.app.awayteam;
 
-
 import edu.psu.team3.app.awayteam.LoginActivity.UserLoginTask;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -94,7 +93,7 @@ public class CreateAccountActivity extends Activity {
 				});
 	}
 
-	private boolean toggle = true; // value to toggle for testing
+	private boolean toggle = false; // value to toggle for testing
 
 	private boolean checkUsername(String username) {
 		Log.d("AT", "entered check process");
@@ -113,7 +112,6 @@ public class CreateAccountActivity extends Activity {
 		}
 	}
 
-	
 	public void attemptCreate() {
 		if (mAuthTask != null) {
 			return;
@@ -123,14 +121,74 @@ public class CreateAccountActivity extends Activity {
 		mUsernameView.setError(null);
 		mPassword1View.setError(null);
 		mPassword2View.setError(null);
+		mEmailView.setError(null);
+		mPhoneView.setError(null);
+		mEPhoneView.setError(null);
 
-		// Store values at the time of the login attempt.
+		// Store values at the time of the account creation attempt.
 		mUsername = mUsernameView.getText().toString();
 		mPassword1 = mPassword1View.getText().toString();
 		mPassword2 = mPassword2View.getText().toString();
+		mEmail = mEmailView.getText().toString();
+		mPhone = mPhoneView.getText().toString();
+		mEPhone = mEPhoneView.getText().toString();
 
 		boolean cancel = false;
 		View focusView = null;
+
+		// check valid phones
+		if (!TextUtils.isEmpty(mEPhone) && mEPhone.length() < 7) {
+			mPhoneView.setError("Check Format");
+			focusView = mPhoneView;
+			cancel = true;
+		}
+		if (TextUtils.isEmpty(mPhone)) {
+			mPhoneView.setError(getString(R.string.error_field_required));
+			focusView = mPhoneView;
+			cancel = true;
+		} else if (mPhone.length() < 7) {
+			mPhoneView.setError("Check Format");
+			focusView = mPhoneView;
+			cancel = true;
+		}
+
+		// check valid email
+		if (TextUtils.isEmpty(mEmail)) {
+			mEmailView.setError(getString(R.string.error_field_required));
+			focusView = mEmailView;
+			cancel = true;
+		} else if (!mEmail.contains("@")) {
+			mEmailView.setError("Check Format");
+			focusView = mEmailView;
+			cancel = true;
+		}
+
+		// check valid name and split
+		if (TextUtils.isEmpty(mNameView.getText())) {
+			mNameView.setError(getString(R.string.error_field_required));
+			focusView = mNameView;
+			cancel = true;
+		} else if (mNameView.getText().toString().contains(" ")) {
+			// name has more than one part, split it
+			String[] nameParts = mNameView.getText().toString().split(" ");
+			if (nameParts[0].contains(",")) {
+				// format is Last, First X
+				mLastName = nameParts[0].replace(",", "");
+				mFirstName = nameParts[1];
+			} else {
+				// First name first
+				mFirstName = nameParts[0];
+				if (nameParts.length < 3) {
+					mLastName = nameParts[1];
+				} else {
+					mLastName = nameParts[2];
+				}
+			}
+
+		} else {
+			mFirstName = mNameView.getText().toString();
+			mLastName = "";
+		}
 
 		// Check valid password
 		if (TextUtils.isEmpty(mPassword1)) {
@@ -143,7 +201,11 @@ public class CreateAccountActivity extends Activity {
 			cancel = true;
 		}
 		// check that password entries match
-		if (!mPassword1.equals(mPassword2)) {
+		if (TextUtils.isEmpty(mPassword2)) {
+			mPassword2View.setError(getString(R.string.error_field_required));
+			focusView = mPassword2View;
+			cancel = true;
+		} else if (!mPassword1.equals(mPassword2)) {
 			mPassword2View.setError("Passwords must match");
 			focusView = mPassword2View;
 			cancel = true;
@@ -216,6 +278,14 @@ public class CreateAccountActivity extends Activity {
 			mCreateStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
 			mCreateFormView.setVisibility(show ? View.GONE : View.VISIBLE);
 		}
+	}
+
+	public String getLastName() {
+		return mLastName;
+	}
+
+	public String getFirstName() {
+		return mFirstName;
 	}
 
 	/**
