@@ -74,6 +74,16 @@
         }
         
         private function Team_ChangeTeamName {
+            $changeTeamName = new TeamController;
+            
+            if($this->get_request_method() != "POST")
+            {
+                $this->response('',406);
+            }
+            
+            $respArray = $this->_response;
+            $response = $changeTeamName($responsse;
+            $this->response($this->json(jsonstr), 200);                
         }
         
         private function json($data) {

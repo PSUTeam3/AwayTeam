@@ -10,8 +10,15 @@
         public function ModifyTeam ($teamParamatersArray) {
             $tTeam = new Team;
             $tTeam = arrayToObject($teamParametersArray);
-            $retCode = $tTeam->UpdateTeam();
+            $retCode = $tTeam->ModifyTeam();
             
+            return $retCode;
+        }
+        
+        public function ModifyTeamName($teamParametersArray) {
+            $tTeam = new Team;
+            $tTeam = arrayToObject($teamParamatersArray);
+            $retCode = $tTeam->ModifyTeamName;
             return $retCode;
         }
         

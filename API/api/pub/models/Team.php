@@ -24,7 +24,7 @@
         }
         
         //data functions
-        public function UpdateTeam($id) {
+        public function ModifyTeam($id) {
             global $db;
             $query = sprintf("update team set teamName='%s', teamLocationId='%d', teamDescription='%s', teamManaged='%s' where teamId = %d",
                 myEsc($this->teamName),
@@ -38,9 +38,25 @@
 			return $sql;
         }
         
+        public function ModifyTeamName($newTeamName)
+        {
+            global $db;
+            
+            if($this->teamId = -999)
+            {
+               return false;               
+            }
+            else if(!empty($id))
+            {
+                $query = "update team set teamName=" .  myEsc(
+                $sql = mysql_query($query, $db);
+                return $sql;
+            }
+        }
+        
         public function SelectTeamFromId($id) {
             global $db;
-            if($id) {
+            if(!empty($id)) {
                 $query = "select from team where teamId =" . myEsc($id);
                 $sql = mysql_query($query, $db)
                 if(mysql_num_rows($sql) > 0) {
