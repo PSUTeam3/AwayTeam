@@ -1,6 +1,7 @@
 <?php
 
     include_once('/home/awayteam/api/pub/apiconfig.php');
+    include_once('/home/awayteam/api/pub/models/TeamUtilities.php');
     
     class Team
     {
@@ -18,7 +19,7 @@
         public function initialize() {
             $this->teamId = -999;
             $this->teamName = "";
-            $this->teamLocationId = "";
+            $this->teamLocationId = -999;
             $this->teamDescription = "";
             $this->teamManaged = False;            
         }
@@ -26,11 +27,11 @@
         //data functions
         public function ModifyTeam($id) {
             global $db;
-            $query = sprintf("update team set teamName='%s', teamLocationId='%d', teamDescription='%s', teamManaged='%s' where teamId = %d",
+            $query = sprintf("update team set teamName='%s', teamLocationId='%d', teamDescription='%s', teamManaged='%s' where teamId = " . myEsc($id),
                 myEsc($this->teamName),
                 myEsc($this->teamLocationId),
-                myEsc($this->teamDescription),
-                myEsc($this->teamManaged),
+                myEsc(strtolower($this->teamDescription)),
+                myEsc($this->teamManaged));
                         			
 			//send back code if successful or not
 			$sql = mysql_query($query, $db);	
@@ -46,29 +47,37 @@
             {
                return false;               
             }
-            else if(!empty($id))
+            else if($newTeamName)
             {
-                $query = "update team set teamName=" .  myEsc(
-                $sql = mysql_query($query, $db);
-                return $sql;
+                if(TeamNameUsed($newTeamName) {
+                    $query = "update team set teamName=" .  myEsc($newTeamName);
+                    $sql = mysql_query($query, $db);
+                    return $sql;
+                } else {
+                    return false;
+                }
             }
         }
         
         public function SelectTeamFromId($id) {
             global $db;
-            if(!empty($id)) {
-                $query = "select from team where teamId =" . myEsc($id);
-                $sql = mysql_query($query, $db)
-                if(mysql_num_rows($sql) > 0) {
-                    $result = array();
-                    while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                        &result[] = $rlt;
+            $aTeam = new Team;
+            
+            if($id) {
+                if(TeamIdExists($id) {
+                    $query = "select from team where teamId =" . myEsc($id);
+                    $sql = mysql_query($query, $db)
+                    if(mysql_num_rows($sql) > 0) {
+                        $result = array();
+                        while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                            &result[] = $rlt;
+                        }
+                        
+                        foreach($result[0] as $column=>$value) {
+                            &aTeam->$item = $value;
+                        }
+                        return $aTeam;
                     }
-                    
-                    foreach($result[0] as $column=>$value) {
-                        &tTeam->$item = $value;
-                    }
-                    return $tTeam;
                 }
             } else {
                 //What do we want to do with empty id field?
