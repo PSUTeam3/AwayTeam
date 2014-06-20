@@ -200,10 +200,7 @@ public class LoginActivity extends Activity {
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
 			mAuthTask = new UserLoginTask();
-			// mAuthTask.execute((Void) null); //Removed because this is filled
-			// in below
-			// Show interface since we don't know how to log in yet
-			// TODO: implement login
+			// Create Login Request
 			try {
 				// htr =
 				// makeRequest("https://api.awayteam.redshrt.com/user/AuthenticatePassword",
@@ -234,6 +231,9 @@ public class LoginActivity extends Activity {
 				Log.v("Decision","Response from AsyncTask = "+response);
 				if(response.equals("success")){
 					startActivity(new Intent(this, DisplayActivity.class));
+				}else{
+					//TODO: move failure handling here
+					
 				}
 			}catch(Exception e) {
 				e.printStackTrace();
