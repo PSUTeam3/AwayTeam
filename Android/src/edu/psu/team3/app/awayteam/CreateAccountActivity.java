@@ -1,5 +1,38 @@
 package edu.psu.team3.app.awayteam;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.SingleClientConnManager;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import edu.psu.team3.app.awayteam.LoginActivity.UserLoginTask;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -23,6 +56,7 @@ import android.widget.Toast;
 public class CreateAccountActivity extends Activity {
 
 	private UserAccountTask mAuthTask = null;
+	private IDCheckTask mIDCheck = null;
 
 	private static final String[] DUMMY_CREDENTIALS = new String[] {
 			"foo@example.com:hello", "bar@example.com:world" };
@@ -93,23 +127,43 @@ public class CreateAccountActivity extends Activity {
 				});
 	}
 
-	private boolean toggle = false; // value to toggle for testing
-
+	// checks for a unique username
+	// returns True for unique and False for taken
 	private boolean checkUsername(String username) {
-		Log.d("AT", "entered check process");
-		// TODO: send username to server
-		boolean unique = toggle;
-		toggle = !toggle;
-
-		if (unique) {
-			Drawable icn = getResources().getDrawable(R.drawable.green_check);
-			icn.setBounds(new Rect(0, 0, 50, 50));
-			mUsernameView.setError("Username Available!", icn);
-			return true;
-		} else {
-			mUsernameView.setError("Username Taken");
+		Log.v("NameCheck", "entered check process");
+		// TODO: try out reformatted version
+		// int answer = CommUtil.LoginIDExist(username);
+		// Log.v("Answer","checkUsername got this back from the CommUtil: "+answer);
+		if (mIDCheck != null) {
 			return false;
 		}
+		if (username.isEmpty()) {
+			mUsernameView.setError(getResources().getString(
+					R.string.error_field_required));
+			return false;
+		}
+
+		mIDCheck = new IDCheckTask();
+
+		try {
+			mIDCheck.execute(mUsername);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// TODO: unjumble this mess
+		Integer answer = 0;
+		try {
+			answer = mIDCheck.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (answer == 1) {
+			return true;
+		} else {
+			return false;
+		}
+
 	}
 
 	public void attemptCreate() {
@@ -138,8 +192,8 @@ public class CreateAccountActivity extends Activity {
 
 		// check valid phones
 		if (!TextUtils.isEmpty(mEPhone) && mEPhone.length() < 7) {
-			mPhoneView.setError("Check Format");
-			focusView = mPhoneView;
+			mEPhoneView.setError("Check Format");
+			focusView = mEPhoneView;
 			cancel = true;
 		}
 		if (TextUtils.isEmpty(mPhone)) {
@@ -216,10 +270,6 @@ public class CreateAccountActivity extends Activity {
 			mUsernameView.setError(getString(R.string.error_field_required));
 			focusView = mUsernameView;
 			cancel = true;
-		} else if (!checkUsername(mUsername)) {
-			mUsernameView.setError("Username is already taken");
-			focusView = mUsernameView;
-			cancel = true;
 		}
 
 		if (cancel) {
@@ -228,14 +278,57 @@ public class CreateAccountActivity extends Activity {
 			focusView.requestFocus();
 		} else {
 			// Show a progress spinner, and kick off a background task to
-			// perform the user login attempt.
-			mStatusMessageView.setText(R.string.login_progress_signing_in);
+			// perform the user account creation attempt.
+			mStatusMessageView.setText("Creating New Account");
 			showProgress(true);
 			mAuthTask = new UserAccountTask();
-			mAuthTask.execute((Void) null);
-			// Show interface since we don't know how to log in yet
-			// TODO: implement login
-			startActivity(new Intent(this, DisplayActivity.class));
+
+			try {
+				// htr =
+				// makeRequest("https://api.awayteam.redshrt.com/user/AuthenticatePassword",
+				// authStuff);
+				// mLoginStatusMessageView.setText(htr.toString());
+
+				java.util.logging.Logger.getLogger("httpclient.wire.header")
+						.setLevel(java.util.logging.Level.FINEST);
+				java.util.logging.Logger.getLogger("httpclient.wire.content")
+						.setLevel(java.util.logging.Level.FINEST);
+
+				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+				pairs.add(new BasicNameValuePair("loginId", mUsername));
+				pairs.add(new BasicNameValuePair("password", mPassword1));
+				pairs.add(new BasicNameValuePair("firstName", mFirstName));
+				pairs.add(new BasicNameValuePair("lastName", mLastName));
+				pairs.add(new BasicNameValuePair("email", mEmail));
+				pairs.add(new BasicNameValuePair("cellPhone", mPhone));
+				if (mEPhone == null) {
+					pairs.add(new BasicNameValuePair("emergencyPhone", ""));
+				} else {
+					pairs.add(new BasicNameValuePair("emergencyPhone", mEPhone));
+				}
+
+				String url = "https://api.awayteam.redshrt.com/user/CreateUser";
+
+				Log.v("Pairs", pairs.toString());
+
+				mAuthTask.execute(url, pairs);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				String response = mAuthTask.get().getString("response");
+				Log.v("Decision", "Response from AsyncTask = " + response);
+				if (response.equals("success")) {
+					startActivity(new Intent(this, DisplayActivity.class));
+				} else {
+					// TODO: handle failure codes
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 		}
 	}
 
@@ -289,50 +382,166 @@ public class CreateAccountActivity extends Activity {
 	}
 
 	/**
-	 * Represents an asynchronous login/registration task used to authenticate
-	 * the user.
+	 * An asynchronous registration task used to authenticate the user.
 	 */
-	public class UserAccountTask extends AsyncTask<Void, Void, Boolean> {
+	public class UserAccountTask extends AsyncTask<Object, Void, JSONObject> {
+
 		@Override
-		protected Boolean doInBackground(Void... params) {
-			// TODO: attempt authentication against a network service.
+		protected JSONObject doInBackground(Object... params) {
+			// TODO Auto-generated method stub
+			String url = (String) params[0];
+			@SuppressWarnings("unchecked")
+			List<NameValuePair> pairs = (List<NameValuePair>) params[1];
+
+			if (url.contains("https://")) {
+				// all this is required to accept a HTTP SSL Certificate
+				HostnameVerifier hostnameVerifier = org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+				DefaultHttpClient client = new DefaultHttpClient();
+				SchemeRegistry registry = new SchemeRegistry();
+				SSLSocketFactory socketFactory = SSLSocketFactory
+						.getSocketFactory();
+				socketFactory
+						.setHostnameVerifier((X509HostnameVerifier) hostnameVerifier);
+				registry.register(new Scheme("https", socketFactory, 443));
+				SingleClientConnManager mgr = new SingleClientConnManager(
+						client.getParams(), registry);
+				DefaultHttpClient httpClient = new DefaultHttpClient(mgr,
+						client.getParams());
+				HttpsURLConnection.setDefaultHostnameVerifier(hostnameVerifier);
+			}
+
+			StringBuilder builder = new StringBuilder();
+			HttpClient client = new DefaultHttpClient();
+			HttpPost post = new HttpPost(url);
 
 			try {
-				// Simulate network access.
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				return false;
-			}
+				post.setEntity(new UrlEncodedFormEntity(pairs));
+				HttpResponse response = client.execute(post);
 
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mUsername)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword1);
+				StatusLine statusLine = response.getStatusLine();
+				int statusCode = statusLine.getStatusCode();
+				if (statusCode == 200 || statusCode == 401) {
+					// FYI 200 is good - auth passed
+					// 401 is bad - auth failed
+					HttpEntity entity = response.getEntity();
+					InputStream content = entity.getContent();
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(content));
+					String line;
+					while ((line = reader.readLine()) != null) {
+						builder.append(line);
+					}
+					Log.v("Getter", "Your data: " + builder.toString()); // response
+																			// data
+				} else {
+					Log.e("Getter", "Failed to download file");
 				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 
-			return true;
+			JSONObject js = null;
+
+			try {
+				js = new JSONObject(builder.toString());
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			return js;
 		}
 
 		@Override
-		protected void onPostExecute(final Boolean success) {
+		protected void onPostExecute(final JSONObject success) {
 			mAuthTask = null;
 			showProgress(false);
 
-			if (success) {
-				finish();
-			} else {
-				mPassword1View
-						.setError(getString(R.string.error_incorrect_password));
-				mPassword1View.requestFocus();
+			Log.v("postEx", "determine success using: " + success.toString());
+
+			String response = null;
+			try {
+				response = success.getString("response");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+
+			Log.v("Response", "success response = " + response);
+
+			if (response.equals("success")) {
+				long mstime = System.currentTimeMillis();
+				long seconds = mstime / 1000;
+				String time = String.valueOf(seconds);
+				Toast.makeText(
+						getBaseContext(),
+						"userIdentifer: \""
+								+ success.optString("userIdentifier")
+								+ "\" userSecret: \""
+								+ success.optString("userSecret") + "\"",
+						Toast.LENGTH_LONG).show();
+				Toast.makeText(getBaseContext(),
+						"unixTimeStamp: " + time.toString(), Toast.LENGTH_LONG)
+						.show();
+
+			} else if (response.equals("failure")) {
+				// TODO: move error reporting to the activity section
+
+				Toast.makeText(getBaseContext(), success.optString("message"),
+						Toast.LENGTH_LONG).show();
+			}
+
 		}
 
 		@Override
 		protected void onCancelled() {
 			mAuthTask = null;
 			showProgress(false);
+		}
+	}
+
+	// New, shorter AsyncTask
+	public class IDCheckTask extends AsyncTask<String, Void, Integer> {
+		// dispatch the check to the background
+		@Override
+		protected Integer doInBackground(String... username) {
+			Log.v("Background", "executing in background.  Input = "
+					+ username[0]);
+			Integer result = CommUtil.LoginIDExist(username[0]);
+			Log.v("Background", "returned from commutil.  result = " + result);
+			return result;
+		}
+
+		// TODO:update interface with the correct information
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			switch (result) {
+			case 0:
+				Toast.makeText(getBaseContext(),
+						"Error contacting name server", Toast.LENGTH_SHORT)
+						.show();
+				break;
+			case 1:
+				Drawable icon = getResources().getDrawable(
+						R.drawable.green_check);
+				icon.setBounds(new Rect(0, 0, 75, 75));
+				mUsernameView.setError("Username Available!", icon);
+				mUsernameView.requestFocus();
+				break;
+			default:
+				mUsernameView.setError("Username is already taken");
+				mUsernameView.requestFocus();
+			}
+			
+			mIDCheck = null;
+		}
+
+		@Override
+		protected void onCancelled() {
+			mIDCheck = null;
 		}
 	}
 
