@@ -27,10 +27,27 @@ import org.apache.http.impl.conn.SingleClientConnManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 public class NetworkTasks {
+
+	//check for network availability
+	public static boolean NetworkAvailable(Context context) {
+		ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+		if (networkInfo != null && networkInfo.isConnected()) {
+			return true;
+		} else {
+			// TODO: look into possibility of a toast here
+			Toast.makeText(context, "No Network Connection", Toast.LENGTH_SHORT).show();
+			return false;
+		}
+	}
 
 	public static JSONObject RequestData(boolean actionPost, String url,
 			List<NameValuePair> pairs) {
