@@ -321,7 +321,7 @@
            // $tmpUser = new UserController;
            // $tmpUser = $tmpUser->SelectUserFromLoginID($this->loginId);
 
-            $id = -9999;
+            $id = -999;
             //make case if then for email and loginId and then make next block if good
 
             $loginIdCheck = $this->LoginIDExist($this->loginId);
