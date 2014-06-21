@@ -4,7 +4,7 @@
         public function TeamIdExists($teamId) {
             global $db;
             if($teamId) {
-                $query = "select count(teamId) as num from team where teamId='" . myEsc($teamId) ."'";
+                $query = "select count(teamId) as num from team where teamId=" . myEsc($teamId);
                 $sql = mysql_query($query, $db);
                 data = mysql_fetch_assoc($sql);
                 
@@ -30,6 +30,6 @@
                     return true;
                 }
             }
-        }
+        }        
     }
 ?>

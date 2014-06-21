@@ -43,19 +43,15 @@
         {
             global $db;
             
-            if($this->teamId = -999)
-            {
+            if($this->teamId == -999) {
                return false;               
-            }
-            else if($newTeamName)
-            {
-                if(TeamNameUsed($newTeamName) {
-                    $query = "update team set teamName=" .  myEsc($newTeamName);
-                    $sql = mysql_query($query, $db);
-                    return $sql;
-                } else {
-                    return false;
-                }
+            } else if($newTeamName && TeamNameUsed($newTeamName)) {               
+                $query = "update team set teamName=" .  myEsc($newTeamName) . 
+                            " where teamId=" . myEsc($this->teamId);
+                $sql = mysql_query($query, $db);
+                return $sql;
+            } else {
+                return false;
             }
         }
         
@@ -63,22 +59,20 @@
             global $db;
             $aTeam = new Team;
             
-            if($id) {
-                if(TeamIdExists($id) {
-                    $query = "select from team where teamId =" . myEsc($id);
-                    $sql = mysql_query($query, $db)
-                    if(mysql_num_rows($sql) > 0) {
-                        $result = array();
-                        while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                            &result[] = $rlt;
-                        }
-                        
-                        foreach($result[0] as $column=>$value) {
-                            &aTeam->$item = $value;
-                        }
-                        return $aTeam;
+            if($id && TeamIdExists($id)) {
+                $query = "select from team where teamId =" . myEsc($id);
+                $sql = mysql_query($query, $db)
+                if(mysql_num_rows($sql) > 0) {
+                    $result = array();
+                    while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                        &result[] = $rlt;
                     }
-                }
+                    
+                    foreach($result[0] as $column=>$value) {
+                        &aTeam->$item = $value;
+                    }
+                    return $aTeam;
+                }                
             } else {
                 //What do we want to do with empty id field?
                 //Error message
@@ -87,7 +81,7 @@
         
         public function SelectTeamFromTeamName($teamName) {
             global $db;
-            if($teamName) {
+            if($teamName && TeamNameUsed($teamName))s {
                 $query = "select from team where teamName =" . myEsc($teamName);
                 $sql = mysql_query($query, $db);
                 
