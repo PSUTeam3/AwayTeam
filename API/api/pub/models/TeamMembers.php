@@ -83,6 +83,20 @@
             }
         }
         
+        public function ModifyTeamId($id) {
+            globa $db;
+            if($this->teamMemberId == -999) {
+                return false;
+            } else if ($id && TeamIdExists($id) {
+                $query = "update team_member set teamId=" . myEsc($id) 
+                        . " where id = " .myEsc($this->teamMemberId);
+                $sql = mysqul_query($query, $db);
+                return $sql;
+            } else {
+                return false;
+            }
+        }
+        
         
     }
 ?>

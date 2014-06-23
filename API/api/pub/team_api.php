@@ -7,6 +7,19 @@
     
     class API extends REST 
     {
+        public $data = "";
+        
+        public function processApi() {
+            $func = strtolower(trim(str_replace("/","_",$_REQUEST['rquest'])));
+            list ($group, $myFunc) = explode("_", $func);
+            $myFunc = $group . "_" . $myFunc;
+            if((int)method_exists($this,$myFunc) > 0) {
+                $this->$myFunc();
+            } else {
+                $this->response('',404);
+            }            
+        }
+        
         private function Team_CreateTeam() {
             $newTeam = new TeamController;
             
@@ -91,6 +104,20 @@
                 return json_encode($data);
             }
         }
-    }    
+    }
+    
+    if($_SERVER['PHP_SELF'] == '/team_api.php') {
+        $api = new API;
+        $api=>processApi();
+    }
+    
+    function callAPIFunction($name, $args) {
+        $tAPI = new API();
+        $ref = new ReflectionClass($tAPI);
+        $refMethod = $ref->getMethod($name);
+        $refMethod->setAccessible(true);
+        
+        return $refMethod->invoke($tApi, $args);
+    }
 
 ?>
