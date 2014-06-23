@@ -1,5 +1,7 @@
 package edu.psu.team3.app.awayteam.test;
 
+import java.util.Random;
+
 import android.app.Activity;
 import android.app.Instrumentation.ActivityMonitor;
 import android.content.Context;
@@ -23,22 +25,6 @@ public class CreateAccountActivityTests extends
 	private CreateAccountActivity mTestActivity;
 
 	// Test Account data
-	String testCreateMsg = "testuser2:123testxyzpassword:John:Doe:1234567890:j@doe.com:1234567890"; // test
-																									// message
-																									// to
-																									// send
-																									// to
-																									// server
-																									// TODO:
-																									// run
-																									// parameters
-																									// through
-																									// JSON
-																									// Parser
-																									// and
-																									// test
-																									// results
-																									// instead
 	String testPassword = "123testxyzpassword";
 	String testBadPassword = "123testxyzpasswordIncorrect";
 	String testUsername = "testuser2";
@@ -47,7 +33,7 @@ public class CreateAccountActivityTests extends
 	String testLongName = "John A Doe";
 	String testShortName = "Johnny";
 	String testReverseName = "Doe, John A";
-	String testEmail = "j@doe.com";
+	String testTakenEmail = "j@doe.com";
 	String testBadEmail = "johndoe";
 	String testPhone = "1234567890";
 	String testBadPhone = "123";
@@ -117,10 +103,12 @@ public class CreateAccountActivityTests extends
 	/**
 	 * ------------------------------------------------------------------------
 	 * Test functions below:
+	 * 
+	 * @throws InterruptedException
 	 */
 
 	// test all the errors that should be shown for invalid input
-	public void testZInputViews_validation() {
+	public void testInputViews_validation() throws InterruptedException {
 		// clear out any values
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
@@ -137,6 +125,7 @@ public class CreateAccountActivityTests extends
 
 		// required fields
 		TouchUtils.clickView(this, mCreateButton);
+		Thread.sleep(1000);
 		assertEquals(mUsernameView.getError(), mTestActivity.getResources()
 				.getString(R.string.error_field_required));
 		assertEquals(mPassword1View.getError(), mTestActivity.getResources()
@@ -158,7 +147,8 @@ public class CreateAccountActivityTests extends
 			}
 		});
 		TouchUtils.clickView(this, mCheckButton);
-		assertEquals(mUsernameView.getError(), "Username Taken");// TOOD: code
+		Thread.sleep(2000);
+		assertEquals(mUsernameView.getError(), "Username Taken");// TODO: code
 																	// this into
 																	// a string
 																	// resource
@@ -171,7 +161,7 @@ public class CreateAccountActivityTests extends
 		});
 		TouchUtils.clickView(this, mCreateButton);
 		assertEquals(mPassword1View.getError(), mTestActivity.getResources()
-				.getString(R.string.error_invalid_password));// TOOD:
+				.getString(R.string.error_invalid_password));// TODO:
 		// code
 		// this
 		// into
@@ -219,76 +209,101 @@ public class CreateAccountActivityTests extends
 	}
 
 	// Tests for correct name interpretation
-	public void testNameView_nameInterpretation1() {
+	public void testNameView_nameInterpretation1() throws InterruptedException {
 		// clear out any values
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				mUsernameView.setText("");
-				mPassword1View.setText("");
-				mPassword2View.setText("");
+				mUsernameView.setText(testUsername);
+				mPassword1View.setText(testPassword);
+				mPassword2View.setText(testPassword);
 				mNameView.setText(testName);
-				mPhoneView.setText("");
-				mEPhoneView.setText("");
-				mEmailView.setText("");
+				mPhoneView.setText(testPhone);
+				mEPhoneView.setText(testPhone);
+				mEmailView.setText(testTakenEmail);
 			}
 		});
 
 		TouchUtils.clickView(this, mCreateButton);
-		assertEquals(mTestActivity.getLastName(), "Doe");
-		assertEquals(mTestActivity.getFirstName(), "John");
-	}
+		Thread.sleep(2000);
+		String last = mTestActivity.getLastName();
+		String first = mTestActivity.getFirstName();
 
-	public void testNameView_nameInterpretation2() {
-		// clear out any values
+		assertEquals(last, "Doe");
+		assertEquals(first, "John");
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				mNameView.setText(testLongName);
 			}
 		});
-
 		TouchUtils.clickView(this, mCreateButton);
-		assertEquals(mTestActivity.getLastName(), "Doe");
-		assertEquals(mTestActivity.getFirstName(), "John");
+		// Thread.sleep(2000);
+		last = mTestActivity.getLastName();
+		first = mTestActivity.getFirstName();
+		assertEquals(last, "Doe");
+		assertEquals(first, "John");
 	}
 
-	public void testNameView_nameInterpretation3() {
+	public void testNameView_nameInterpretation2() throws InterruptedException {
 		// clear out any values
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				mUsernameView.setText("");
-				mPassword1View.setText("");
-				mPassword2View.setText("");
+				mPhoneView.setText(testPhone);
+				mEPhoneView.setText(testPhone);
+				mEmailView.setText(testTakenEmail);
+				mUsernameView.setText(testUsername);
+				mPassword1View.setText(testPassword);
+				mPassword2View.setText(testPassword);
+				mNameView.setText(testLongName);
+			}
+		});
+
+		TouchUtils.clickView(this, mCreateButton);
+		Thread.sleep(2000);
+		assertEquals(mTestActivity.getLastName(), "Doe");
+		assertEquals(mTestActivity.getFirstName(), "John");
+	}
+
+	public void testNameView_nameInterpretation3() throws InterruptedException {
+		// clear out any values
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mPhoneView.setText(testPhone);
+				mEPhoneView.setText(testPhone);
+				mEmailView.setText(testTakenEmail);
+				mUsernameView.setText(testUsername);
+				mPassword1View.setText(testPassword);
+				mPassword2View.setText(testPassword);
 				mNameView.setText(testReverseName);
-				mPhoneView.setText("");
-				mEPhoneView.setText("");
-				mEmailView.setText("");
 			}
 		});
 
 		TouchUtils.clickView(this, mCreateButton);
+		Thread.sleep(2000);
 		assertEquals(mTestActivity.getLastName(), "Doe");
 		assertEquals(mTestActivity.getFirstName(), "John");
 	}
 
-	public void testNameView_nameInterpretation4() {
+	public void testNameView_nameInterpretation4() throws InterruptedException {
 		// clear out any values
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				mUsernameView.setText("");
-				mPassword1View.setText("");
-				mPassword2View.setText("");
+				mPhoneView.setText(testPhone);
+				mEPhoneView.setText(testPhone);
+				mEmailView.setText(testTakenEmail);
+				mUsernameView.setText(testUsername);
+				mPassword1View.setText(testPassword);
+				mPassword2View.setText(testPassword);
 				mNameView.setText(testShortName);
-				mPhoneView.setText("");
-				mEPhoneView.setText("");
-				mEmailView.setText("");
 			}
 		});
 
 		TouchUtils.clickView(this, mCreateButton);
+		Thread.sleep(2000);
 		assertEquals(mTestActivity.getLastName(), "");
 		assertEquals(mTestActivity.getFirstName(), "Johnny");
 	}
@@ -299,23 +314,8 @@ public class CreateAccountActivityTests extends
 		assertEquals(mCreateStatusView.getVisibility(), View.GONE);
 	}
 
-	// Test for correct account data being sent
-	public void testAttemptCreate_valuesPassed() {
-
-		// mUsernameView.setText(testUsername);
-		// mPassword1View.setText(testPassword);
-		// mPassword2View.setText(testPassword);
-		// mNameView.setText(testName);
-		// mEmailView.setText(testEmail);
-		// mPhoneView.setText(testPhone);
-		// mEPhoneView.setText(testPhone);
-		// mTestActivity.attemptCreate();
-		// // AssertEquals(mTestActivity.createMsg, testCreateMsg);
-		assertFalse(true);
-	}
-
-	// Test for correct and incorrect logins
-	public void testAttemptCreate_loginResults() {
+	// Test for incorrect logins
+	public void testZAttemptCreate_incorrect() throws InterruptedException {
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -323,28 +323,57 @@ public class CreateAccountActivityTests extends
 				mPassword1View.setText(testPassword);
 				mPassword2View.setText(testPassword);
 				mNameView.setText(testName);
-				mEmailView.setText(testEmail);
+				mEmailView.setText(testTakenEmail);
 				mPhoneView.setText(testPhone);
 				mEPhoneView.setText(testPhone);
 			}
 		});
 		TouchUtils.clickView(this, mCreateButton);
-
+		Thread.sleep(2000);
 		assertEquals(mUsernameView.getError(), "Username Taken");
+
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				mUsernameView.setText(testUsername);
+				mPassword1View.setText(testPassword);
+				mPassword2View.setText(testPassword);
+				mNameView.setText(testName);
+				mEmailView.setText(testTakenEmail);
+				mPhoneView.setText(testPhone);
+				mEPhoneView.setText(testPhone);
+			}
+		});
+		TouchUtils.clickView(this, mCreateButton);
+		Thread.sleep(2000);
+		assertEquals(mEmailView.getError(), "Email already registered");
+	}
+
+	// test for correct account creation
+	public void testZAttemptCreate_correct() {
+		Random randomGenerator = new Random();
+		int rand = randomGenerator.nextInt(1000);
+		final String newUsername = testUsername + String.valueOf(rand);
+		final String newEmail = testTakenEmail + String.valueOf(rand);
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mUsernameView.setText(newUsername);
+				mPassword1View.setText(testPassword);
+				mPassword2View.setText(testPassword);
+				mNameView.setText(testName);
+				mEmailView.setText(newEmail);
+				mPhoneView.setText(testPhone);
+				mEPhoneView.setText(testPhone);
 			}
 		});
 		ActivityMonitor monitor = getInstrumentation().addMonitor(
-				DisplayActivity.class.getName(), null, true);
+				DisplayActivity.class.getName(), null, false);
 		TouchUtils.clickView(this, mCreateButton);
 		DisplayActivity displayActivity = (DisplayActivity) monitor
 				.waitForActivityWithTimeout(5000);
 		assertNotNull(displayActivity);
 		displayActivity.finish();
 	}
-	
-	
+
 }

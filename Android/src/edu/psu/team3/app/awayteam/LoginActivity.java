@@ -202,42 +202,17 @@ public class LoginActivity extends Activity {
 			mAuthTask = new UserLoginTask();
 			// Create Login Request
 			try {
-				// htr =
-				// makeRequest("https://api.awayteam.redshrt.com/user/AuthenticatePassword",
-				// authStuff);
-				// mLoginStatusMessageView.setText(htr.toString());
-
-				java.util.logging.Logger.getLogger("httpclient.wire.header")
-						.setLevel(java.util.logging.Level.FINEST);
-				java.util.logging.Logger.getLogger("httpclient.wire.content")
-						.setLevel(java.util.logging.Level.FINEST);
 
 				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 				pairs.add(new BasicNameValuePair("loginId", mUsername));
 				pairs.add(new BasicNameValuePair("password", mPassword));
 
-				String url = "https://api.awayteam.redshrt.com/user/AuthenticatePassword";
-
-				Log.v("Pairs", pairs.toString());
-
-				mAuthTask.execute(url, pairs);
+				mAuthTask.execute(pairs);
 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
-			try{
-				String response = mAuthTask.get().getString("response");
-				Log.v("Decision","Response from AsyncTask = "+response);
-				if(response.equals("success")){
-					startActivity(new Intent(this, DisplayActivity.class));
-				}else{
-					//TODO: move failure handling here
-					
-				}
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
+
 		}
 	}
 
@@ -285,125 +260,54 @@ public class LoginActivity extends Activity {
 	/**
 	 * An asynchronous login/registration task used to authenticate the user.
 	 */
-	public class UserLoginTask extends AsyncTask<Object, Void, JSONObject> {
+	public class UserLoginTask extends AsyncTask<Object, Void, Integer> {
 
 		@Override
-		protected JSONObject doInBackground(Object... params) {
-			// TODO Auto-generated method stub
-			String url = (String) params[0];
+		protected Integer doInBackground(Object... params) {
 			@SuppressWarnings("unchecked")
-			List<NameValuePair> pairs = (List<NameValuePair>) params[1];
+			List<NameValuePair> pairs = (List<NameValuePair>) params[0];
 
-			if (url.contains("https://")) {
-				// all this is required to accept a HTTP SSL Certificate
-				HostnameVerifier hostnameVerifier = org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
-				DefaultHttpClient client = new DefaultHttpClient();
-				SchemeRegistry registry = new SchemeRegistry();
-				SSLSocketFactory socketFactory = SSLSocketFactory
-						.getSocketFactory();
-				socketFactory
-						.setHostnameVerifier((X509HostnameVerifier) hostnameVerifier);
-				registry.register(new Scheme("https", socketFactory, 443));
-				SingleClientConnManager mgr = new SingleClientConnManager(
-						client.getParams(), registry);
-				DefaultHttpClient httpClient = new DefaultHttpClient(mgr,
-						client.getParams());
-				HttpsURLConnection.setDefaultHostnameVerifier(hostnameVerifier);
-			}
+			// dispatch the login method
+			Integer result = 0;
+			result = CommUtil.AuthenticateUser(getBaseContext(), pairs);
+			Log.v("Background", "returned from commutil.  result = " + result);
 
-			StringBuilder builder = new StringBuilder();
-			HttpClient client = new DefaultHttpClient();
-			HttpPost post = new HttpPost(url);
-
-			try {
-				post.setEntity(new UrlEncodedFormEntity(pairs));
-				HttpResponse response = client.execute(post);
-
-				StatusLine statusLine = response.getStatusLine();
-				int statusCode = statusLine.getStatusCode();
-				if (statusCode == 200 || statusCode == 401) {
-					// FYI 200 is good - auth passed
-					// 401 is bad - auth failed
-					HttpEntity entity = response.getEntity();
-					InputStream content = entity.getContent();
-					BufferedReader reader = new BufferedReader(
-							new InputStreamReader(content));
-					String line;
-					while ((line = reader.readLine()) != null) {
-						builder.append(line);
-					}
-					Log.v("Getter", "Your data: " + builder.toString()); // response
-																			// data
-				} else {
-					Log.e("Getter", "Failed to download file");
-				}
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			JSONObject js = null;
-
-			try {
-				js = new JSONObject(builder.toString());
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			return js;
+			return result;
 		}
 
 		@Override
-		protected void onPostExecute(final JSONObject success) {
+		protected void onPostExecute(final Integer result) {
 			mAuthTask = null;
 			showProgress(false);
 
-			Log.v("postEx", "determine success using: " + success.toString());
-
-			String response = null;
-			try {
-				response = success.getString("response");
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			Log.v("Response", "success response = " + response);
-
-			if (response.equals("success")) {
-				long mstime = System.currentTimeMillis();
-				long seconds = mstime / 1000;
-				String time = String.valueOf(seconds);
-				Toast.makeText(
-						getBaseContext(),
-						"userIdentifer: \""
-								+ success.optString("userIdentifier")
-								+ "\" userSecret: \""
-								+ success.optString("userSecret") + "\"",
-						Toast.LENGTH_LONG).show();
+			switch (result) {
+			case 1: // success!
+				Intent displayIntent = new Intent(getBaseContext(),
+						DisplayActivity.class);
+				displayIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+						| Intent.FLAG_ACTIVITY_CLEAR_TASK);
+				startActivity(displayIntent);
+				finish();
+				break;
+			case -1: // username incorrect
+				mUsernameView.setError("Username Not Found");
+				mUsernameView.requestFocus();
 				Toast.makeText(getBaseContext(),
-						"unixTimeStamp: " + time.toString(), Toast.LENGTH_LONG)
-						.show();
-
-				// Make success
-			} else if (response.equals("failure")) {
-				if (success.optString("message").equals("bad password")) {
-					mPasswordView
-							.setError(getString(R.string.error_incorrect_password));
-					mPasswordView.requestFocus();
-				} else {
-					mUsernameView.setError("Username Not Found");
-					mUsernameView.requestFocus();
-				}
-
-				Toast.makeText(getBaseContext(), success.optString("message"),
-						Toast.LENGTH_LONG).show();
-				// fail
+						"Do you want to create a new account?",
+						Toast.LENGTH_SHORT).show();
+				break;
+			case -2: // password incorrect
+				mPasswordView.setError(getResources().getString(
+						R.string.error_incorrect_password));
+				mPasswordView.requestFocus();
+				Toast.makeText(getBaseContext(),
+						"Try resetting password using Menu Option",
+						Toast.LENGTH_SHORT).show();
+				break;
+			default: // some other error occured
+				Toast.makeText(getBaseContext(), "Unable to Login",
+						Toast.LENGTH_SHORT).show();
 			}
-			//finish();
-
 		}
 
 		@Override
