@@ -24,13 +24,7 @@ public class LoginActivityTests extends
 	String testPassword = "123testxyzpassword";
 	String testBadPassword = "123testxyzpasswordIncorrect";
 	String testUsername = "testuser1";
-	String testLoginMsg = "testuser1:123testxyzpassword"; // initial test
-															// message - TODO:
-															// pass test
-															// credentials
-															// though a JSON
-															// parser and get
-															// actual package
+	String testBadUsername = "testuserdoesnotexist";
 
 	// UI Elements that will be tested
 	private EditText mUsernameView;
@@ -136,28 +130,32 @@ public class LoginActivityTests extends
 		assertEquals(mLoginStatusView.getVisibility(), View.GONE);
 	}
 
-	//
-	// // Test for login data being sent
-	// public void testZAttemptLogin_valuesPassed() {
-	// mUsernameView.setText(testUsername);
-	// mPasswordView.setText(testPassword);
-	// mTestActivity.attemptLogin();
-	// // AssertEquals(mTestActivity.loginMsg, testLoginMsg);
-	// assertFalse(true);
-	// }
-	//
 	// Test for correct and incorrect logins
 	public void testZAttemptCreate_createAccount() {
 		ActivityMonitor monitor = getInstrumentation().addMonitor(
 				CreateAccountActivity.class.getName(), null, false);
 		TouchUtils.clickView(this, mCreateButton);
-		CreateAccountActivity createActivity = (CreateAccountActivity) monitor.waitForActivityWithTimeout(2000);
+		CreateAccountActivity createActivity = (CreateAccountActivity) monitor
+				.waitForActivityWithTimeout(2000);
 		assertNotNull(createActivity);
 		createActivity.finish();
 	}
 
-	// Test for correct and incorrect logins
-	public void testZAttemptLogin_loginResults() {
+	// Test for incorrect logins
+	public void testZAttemptLogin_loginResults() throws InterruptedException {
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mUsernameView.setText(testBadUsername);
+				mPasswordView.setText(testBadPassword);
+			}
+		});
+		TouchUtils.clickView(this, mLoginButton);
+		Thread.sleep(3000);
+		String textViewErrMsg = mUsernameView.getError().toString();
+		assertEquals(textViewErrMsg, "Username Not Found"); // TODO: code this
+															// as a resource
+
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -166,12 +164,16 @@ public class LoginActivityTests extends
 			}
 		});
 		TouchUtils.clickView(this, mLoginButton);
-		String textViewErrMsg = mPasswordView.getError().toString();
+		Thread.sleep(3000);
+		String passwordViewErrMsg = mPasswordView.getError().toString();
 		assertEquals(
-				textViewErrMsg,
+				passwordViewErrMsg,
 				mTestActivity.getResources().getString(
-						R.string.error_invalid_password));
-
+						R.string.error_incorrect_password));
+	}
+	
+	//test for correct login
+	public void testZAttemptLogin_correct(){
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -180,12 +182,12 @@ public class LoginActivityTests extends
 			}
 		});
 		ActivityMonitor monitor = getInstrumentation().addMonitor(
-				DisplayActivity.class.getName(), null, true);
+				DisplayActivity.class.getName(), null, false);
 		TouchUtils.clickView(this, mLoginButton);
-		DisplayActivity displayActivity = (DisplayActivity) monitor.waitForActivityWithTimeout(5000);
+		DisplayActivity displayActivity = (DisplayActivity) monitor
+				.waitForActivityWithTimeout(7000);
 		assertNotNull(displayActivity);
 		displayActivity.finish();
-		
 	}
 
 }

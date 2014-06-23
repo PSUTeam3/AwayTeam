@@ -9,6 +9,7 @@ import org.apache.http.message.BasicNameValuePair;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -290,21 +291,20 @@ public class CreateAccountActivity extends Activity {
 	}
 
 	/**
-	 * An asynchronous registration task used to authenticate the user.
+	 * An asynchronous registration task used to create a new account for the
+	 * user.
 	 */
 	public class UserAccountTask extends AsyncTask<Object, Void, Integer> {
 
 		@Override
 		protected Integer doInBackground(Object... params) {
-			// TODO Auto-generated method stub
-			//String url = (String) params[0];
 			@SuppressWarnings("unchecked")
 			List<NameValuePair> pairs = (List<NameValuePair>) params[0];
-			
+
 			Integer result = CommUtil.CreateNewUser(getBaseContext(), pairs);
 			Log.v("Background", "returned from commutil.  result = " + result);
 			return result;
-			
+
 		}
 
 		@Override
@@ -312,12 +312,28 @@ public class CreateAccountActivity extends Activity {
 			mAuthTask = null;
 			showProgress(false);
 
-			//TODO: check for error messages
-			if(result == 1){
-				Intent displayIntent = new Intent(getBaseContext(), DisplayActivity.class);
-				displayIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			switch (result) {
+			case 1:// create user success
+				Toast.makeText(getBaseContext(), "New Account Created!",
+						Toast.LENGTH_SHORT).show();
+				Intent displayIntent = new Intent(getBaseContext(),
+						DisplayActivity.class);
+				displayIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+						| Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(displayIntent);
 				finish();
+			case -999: // username already in use
+				mUsernameView.setError("Username Taken");
+				mUsernameView.requestFocus();
+				break;
+			case -998: // email already taken
+				mEmailView.setError("Email already registered");
+				mEmailView.requestFocus();
+				break;
+			default: // some unknown error - probably could not contact server
+				Toast.makeText(getBaseContext(), "Account Creation Failed",
+						Toast.LENGTH_SHORT).show();
+				break;
 			}
 		}
 
@@ -335,15 +351,16 @@ public class CreateAccountActivity extends Activity {
 		protected Integer doInBackground(String... username) {
 			Log.v("Background", "executing in background.  Input = "
 					+ username[0]);
-			Integer result = CommUtil.LoginIDExist(getBaseContext(),username[0]);
+			Integer result = CommUtil.LoginIDExist(getBaseContext(),
+					username[0]);
 			Log.v("Background", "returned from commutil.  result = " + result);
 			return result;
 		}
 
-		// TODO:update interface with the correct information
-
 		@Override
 		protected void onPostExecute(final Integer result) {
+			mIDCheck = null;
+			
 			switch (result) {
 			case 0:
 				Toast.makeText(getBaseContext(),
@@ -358,11 +375,10 @@ public class CreateAccountActivity extends Activity {
 				mUsernameView.requestFocus();
 				break;
 			default:
-				mUsernameView.setError("Username is already taken");
+				mUsernameView.setError("Username Taken");
 				mUsernameView.requestFocus();
 			}
 
-			mIDCheck = null;
 		}
 
 		@Override

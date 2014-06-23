@@ -79,19 +79,78 @@ public class CommUtil {
 		JSONObject result = null;
 		Log.v("COMM", "sending request to network " + url);
 
-		try{
-			//TODO: write in errors
+		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
 			Log.v("COMM", "Create results: " + result.toString());
 			if (result.getString("response").equals("success")) {
-				return 1;  //TODO: expand on these possibilities
+				// connection was good
+				Log.v("Comm",
+						"result string interpreted as: "
+								+ Integer.parseInt(result.getString("message")));
+
+				if (Integer.parseInt(result.getString("message")) > 0) {
+					// User created and database ID returned
+					// TODO: collect user secret and store it with the user data
+					return 1;
+				}
+			} else if (!result.getString("message").isEmpty()) {
+				// Return the error from the server - make sure these error
+				// codes don't change because the UI will handle them as
+				// expected in the original API
+				return Integer.parseInt(result.getString("message"));
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
+
 		return 0;
 	}
 
+	// Attempts to log in user
+	// INPUT: pairs = a name=value pairs list containing values for:
+	// "loginId","email","password"
+	// Returns int code based on success:
+	// 1 = success! User logged in
+	// 0 = unknown error or connection error
+	// -1 = username not found
+	// -2 = password incorrect
+	public static int AuthenticateUser(Context context,
+			List<NameValuePair> pairs) {
+		String url = "https://api.awayteam.redshrt.com/user/AuthenticatePassword";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		JSONObject result = null;
+		Log.v("COMM", "sending request to network " + url);
+
+		try {
+			// TODO: write in errors
+			result = NetworkTasks.RequestData(true, url, pairs);
+			Log.v("COMM", "Login results: " + result.toString());
+			if (result.getString("response").equals("success")) {
+				// TODO: collect user secret and store it with the user data
+				return 1;
+			} else if (result.getString("response").equals("failure")) {
+				switch (result.getString("message")) {
+				case "bad password":
+					return -2;
+				case "password not submitted":
+					return -2;
+				case "user not found":
+					return -1;
+				case "user not submitted":
+					return -1;
+				default:
+					return 0;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return 0;
+	}
 }
