@@ -246,9 +246,12 @@
             }
             //pass user info as array
             $usrArray = $this->_request;
+            logIt("creating user");
+            logIt(var_export($usrArray, true)); 
             $newUid = $xUser->CreateUser($usrArray);
-           
             $jsonMsg = array(); 
+            logIt("new uid = " . var_export($newUid, true));
+
             if ($newUid > -999)
             {
                 $jsonMsg = array('response' => 'success', 'message'=> $newUid);

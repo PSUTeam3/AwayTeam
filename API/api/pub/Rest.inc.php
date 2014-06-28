@@ -88,6 +88,9 @@
             switch($this->get_request_method())
             {
                 case "POST":
+                    logIt("begin raw post");
+                    logIt(var_export($_POST, true));
+                    logIt("end raw post");
                     $this->_request = $this->cleanInputs($_POST);
                     break;
                 case "GET":

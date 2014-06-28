@@ -326,6 +326,9 @@
 
             $loginIdCheck = $this->LoginIDExist($this->loginId);
             $emailCheck = $this->EmailExist($this->email);
+            logIt("loginIdCheck = " . var_export($loginIdCheck, true));
+            logIt("emailCheck = " . var_export($emailCheck, true));
+
 
             if (($loginIdCheck == false)&&($emailCheck == false))
             {
@@ -358,14 +361,16 @@
             }
             else
             {
-                if (!$loginIdCheck)
+                if ($loginIdCheck)
                 {
                     $id = -999;
+                    return $id;
                 }
 
-                if (!$emailCheck)
+                if ($emailCheck)
                 {
                     $id = -998;
+                    return $id;
                 }
                 //user exists in db already... reject
             }
