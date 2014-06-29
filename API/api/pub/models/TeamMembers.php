@@ -84,7 +84,7 @@
         }
         
         public function ModifyTeamId($id) {
-            globa $db;
+            global $db;
             if($this->teamMemberId == -999) {
                 return false;
             } else if ($id && TeamIdExists($id) {
@@ -94,6 +94,21 @@
                 return $sql;
             } else {
                 return false;
+            }
+        }
+        
+        public function VerifyTeamMemberExist($teamId, $userId) {
+            global $db;
+            if($teamId && $userId) {
+                $query = "select count(teamMemberId) as num from team_member where 
+                        teamId = " . myEsc($teamId) . " and userId = " . myEsc($userId);
+                $data = mysql_fetch_assoc($sql);
+                
+                if($data['num'] == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
         }
         

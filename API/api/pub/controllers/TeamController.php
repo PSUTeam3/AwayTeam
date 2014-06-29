@@ -6,7 +6,32 @@
     require_once('/home/awayteam/api/pub/apiconfig.php');
     
     class TeamController extends Team
-    {
+    {    
+        public function CreateTeam ($teamParamatersArray) {
+            $tTeam = new Team;
+            $tTeam = arrayToObject($teamParametersArray);            
+            $newTeamId = $tTeam->InsertTeam();
+        }
+        
+        public function GetAllTeams() {
+            return $this->SelectAllTeams();
+        }
+        
+        public function GetTeamFromID($teamId) {
+            return $this->SelectTeamFromId($teamId);
+        }
+        
+        public function GetTeamFromTeamName($teamName) {
+            return $this->SelectTeamFromTeamName($teamName);          
+        }        
+                
+        public function ModifyTeamName($teamParametersArray) {
+            $tTeam = new Team;
+            $tTeam = arrayToObject($teamParamatersArray);
+            $retCode = $tTeam->ModifyTeamName();
+            return $retCode;
+        }
+        
         public function ModifyTeam ($teamParamatersArray) {
             $tTeam = new Team;
             $tTeam = arrayToObject($teamParametersArray);
@@ -15,31 +40,8 @@
             return $retCode;
         }
         
-        public function ModifyTeamName($teamParametersArray) {
-            $tTeam = new Team;
-            $tTeam = arrayToObject($teamParamatersArray);
-            $retCode = $tTeam->ModifyTeamName;
-            return $retCode;
-        }
-        
-        public function CreateTeam ($teamParamatersArray) {
-            $tTeam = new Team;
-            $tTeam = arrayToObject($teamParametersArray);
-            
-            $newTeamId = $tTeam->InsertTeam();
-        }
-        
         public function DeleteTeam($team) {
             return $this->DeleteTeam($team->teamId)
-        }
-        
-        public function GetTeamFromID($teamId) {
-            return $this->SelectTeamFromId($teamId);
-        }
-        
-        public function GetTeamFromTeamNam($teamName) {
-            $arr = $this->SelectTeamFromTeamName($teamName);
-            return $arr;
         }
         
         private function arrayToObject($teamArray) {

@@ -2,6 +2,7 @@
 
     include_once('/home/awayteam/api/pub/apiconfig.php');
     include_once('/home/awayteam/api/pub/models/TeamUtilities.php');
+    include_once('/home/awayteam/api/pub/models/TeamMembers.php');
     
     class Team
     {
@@ -24,42 +25,56 @@
             $this->teamManaged = False;            
         }
         
-        //data functions
-        public function ModifyTeam($id) {
-            global $db;
-            $query = sprintf("update team set teamName='%s', teamLocationId='%d', teamDescription='%s', teamManaged='%s' where teamId = " . myEsc($id),
+        public function InsertTeam() {
+            $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged) values ('%s','%d','%s','%s')",
                 myEsc($this->teamName),
                 myEsc($this->teamLocationId),
-                myEsc(strtolower($this->teamDescription)),
-                myEsc($this->teamManaged));
-                        			
-			//send back code if successful or not
-			$sql = mysql_query($query, $db);	
-			
-			return $sql;
+                myEsc($this->teamDescription),
+                myEsc($this->teamManaged),
+                
+            mysql_query($query, $db);
+            
+            $id = mysql_insert_id();
+            
+            return $id;
         }
         
-        public function ModifyTeamName($newTeamName)
-        {
+        public function SelectAllTeams() {
             global $db;
+            $query = "select * from team"
+            $sql = mysql_query($query, $db);
             
-            if($this->teamId == -999) {
-               return false;               
-            } else if($newTeamName && TeamNameUsed($newTeamName)) {               
-                $query = "update team set teamName=" .  myEsc($newTeamName) . 
-                            " where teamId=" . myEsc($this->teamId);
-                $sql = mysql_query($query, $db);
-                return $sql;
-            } else {
-                return false;
+            if(mysql_num_rows($sql) > 0) {
+                $result = array();
+                
+                while($row = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $result[] = $rlt;
+                }
+                
+                foreach($result[0] as $item=>$value) {
+                    $tTeam->$item=$value;
+                }
+                
+                return $tTeam;
             }
         }
         
-        public function SelectTeamFromId($id) {
+        public function SelectTeamFromId($id, $loginId) {
             global $db;
             $aTeam = new Team;
             
-            if($id && TeamIdExists($id)) {
+            $query = "select userId from user where loginId = '" . myEsc($loginId) ."'";
+            $sql = mysql_query($query, $db);
+            if(mysql_num_rows($sql) > 0) {
+                $result = array();
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $result[] = $rlt;
+                }
+                
+                $userId = $result[0]['loginId'];
+            }
+            
+            if(VerifyTeamMemberExist($id, $userId) && $id && TeamIdExists($id)) {
                 $query = "select from team where teamId =" . myEsc($id);
                 $sql = mysql_query($query, $db)
                 if(mysql_num_rows($sql) > 0) {
@@ -79,10 +94,33 @@
             }
         }
         
-        public function SelectTeamFromTeamName($teamName) {
+        public function SelectTeamFromTeamName($teamName, $loginId) {
             global $db;
-            if($teamName && TeamNameUsed($teamName))s {
-                $query = "select from team where teamName =" . myEsc($teamName);
+            
+            $query = "select userId from user where loginId = '" . myEsc($loginId) ."'";
+            $sql = mysql_query($query, $db);
+            if(mysql_num_rows($sql) > 0) {
+                $result = array();
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $result[] = $rlt;
+                }
+                
+                $userId = $result[0]['loginId'];
+            }
+            
+            $query = "select teamId from team where teamName = '" . myEsc($teamName) ."'";
+            $sql = mysql_query($query, $db);
+            if(mysql_num_rows($sql) > 0) {
+                $result = array();
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $result[] = $rlt;
+                }
+                
+                $teamId = $result[0]['teamId'];
+            }
+            
+            if(VerifyTeamMemberExist($teamId, $userId) && $teamName && TeamNameUsed($teamName)){
+                $query = "select * from team where teamName =" . myEsc($teamName);
                 $sql = mysql_query($query, $db);
                 
                 if(mysql_num_rows($sql) > 0) {
@@ -102,6 +140,40 @@
                 //What do we want to do with empty teamName field?
                 //Error message
             }
+        }        
+       
+        public function ModifyTeam($teamId, $userId) {
+            global $db;
+            if(VerifyTeamMemberExist($teamId, $userId)) {
+                $query = sprintf("update team set teamName='%s', teamLocationId='%d', teamDescription='%s', teamManaged='%s' where teamId = " . myEsc($teamId),
+                    myEsc($this->teamName),
+                    myEsc($this->teamLocationId),
+                    myEsc(strtolower($this->teamDescription)),
+                    myEsc($this->teamManaged));
+                                        
+                //send back code if successful or not
+                $sql = mysql_query($query, $db);	
+                
+                return $sql;
+            } else {
+                return false;
+            }
+        }
+        
+        public function ModifyTeamName($teamId, $userId, $newTeamName)
+        {
+            global $db;
+            
+            if($this->teamId == -999) {
+               return false;               
+            } else if(VerifyTeamMemberExist($teamId, $userId) && $newTeamName && TeamNameUsed($newTeamName)) {               
+                $query = "update team set teamName=" .  myEsc($newTeamName) . 
+                            " where teamId=" . myEsc($this->teamId);
+                $sql = mysql_query($query, $db);
+                return $sql;
+            } else {
+                return false;
+            }
         }
         
         public function DeleteTeam($teamId) {
@@ -111,20 +183,4 @@
                 $sql = mysql_query($query, $db);
                 return $result;
             }            
-        }
-        
-        public function InsertUser() {
-            $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged) values ('%s','%d','%s','%s')",
-                myEsc($this->teamName),
-                myEsc($this->teamLocationId),
-                myEsc($this->teamDescription),
-                myEsc($this->teamManaged),
-                
-            mysql_query($query, $db);
-            
-            $id = mysql_insert_id();
-            
-            return $id;
-        }
-        
-    
+        }      
