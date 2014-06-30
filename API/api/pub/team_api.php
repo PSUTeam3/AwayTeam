@@ -77,7 +77,7 @@
                 }
             }
             
-            if($newTeam->userId == -999 or $newTeam->teamName="") {
+            if($selectTeam->userId == -999 or $selectTeam->teamName="") {
                 $failure=true;
             } else {
                 $failure=false;
@@ -88,10 +88,27 @@
             } else {
                 $newTeam = get_object_vars($newTeam);
                 
-                $respArray = array('status' => "success", 'response' => $newTeam);
+                $respArray = array('status' => "success", 'response' => $selectTeam);
             }   
 
             $this->response($this->json($respArray), 200);        
+        }
+        
+        private function Team_GetTeamList() {
+            $getTeamList = new TeamController;
+            
+            if($this->get_request_method() != "POST") {
+                $this->response('',406);
+            }
+
+            if(isset($_GET['loginId'])) {
+                $loginId = $_GET['loginId'];
+                if(!empty($loginId)) {
+                    $getTeamList = $getTeamList->GetCurrentTeams($loginId);
+                }
+            }
+            
+            //To Do complete 
         }
 
         private function Team_ModifyTeam() {

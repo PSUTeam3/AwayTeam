@@ -22,6 +22,22 @@
             $pendingApproval = false;
         }
         
+        public function InsertTeamMember() {
+            $query = sprintf("insert into team_member (teamMemberId, teamId, userId, manager, pendingApproval) values ('%d','%d','%s','%s')",
+                myEsc($this->teamMemberId),
+                myEsc($this->teamId),
+                myEsc($this->userId),
+                myEsc($this->manager),
+                myEsc($this->pendingApproval));
+            
+                            
+                mysql_query($query, $db);
+                
+                $id = mysql_insert_id();
+                
+                return $id;
+        }
+        
         public function SelectTeamMemberFromId($id) {
             global $db;
             $aTeamMember = new TeamMember;

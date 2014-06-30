@@ -2,7 +2,7 @@
     
     //Owner: David Vu
     
-    require_once('/home/awayteam/api/pub/models/User.php');
+    require_once('/home/awayteam/api/pub/models/Team.php');
     require_once('/home/awayteam/api/pub/apiconfig.php');
     
     class TeamController extends Team
@@ -24,7 +24,10 @@
         public function GetTeamFromTeamName($teamName) {
             return $this->SelectTeamFromTeamName($teamName);          
         }        
-                
+        
+        public function GetTeamListForUser($loginId) {
+            return $this->GetTeamList($loginId);
+        }
         public function ModifyTeamName($teamParametersArray) {
             $tTeam = new Team;
             $tTeam = arrayToObject($teamParamatersArray);

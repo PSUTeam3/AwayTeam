@@ -30,7 +30,7 @@
                 myEsc($this->teamName),
                 myEsc($this->teamLocationId),
                 myEsc($this->teamDescription),
-                myEsc($this->teamManaged),
+                myEsc($this->teamManaged));
                 
             mysql_query($query, $db);
             
@@ -140,7 +140,31 @@
                 //What do we want to do with empty teamName field?
                 //Error message
             }
-        }        
+        }
+
+        public function GetTeamList($userId) {
+            global $db;
+            
+            $query = sprintf("select teamId from teamMember where userId = " . myEsc($userId);
+            $sql = mysql_query($query, $db);
+            if(mysql_num_rows($sql) > 0) {
+                $result = array();
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $result[] = $rlt;
+                }
+                
+                $query = sprintf("select teamId, teamName from team where teamId = ". myEsc($reult[0]['teamId']);
+                
+                $sql = mysql_query($query, $db);
+                if(mysql_num_rows($sql) > 0) {
+                $result = array();
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $result[] = $rlt;
+                }
+            }
+            
+            return $result;            
+        }
        
         public function ModifyTeam($teamId, $userId) {
             global $db;
@@ -181,6 +205,6 @@
             if($teamId) }
                 $query = "delete from team where teamId = " . myEsc($teamId);
                 $sql = mysql_query($query, $db);
-                return $result;
+                return $sql;
             }            
         }      
