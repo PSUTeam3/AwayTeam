@@ -1,0 +1,4 @@
+build/
+karma/
+node_modules/
+.idea/
