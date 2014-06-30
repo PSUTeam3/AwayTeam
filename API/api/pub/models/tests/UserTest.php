@@ -7,6 +7,20 @@ require_once('/home/awayteam/api/pub/apiconfig.php');
 
 class UserTest extends \PHPUnit_Framework_TestCase
 {
+    public function testLoginIDExist()
+    {
+        $usr = new User;
+        $this->assertEquals(true, $usr->LoginIDExist("naimols"));
+        $this->assertEquals(false, $usr->LoginIDExist("naimols1"));
+    }
+
+    public function testEmailExist()
+    {
+        $usr = new User;
+        $this->assertEquals(true, $usr->EmailExist("steve\@naimolinet.com"));
+        $this->assertEquals(true, $usr->EmailExist("steve1\@naimolinet.com"));
+        
+    }
     public function testUserInit()
     //tests user __construct() and initialize() functions
     {

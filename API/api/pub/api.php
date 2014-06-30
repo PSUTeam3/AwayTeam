@@ -30,6 +30,51 @@
             // If the method not exist with in this class, response would be "Page not found".
         }
 
+        private function User_EmailExist()
+        {   
+            $xUser = new UserController;
+            $failure = true;
+            $resp = false;
+
+            if ($this->get_request_Method() != "GET")
+            {   
+                $this->response('', 406);
+            }   
+    
+            if (isset($_GET['email']) && strlen($_GET['email']) > 0)
+            {   
+               $resp = $xUser->EmailExist($_GET['email']); 
+               $failure = false;
+            }   
+            else
+            {   
+                $failure = true;
+                $resp = false;
+            }   
+
+            if ($failure)
+            {   
+                $retArray = array ('response' => 'failure', 'message' => 'email not submitted');
+                $this->response($this->json($retArray),401);
+            }   
+            else
+            {   
+                if ($resp)
+                {   
+                    $retArray = array ('response' => 'success', 'message' => 'not available');
+                    // if true - email is used
+                }   
+                else
+                {   
+                    $retArray = array ('response' => 'success', 'message' => 'available');
+                    // if false - email is not used and is available for registration
+                }   
+                $this->response($this->json($retArray),200);
+            }   
+
+        }   
+
+
         private function User_LoginIDExist()
         {
             $xUser = new UserController;
@@ -252,7 +297,7 @@
             $jsonMsg = array(); 
             logIt("new uid = " . var_export($newUid, true));
 
-            if ($newUid > -999)
+            if ($newUid >= 0)
             {
                 $jsonMsg = array('response' => 'success', 'message'=> $newUid);
             }

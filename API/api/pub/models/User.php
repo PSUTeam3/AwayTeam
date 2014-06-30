@@ -207,14 +207,15 @@
         public function ValidateAuthenticationChallange($loginId, $userIdentifier, $challengeHash)
         {
             global $db;
-            $timeout        = 10;
             $serverTime     = getTime();
+            $timeout        = 10;
+            $loginId        = strtolower($loginId);
             $startTime      = $serverTime - $timeout;
             $stopTime       = $serverTime + $timeout;
 
             //select userSecret,userIdentifier from user where loginId=$loginId and userIdentifier='$userIdentifier'
             $query = sprintf("select userSecret, userIdentifier from user where loginId='%s' and userIdentifier='%s'",
-                myEsc(strtolower($loginId)),
+                myEsc($loginId),
                 myEsc($userIdentifier));
 
             $userIdentifer      = "";
@@ -237,8 +238,6 @@
                 for ($i=$startTime; $i<=$stopTime; $i++)
                 {
                     $check = hash_hmac('sha256', $i . $loginId . $userIdentifier, $userSecret);
-                    //file_put_contents ('/tmp/phplogtest.txt', "$i - $serverTime - $challengeHash - $check  \n", FILE_APPEND | LOCK_EX);
-
                     if ($challengeHash == $check)
                     {
                         return true;
