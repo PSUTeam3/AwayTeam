@@ -1,0 +1,52 @@
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigationLinks">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" ui-sref="home">AwayTeam</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="navigationLinks">
+      <ul class="nav navbar-nav">
+        <li ui-sref-active="{ active: $state.includes(\'about\') }">
+            <a ui-sref="about">About</a>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+       <!-- Login Form -->
+      <form class="navbar-form navbar-right" name="loginForm" role="login" ng-submit="login()" ng-hide="ls.isLoggedIn || !ls.doneLoading">
+        <div class="form-group">
+          <input type="text" class="form-control" ng-model="login.loginId" name="loginId" placeholder="Username">
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-control" ng-model="login.password" name="password" placeholder="Password">
+        </div>
+        <button type="submit" class="btn btn-default hidden-devices" ng-disabled="login.working">Login <i class="fa" ng-class="login.working ? 'fa-cog fa-spin' : 'fa-sign-in'"></i></button>
+        <button type="submit" class="btn btn-default hidden-devices" ng-disabled="login.working" ui-sref="register">Register <i class="fa" ng-class="'fa-user'"></i></button>
+      </form>
+	  <!-- Spinner -->
+      <button class="btn btn-default navbar-btn navbar-right" ng-hide="ls.doneLoading">
+        <i class="fa fa-spinner fa-spin"></i>
+      </button>
+      <!-- Logout Form -->
+      <form class="navbar-form navbar-right" role="logout" ng-submit="logout()" ng-show="ls.isLoggedIn">
+        <div class="form-group">
+          <label>Hello {{ ls.user.firstName }}</label>
+        </div>
+        <div class="form-group">
+          <button  type="submit" class="btn btn-default">Logout <i class="fa fa-signout"></i></button>
+        </div>
+      </form>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+    <div class="login-error" ng-class="{ 'active': login.wrong }">
+        <div class="alert alert-danger"><b>Error:</b> Server said your user/pass doesn't match existing users.</div>
+    </div>
+</nav>

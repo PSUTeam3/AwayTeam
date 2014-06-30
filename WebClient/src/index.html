@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html ng-app="AwayTeam" ng-controller="AppController">
+<head>
+    <title ng-bind="pageTitle"></title>
+
+    <!-- font awesome from BootstrapCDN -->
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+
+    <!-- compiled CSS --><% styles.forEach( function ( file ) { %>
+    <link rel="stylesheet" type="text/css" href="<%= file %>" /><% }); %>
+
+    <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
+    <script type="text/javascript" src="<%= file %>"></script><% }); %>
+</head>
+<body class="awayTeamMain">
+    <header ng-include="'header.tpl.html'"></header>
+    
+    <div class="container" ui-view="main" ng-hide="doingResolve"></div>
+    <div class="jumbotron loading-jumbo" ng-show="doingResolve">
+        <h1><i class="fa fa-refresh fa-2x fa-spin"></i> Loading</h1>
+    </div>
+    <footer class="container">
+        (c) <%= date %> <%= author %>
+    </footer>
+</body>
+</html>
