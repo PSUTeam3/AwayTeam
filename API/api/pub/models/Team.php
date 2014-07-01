@@ -143,54 +143,54 @@
         }
 
         public function GetTeamList($userId) {
-            global $db;
+            global $db;           
+            
+            $teamList = array();
             
             $query = sprintf("select teamId from teamMember where userId = " . myEsc($userId);
             $sql = mysql_query($query, $db);
             if(mysql_num_rows($sql) > 0) {
-                $result = array();
-                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                    $result[] = $rlt;
-                }
-                
-                $query = sprintf("select teamId, teamName from team where teamId = ". myEsc($reult[0]['teamId']);
-                
-                $sql = mysql_query($query, $db);
-                if(mysql_num_rows($sql) > 0) {
-                $result = array();
-                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                    $result[] = $rlt;
-                }
+                $getTeamIdResult = array();
+                while($getTeamIdResult = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $teamId = $getTeamIdResult['teamId'];
+                    $query = sprintf("select * from team where teamId = " . myEsc($teamId);
+                    while($getTeamInfoResult = mysql_fetch_array($sql, MYSQL_ASSOC) {
+                        $teamInfoResult = array();
+                        $teamInfoResult[] = $getTeamInfoResult;
+                        foreach($teamInfoResult[0] as $item=>$value) {
+                            $tTeam->$item = $value;                            
+                        }
+                        $teamList[] = $tTeam;
+                    }
+                    
+                }              
             }
             
-            return $result;            
+            return $teamList;            
         }
        
-        public function ModifyTeam($teamId, $userId) {
+        public function ModifyTeam() {
             global $db;
-            if(VerifyTeamMemberExist($teamId, $userId)) {
-                $query = sprintf("update team set teamName='%s', teamLocationId='%d', teamDescription='%s', teamManaged='%s' where teamId = " . myEsc($teamId),
-                    myEsc($this->teamName),
-                    myEsc($this->teamLocationId),
-                    myEsc(strtolower($this->teamDescription)),
-                    myEsc($this->teamManaged));
+            $query = sprintf("update team set teamName='%s', teamLocationId='%d', teamDescription='%s', teamManaged='%s' where teamId = " . myEsc($teamId),
+                myEsc($this->teamName),
+                myEsc($this->teamLocationId),
+                myEsc(strtolower($this->teamDescription)),
+                myEsc($this->teamManaged));
                                         
                 //send back code if successful or not
-                $sql = mysql_query($query, $db);	
+            $sql = mysql_query($query, $db);	
                 
-                return $sql;
-            } else {
-                return false;
-            }
+            return $sql;
+            
         }
         
-        public function ModifyTeamName($teamId, $userId, $newTeamName)
+        public function ModifyTeamName()
         {
             global $db;
             
             if($this->teamId == -999) {
                return false;               
-            } else if(VerifyTeamMemberExist($teamId, $userId) && $newTeamName && TeamNameUsed($newTeamName)) {               
+            } else if($newTeamName && TeamNameUsed($newTeamName)) {               
                 $query = "update team set teamName=" .  myEsc($newTeamName) . 
                             " where teamId=" . myEsc($this->teamId);
                 $sql = mysql_query($query, $db);

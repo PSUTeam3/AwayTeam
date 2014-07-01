@@ -10,5 +10,12 @@
             $tTeamMember = $this->arrayToObject($teamMemberParametersArray);
             $newTeamMemberId = $tTeamMember->InsertTeamMember();
         }
+        
+        public function ModifyTeamMember($teamMemberParametersArray) {
+            $tTeamMember = new TeamMembers;
+            $tTeamMember = $this->arrayToObject($teamMemberParametersArray);
+            $retCode = $tTeamMember->ModifyTeamMember();
+            reutn $retCode;           
+        }       
     }
 ?>

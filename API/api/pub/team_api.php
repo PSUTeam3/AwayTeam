@@ -86,9 +86,8 @@
             if($failure == true) {
                 $respArray = array('status' => "failure", 'response' => "team not found");
             } else {
-                $newTeam = get_object_vars($newTeam);
-                
-                $respArray = array('status' => "success", 'response' => $selectTeam);
+                $newTeam = get_object_vars($selectTeam);                
+                $respArray = array('status' => "success", 'response' => $newTeam);
             }   
 
             $this->response($this->json($respArray), 200);        
@@ -104,11 +103,14 @@
             if(isset($_GET['loginId'])) {
                 $loginId = $_GET['loginId'];
                 if(!empty($loginId)) {
-                    $getTeamList = $getTeamList->GetCurrentTeams($loginId);
+                    $teamList = $getTeamList->GetTeamListForUser($loginId);
                 }
             }
-            
-            //To Do complete 
+
+            $teamListArray = get_object_vars($teamList);
+            $respArray = array('status' => "success", 'response' => $teamListArray);
+            $this->response($this->json($respArray), 200);
+             
         }
 
         private function Team_ModifyTeam() {
@@ -118,7 +120,7 @@
             {
                 $this->response('',406);
             }
-            if(isset($_GET['userId'] && isset($_GET['teamId']) {
+            if(isset($_GET['userId']) && isset($_GET['teamId'])) {
                 $userId = $_GET['userId'];
                 $teamId = $_GET['teamId'];
                 if(VerifyTeamMemberExist($teamId, $userId)) {
@@ -138,14 +140,23 @@
         private function Team_ChangeTeamName {
             $changeTeamName = new TeamController;
             
-            if($this->get_request_method() != "POST")
-            {
+            if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }
             
-            $respArray = $this->_response;
-            $response = $changeTeamName($responsse;
-            $this->response($this->json(jsonstr), 200);                
+            if(isset($_GET['userId']) && isset($_GET['teamId'])) {
+                $userId = $_GET['userId'];
+                $teamId = $_GET['teamId'];
+                if(VerifyTeamMemberExist($teamId, $userId)) {
+                    $respArray = $this->_response;
+                    $response = $changeTeamName->ModifyTeamName($respArray);
+                    $this->response($this->json(jsonstr), 200);
+                } else {
+                    $this->response($this->json(jsonstr),200);
+                }
+            } else {
+                $this->response('', 406);
+            }
         }
         
         private function json($data) {
