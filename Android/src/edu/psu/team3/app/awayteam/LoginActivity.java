@@ -43,6 +43,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,29 +54,20 @@ import android.widget.Toast;
  */
 public class LoginActivity extends Activity {
 	/**
-	 * A dummy authentication store containing known user names and passwords.
-	 * TODO: remove after connecting to a real authentication system.
-	 */
-	private static final String[] DUMMY_CREDENTIALS = new String[] {
-			"foo@example.com:hello", "bar@example.com:world" };
-
-	/**
-	 * The default email to populate the email field with.
-	 */
-	public static final String EXTRA_USERNAME = "com.example.android.authenticatordemo.extra.USERNAME";
-
-	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
 	private UserLoginTask mAuthTask = null;
 
-	// Values for email and password at the time of the login attempt.
+	// Values for email and password and remember check at the time of the login
+	// attempt.
 	private String mUsername;
 	private String mPassword;
+	private boolean mRemember;
 
 	// UI references.
 	private EditText mUsernameView;
 	private EditText mPasswordView;
+	private CheckBox mRememberView;
 	private View mLoginFormView;
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
@@ -87,7 +79,6 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.activity_login);
 
 		// Set up the login form.
-		mUsername = getIntent().getStringExtra(EXTRA_USERNAME);
 		mUsernameView = (EditText) findViewById(R.id.username_entry);
 		mUsernameView.setText(mUsername);
 
@@ -104,7 +95,7 @@ public class LoginActivity extends Activity {
 						return false;
 					}
 				});
-
+		mRememberView = (CheckBox) findViewById(R.id.remember_me_checkbox);
 		mLoginFormView = findViewById(R.id.login_form);
 		mLoginStatusView = findViewById(R.id.login_status);
 		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
@@ -190,6 +181,8 @@ public class LoginActivity extends Activity {
 			cancel = true;
 		}
 
+		mRemember = mRememberView.isChecked();
+
 		if (cancel) {
 			// There was an error; don't attempt login and focus the first
 			// form field with an error.
@@ -207,7 +200,7 @@ public class LoginActivity extends Activity {
 				pairs.add(new BasicNameValuePair("loginId", mUsername));
 				pairs.add(new BasicNameValuePair("password", mPassword));
 
-				mAuthTask.execute(pairs);
+				mAuthTask.execute();
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -264,12 +257,11 @@ public class LoginActivity extends Activity {
 
 		@Override
 		protected Integer doInBackground(Object... params) {
-			@SuppressWarnings("unchecked")
-			List<NameValuePair> pairs = (List<NameValuePair>) params[0];
 
 			// dispatch the login method
 			Integer result = 0;
-			result = CommUtil.AuthenticateUser(getBaseContext(), pairs);
+			result = CommUtil.AuthenticateUser(getBaseContext(), mUsername,
+					mPassword, mRemember);
 			Log.v("Background", "returned from commutil.  result = " + result);
 
 			return result;

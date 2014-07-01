@@ -9,6 +9,11 @@
         android:showAsAction="never"
         android:title="Leave Team"/>
     <item
+        android:id="@+id/action_change_pass"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Change Password"/>
+    <item
         android:id="@+id/action_logout"
         android:orderInCategory="100"
         android:showAsAction="never"
