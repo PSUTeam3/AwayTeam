@@ -1,5 +1,6 @@
 package edu.psu.team3.app.awayteam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -14,14 +15,13 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
 import edu.psu.team3.app.awayteam.NetworkTasks;
 
-//TODO: build this up with all the comm functions in one place.
-//make sure comm functions are divorced from the interface
 public class CommUtil {
 
 	// Check if username is already being used
@@ -108,30 +108,38 @@ public class CommUtil {
 	}
 
 	// Attempts to log in user
-	// INPUT: pairs = a name=value pairs list containing values for:
-	// "loginId","email","password"
+	// INPUT: context, username, password, and the value of "remember me"
 	// Returns int code based on success:
 	// 1 = success! User logged in
 	// 0 = unknown error or connection error
 	// -1 = username not found
 	// -2 = password incorrect
 	public static int AuthenticateUser(Context context,
-			List<NameValuePair> pairs) {
+			String username, String password, boolean remember) {
 		String url = "https://api.awayteam.redshrt.com/user/AuthenticatePassword";
 
 		if (!NetworkTasks.NetworkAvailable(context)) {
 			return 0;
 		}
 
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		pairs.add(new BasicNameValuePair("loginId", username));
+		pairs.add(new BasicNameValuePair("password", password));
 		JSONObject result = null;
 		Log.v("COMM", "sending request to network " + url);
 
 		try {
-			// TODO: write in errors
 			result = NetworkTasks.RequestData(true, url, pairs);
 			Log.v("COMM", "Login results: " + result.toString());
 			if (result.getString("response").equals("success")) {
-				// TODO: collect user secret and store it with the user data
+				//collect secret to store with session data
+				String userID = result.get("userIdentifier").toString();
+				String userSecret = result.getString("userSecret").toString();
+				Log.v("login","User Identifier from Server: "+userID);
+				Log.v("login","User Secret from Server: "+userSecret);
+				
+				UserSession.getInstance().setUp(username, password, userID, userSecret, remember);
+				
 				return 1;
 			} else if (result.getString("response").equals("failure")) {
 				switch (result.getString("message")) {
@@ -143,6 +151,51 @@ public class CommUtil {
 					return -1;
 				case "user not submitted":
 					return -1;
+				default:
+					return 0;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return 0;
+	}
+	
+	//Changes the password of the selected user
+	//INPUTS: 	username - user readable login ID
+	//			newPass - new password
+	//RETURN: 	1 = success, password updated
+	//			0 = unknown error or connection failure
+	//			-1 = username not found
+	//			-2 = username missing
+	public static int ChangePassword(String username, String newPass, Context context){
+		String url = "https://api.awayteam.redshrt.com/user/changepassword";
+		List<NameValuePair> pairs = null;
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+		
+		pairs = UserSession.getInstance().createHash();
+		pairs.add(new BasicNameValuePair("loginId",username));
+		pairs.add(new BasicNameValuePair("newPassword",newPass));
+		JSONObject result = null;
+		Log.v("COMM", "sending request to network " + url);
+		for (NameValuePair pair :pairs){
+			Log.v("COMM", "  pair contents: "+pair.toString());
+		}
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			Log.v("COMM", "Password results: " + result.toString());
+			if (result.getString("response").equals("success")) {
+				return 1;
+			} else if (result.getString("response").equals("failure")) {
+				switch (result.getString("message")) {
+				case "user not found":
+					return -1;
+				case "user not submitted":
+					return -2;
 				default:
 					return 0;
 				}

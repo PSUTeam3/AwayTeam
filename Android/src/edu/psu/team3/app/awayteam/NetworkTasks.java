@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -24,6 +25,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,19 +38,25 @@ import android.widget.Toast;
 
 public class NetworkTasks {
 
-	//check for network availability
+	//check for network availability 
+	//return true if network is available
 	public static boolean NetworkAvailable(Context context) {
 		ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
 			return true;
 		} else {
-			// TODO: look into possibility of a toast here
-			Toast.makeText(context, "No Network Connection", Toast.LENGTH_SHORT).show();
+			Log.v("Network","no network connection");
 			return false;
 		}
 	}
-
+	
+	
+	//Send a message
+	//INPUT:	actionPost - true if the message is POST false if GET
+	//			url	- URL to send request to
+	//			pairs - any data to be dispatched to the server
+	//RETURN:	JSONObject - containing response from server
 	public static JSONObject RequestData(boolean actionPost, String url,
 			List<NameValuePair> pairs) {
 		if (url.contains("https://")) {

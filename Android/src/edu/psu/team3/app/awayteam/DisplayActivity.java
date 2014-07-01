@@ -1,10 +1,10 @@
 package edu.psu.team3.app.awayteam;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import edu.psu.team3.app.awayteam.LoginActivity.UserLoginTask;
 import edu.psu.team3.app.awayteam.R.string;
 import edu.psu.team3.app.awayteam.ViewGroupUtils;
 import android.app.Activity;
@@ -12,8 +12,10 @@ import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -26,10 +28,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DisplayActivity extends Activity implements ActionBar.TabListener {
+	private PassChangeTask mPassTask = null;
 
-	
 	SectionsPagerAdapter mSectionsPagerAdapter;
 
 	/**
@@ -58,27 +61,26 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		// attach listener for handling spinner selection change
 		Spinner spinnerView = (Spinner) getLayoutInflater().inflate(
 				R.layout.team_spinner_layout, null);
-		//swap out title for spinner
+		// swap out title for spinner
 		ViewGroupUtils.replaceView(titleView, spinnerView);
-		
-		
-		//TODO: fill spinner with useful data
+
+		// TODO: fill spinner with useful data
 		List<String> teamList = new ArrayList<String>();
 		teamList.add("Test Team 1");
 		teamList.add("Test Team 2");
 		teamList.add("Test Team 3");
-		//Add team actions to the end of the spinner list
-		String[] actionsArray = getResources().getStringArray(R.array.team_spinner_actions);
-		for(int i=0;i<actionsArray.length;i++){
+		// Add team actions to the end of the spinner list
+		String[] actionsArray = getResources().getStringArray(
+				R.array.team_spinner_actions);
+		for (int i = 0; i < actionsArray.length; i++) {
 			teamList.add(teamList.size(), actionsArray[i]);
 		}
-		//update spinner entries
-		//TODO: move this to a spinner util class
+		// update spinner entries
+		// TODO: move this to a spinner util class
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_spinner_item, teamList);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinnerView.setAdapter(adapter);
-		
 
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the activity.
@@ -125,6 +127,18 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
+		if (id == R.id.action_change_pass) {
+			if (mPassTask == null) {
+				try {
+					mPassTask = new PassChangeTask();
+					mPassTask.execute();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				Toast.makeText(getBaseContext(), "Changing Password to 'test'", Toast.LENGTH_SHORT).show();
+			}
+			return true;
+		}
 		if (id == R.id.action_logout) {
 			return true;
 		}
@@ -164,14 +178,19 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			// getItem is called to instantiate the fragment for the given page.
 			// Return a PlaceholderFragment (defined as a static inner class
 			// below).
-			//TODO: change the fragment based on the title
+			// TODO: change the fragment based on the title
 			String[] titles = getResources().getStringArray(R.array.tab_titles);
-			switch(titles[position]){
-			case "Overview": return new OverviewFragment();
-			case "Member List": return new MembersFragment();
-			case "Team Calendar": return new CalendarFragment();
-			case "Team Tasks": return new TaskFragment();
-			case "Map": return new MapFragment();
+			switch (titles[position]) {
+			case "Overview":
+				return new OverviewFragment();
+			case "Member List":
+				return new MembersFragment();
+			case "Team Calendar":
+				return new CalendarFragment();
+			case "Team Tasks":
+				return new TaskFragment();
+			case "Map":
+				return new MapFragment();
 			}
 			return new PlaceholderFragment();
 		}
@@ -182,14 +201,12 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			return getResources().getStringArray(R.array.tab_titles).length;
 		}
 
-
 		@Override
-		public CharSequence getPageTitle(int position) {			
+		public CharSequence getPageTitle(int position) {
 			return getResources().getStringArray(R.array.tab_titles)[position];
 		}
 	}
 
-	
 	/**
 	 * A placeholder fragment containing a simple view.
 	 */
@@ -208,6 +225,41 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			View rootView = inflater.inflate(R.layout.fragment_display,
 					container, false);
 			return rootView;
+		}
+	}
+
+	public class PassChangeTask extends AsyncTask<Object, Void, Integer> {
+
+		@Override
+		protected Integer doInBackground(Object... params) {
+			UserSession s = UserSession.getInstance();
+			// dispatch the login method
+			Integer result = 0;
+			result = CommUtil.ChangePassword(s.getUsername(), "test", getBaseContext());
+			
+			Log.v("Background", "returned from commutil.  result = " + result);
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mPassTask = null;
+
+			switch (result) {
+			case 1: // success!
+				Toast.makeText(getBaseContext(), "Password Changed",
+						Toast.LENGTH_SHORT).show();
+				break;
+			default: // some other error occured
+				Toast.makeText(getBaseContext(), "Unable to Change Password",
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			mPassTask = null;
 		}
 	}
 

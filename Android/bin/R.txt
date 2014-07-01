@@ -119,10 +119,11 @@ int drawable icon3 0x7f020035
 int drawable powered_by_google_dark 0x7f020036
 int drawable powered_by_google_light 0x7f020037
 int id account_submit_button 0x7f060020
-int id action_delete 0x7f06005d
-int id action_forgot_password 0x7f06005e
+int id action_change_pass 0x7f06005c
+int id action_delete 0x7f06005e
+int id action_forgot_password 0x7f06005f
 int id action_leave 0x7f06005b
-int id action_logout 0x7f06005c
+int id action_logout 0x7f06005d
 int id add_event_button 0x7f06003e
 int id add_task_button 0x7f06004f
 int id agenda_list 0x7f06003f
