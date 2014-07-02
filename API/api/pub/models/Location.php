@@ -10,7 +10,7 @@
         $this->locLatitude;
         $this->locLongitude;
         
-        public function_construct() {
+        public function __construct() {
             $this->initialize();
         }
         
@@ -37,7 +37,7 @@
         
         public function SelectAllLocations() {
             global $db;
-            $query = "select * from location"
+            $query = "select * from location";
             $sql = mysql_query($query, $db);
             
             if(mysql_num_rows($sql) > 0) {
