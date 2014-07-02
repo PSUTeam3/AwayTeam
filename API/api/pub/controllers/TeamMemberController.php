@@ -1,4 +1,4 @@
-<? php
+<?php
     
     require_once('/home/awayteam/api/pub/models/TeamMembers.php');
     require_once('/home/awayteam/api/pub/apiconfig.php');
@@ -15,7 +15,7 @@
             $tTeamMember = new TeamMembers;
             $tTeamMember = $this->arrayToObject($teamMemberParametersArray);
             $retCode = $tTeamMember->ModifyTeamMember();
-            reutn $retCode;           
+            return $retCode;           
         }       
     }
 ?>

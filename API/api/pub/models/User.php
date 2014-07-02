@@ -213,6 +213,8 @@
             $startTime      = $serverTime - $timeout;
             $stopTime       = $serverTime + $timeout;
 
+            //logIt("localtime: " . $serverTime);
+
             //select userSecret,userIdentifier from user where loginId=$loginId and userIdentifier='$userIdentifier'
             $query = sprintf("select userSecret, userIdentifier from user where loginId='%s' and userIdentifier='%s'",
                 myEsc($loginId),
@@ -237,6 +239,8 @@
                 $i = 0;
                 for ($i=$startTime; $i<=$stopTime; $i++)
                 {
+                    //logIt($i . $loginId . $userIdentifier, $userSecret);
+
                     $check = hash_hmac('sha256', $i . $loginId . $userIdentifier, $userSecret);
                     if ($challengeHash == $check)
                     {

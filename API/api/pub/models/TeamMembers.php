@@ -2,20 +2,20 @@
     include_once('/home/awayteam/api/pub/apiconfig.php');
     include_once('/home/awayteam/api/pub/models/TeamMembersUtilities.php');
     
-    class TeamMember
+    class TeamMembers
     {
         //Attributes
         public $teamMemberId;
         public $teamId;
         public $userId;
-        public $manager
+        public $manager;
         public $pendingApproval;
         
         public function __construct() {
             $this->initialize();
         }
         
-        public initialize() {
+        public function initialize() {
             $teamMemberId = -999;
             $teamId = -999;
             $userID = -999;
@@ -51,11 +51,11 @@
                 if(mysql_num_rows($sql) > 0) {
                     $result = array();
                     while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                        &result[] = $rlt;
+                        $result[] = $rlt;
                     }
                     
                     foreach($result[0] as $column=>$value) {
-                        &aTeamMember->$item = $value;
+                        $aTeamMember->$item = $value;
                     }
                     
                     return $aTeamMember;
@@ -79,7 +79,7 @@
             global $db;
             if($this->teamMemberId == -999) {
                 return false;
-            } else if($newManagerValue && TeamMemberIdExists($this->teamMemberId) {
+            } else if($newManagerValue && TeamMemberIdExists($this->teamMemberId)) {
                 $query = "update team_member set manager=" .myEsc($newManagerValue) 
                         . " where id = " .myEsc($this->teamMemberId);
                 $sql = mysql_query($query, $db);
@@ -91,7 +91,7 @@
         
         public function ModifyPendingApproval($booleanValue) {
             global $db;
-            if(this->teamMemberId == -999) {
+            if($this->teamMemberId == -999) {
                 return false;
             } else if($booleanValue && TeamMemberIdExists($this->teamMemberId)) {
                 $query = "update team_member set pendingApproval=" .myEsc($booleanValue)
@@ -107,7 +107,7 @@
             global $db;
             if($this->teamMemberId == -999) {
                 return false;
-            } else if ($id && TeamIdExists($id) {
+            } else if ($id && TeamIdExists($id)) {
                 $query = "update team_member set teamId=" . myEsc($id) 
                         . " where id = " .myEsc($this->teamMemberId);
                 $sql = mysqul_query($query, $db);
