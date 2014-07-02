@@ -44,7 +44,8 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// display overview for the most recent team viewed or first team in the
+		// TODO:display overview for the most recent team viewed or first team
+		// in the
 		// list
 
 		// Show default fragment when no teams exist yet
@@ -69,14 +70,9 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		teamList.add("Test Team 1");
 		teamList.add("Test Team 2");
 		teamList.add("Test Team 3");
-		// Add team actions to the end of the spinner list
-		String[] actionsArray = getResources().getStringArray(
-				R.array.team_spinner_actions);
-		for (int i = 0; i < actionsArray.length; i++) {
-			teamList.add(teamList.size(), actionsArray[i]);
-		}
+
 		// update spinner entries
-		// TODO: move this to a spinner util class
+		// TODO: move this to a spinner util class?
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_spinner_item, teamList);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -135,11 +131,24 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				Toast.makeText(getBaseContext(), "Changing Password to 'test'", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getBaseContext(), "Changing Password to 'test'",
+						Toast.LENGTH_SHORT).show();
 			}
 			return true;
 		}
+		if (id==R.id.action_create_team){
+			//TODO: implement and create dialog for creating a new team
+			
+			return true;
+		}
+		if (id==R.id.action_join_team){
+			//TODO: implement and create dialog for joining an existing team
+			
+			return true;
+		}
 		if (id == R.id.action_logout) {
+			UserSession.getInstance(getBaseContext()).terminateSession();
+			finish();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -178,7 +187,8 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			// getItem is called to instantiate the fragment for the given page.
 			// Return a PlaceholderFragment (defined as a static inner class
 			// below).
-			// TODO: change the fragment based on the title
+			// TODO: check for active team before displaying anything besides
+			// placeholder
 			String[] titles = getResources().getStringArray(R.array.tab_titles);
 			switch (titles[position]) {
 			case "Overview":
@@ -232,11 +242,12 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 		@Override
 		protected Integer doInBackground(Object... params) {
-			UserSession s = UserSession.getInstance();
+			UserSession s = UserSession.getInstance(getBaseContext());
 			// dispatch the login method
 			Integer result = 0;
-			result = CommUtil.ChangePassword(s.getUsername(), "test", getBaseContext());
-			
+			result = CommUtil.ChangePassword(s.getUsername(), "test",
+					getBaseContext());
+
 			Log.v("Background", "returned from commutil.  result = " + result);
 
 			return result;

@@ -120,6 +120,31 @@ public class LoginActivity extends Activity {
 	}
 
 	@Override
+	public void onStart() {
+		super.onStart();
+		// check for previous saved login
+		UserSession s = UserSession.getInstance(getApplicationContext());
+		if (s.remembered()) {
+			mPassword = s.getPassword();
+			mUsername = s.getUsername();
+			mRemember = true;
+			// attempt login
+			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
+			showProgress(true);
+			if (mAuthTask == null) {
+				mAuthTask = new UserLoginTask();
+				// Create Login Request
+				try {
+					mAuthTask.execute();
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		getMenuInflater().inflate(R.menu.login, menu);
@@ -192,18 +217,15 @@ public class LoginActivity extends Activity {
 			// perform the user login attempt.
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
-			mAuthTask = new UserLoginTask();
-			// Create Login Request
-			try {
+			if (mAuthTask == null) {
+				mAuthTask = new UserLoginTask();
+				// Create Login Request
+				try {
+					mAuthTask.execute();
 
-				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-				pairs.add(new BasicNameValuePair("loginId", mUsername));
-				pairs.add(new BasicNameValuePair("password", mPassword));
-
-				mAuthTask.execute();
-
-			} catch (Exception e) {
-				e.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 
 		}
@@ -260,8 +282,8 @@ public class LoginActivity extends Activity {
 
 			// dispatch the login method
 			Integer result = 0;
-			result = CommUtil.AuthenticateUser(getBaseContext(), mUsername,
-					mPassword, mRemember);
+			result = CommUtil.LoginUser(getBaseContext(), mUsername, mPassword,
+					mRemember);
 			Log.v("Background", "returned from commutil.  result = " + result);
 
 			return result;

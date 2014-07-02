@@ -8,11 +8,21 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="Leave Team"/>
+    <item
+        android:id="@+id/action_create_team"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Create New Team"/>
+    <item
+        android:id="@+id/action_join_team"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Join Existing Team"/>
      <item
         android:id="@+id/action_delete"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Delete Team*"/>
+        android:title="*Delete This Team*"/>
     <item
         android:id="@+id/action_logout"
         android:orderInCategory="100"
