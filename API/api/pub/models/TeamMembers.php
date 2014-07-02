@@ -1,5 +1,6 @@
 <?php
     include_once('/home/awayteam/api/pub/apiconfig.php');
+    include_once('/home/awayteam/api/pub/models/TeamMembersUtilities.php');
     
     class TeamMember
     {
@@ -10,8 +11,8 @@
         public $manager
         public $pendingApproval;
         
-        public function_construct() {
-            this->initialize();
+        public function __construct() {
+            $this->initialize();
         }
         
         public initialize() {
@@ -23,8 +24,7 @@
         }
         
         public function InsertTeamMember() {
-            $query = sprintf("insert into team_member (teamMemberId, teamId, userId, manager, pendingApproval) values ('%d','%d','%s','%s')",
-                myEsc($this->teamMemberId),
+            $query = sprintf("insert into team_member (teamId, userId, manager, pendingApproval) values (%d,%d,'%s','%s')",               
                 myEsc($this->teamId),
                 myEsc($this->userId),
                 myEsc($this->manager),
@@ -34,6 +34,10 @@
                 mysql_query($query, $db);
                 
                 $id = mysql_insert_id();
+                
+                if(id >=0) {
+                    $this->userId = $id;
+                }
                 
                 return $id;
         }

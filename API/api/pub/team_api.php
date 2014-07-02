@@ -3,14 +3,14 @@
     header("Access-Control-Allow-Origin: *");
     
     require_once("Rest.inc.php");
-    require_once("controllers/UserController.php")
+    require_once("controllers/TeamController.php")
     
-    class API extends REST 
+    class TeamAPI extends REST 
     {
         public $data = "";
         
         public function processApi() {
-            $func = strtolower(trim(str_replace("/","_",$_REQUEST['rquest'])));
+            $func = strtolower(trim(str_replace("/","_",$_REQUEST['request'])));
             list ($group, $myFunc) = explode("_", $func);
             $myFunc = $group . "_" . $myFunc;
             if((int)method_exists($this,$myFunc) > 0) {

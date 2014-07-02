@@ -55,6 +55,29 @@
             }
         }
         
+        public function SelectLocationFromLocationId($locationId) {
+            global $db;
+            $tLocation = new Location;
+            
+            $query = "select * from location where locId = " . myEsc($locationId);
+            $sql = mysql_query($query, $db);
+            $result = array();
+            
+            if(mysql_num_rows($sql) > 0) {
+                $result[] = $rlt;
+                
+                while($row = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $result[] = $rlt;
+                }
+                
+                foreach($result[0] as $item=>$value) {
+                    $tLocation->$item=$value;
+                }
+            }
+            
+            return $tLocation;
+        }
+        
         public function DeleteLocation($locId) {
             global $db;
             if($locId) }

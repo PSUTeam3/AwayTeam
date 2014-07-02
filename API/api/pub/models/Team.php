@@ -13,7 +13,7 @@
         public $teamDescription;
         public $teamManaged;
         
-        public function_construct() {
+        public function __construct() {
             $this->initialize();
         }
         
@@ -26,7 +26,7 @@
         }
         
         public function InsertTeam() {
-            $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged) values ('%s','%d','%s','%s')",
+            $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged) values ('%s',%d,'%s','%s')",
                 myEsc($this->teamName),
                 myEsc($this->teamLocationId),
                 myEsc($this->teamDescription),
@@ -35,6 +35,10 @@
             mysql_query($query, $db);
             
             $id = mysql_insert_id();
+            
+            if($id>=0) {
+                $this->userId = $id;
+            }
             
             return $id;
         }
@@ -96,7 +100,7 @@
         
         public function SelectTeamFromTeamName($teamName, $loginId) {
             global $db;
-            
+            $tTeam = new Team;
             $query = "select userId from user where loginId = '" . myEsc($loginId) ."'";
             $sql = mysql_query($query, $db);
             if(mysql_num_rows($sql) > 0) {
@@ -153,7 +157,7 @@
                 $getTeamIdResult = array();
                 while($getTeamIdResult = mysql_fetch_array($sql, MYSQL_ASSOC)) {
                     $teamId = $getTeamIdResult['teamId'];
-                    $query = sprintf("select * from team where teamId = " . myEsc($teamId);
+                    $query = sprintf("select teamId, teamName from team where teamId = " . myEsc($teamId);
                     while($getTeamInfoResult = mysql_fetch_array($sql, MYSQL_ASSOC) {
                         $teamInfoResult = array();
                         $teamInfoResult[] = $getTeamInfoResult;
@@ -161,8 +165,7 @@
                             $tTeam->$item = $value;                            
                         }
                         $teamList[] = $tTeam;
-                    }
-                    
+                    }                    
                 }              
             }
             
@@ -202,7 +205,7 @@
         
         public function DeleteTeam($teamId) {
             global $db;
-            if($teamId) }
+            if($teamId) {
                 $query = "delete from team where teamId = " . myEsc($teamId);
                 $sql = mysql_query($query, $db);
                 return $sql;
