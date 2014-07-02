@@ -13,7 +13,7 @@
         public $teamDescription;
         public $teamManaged;
         
-        public function_construct() {
+        public function __construct() {
             $this->initialize();
         }
         
@@ -41,7 +41,7 @@
         
         public function SelectAllTeams() {
             global $db;
-            $query = "select * from team"
+            $query = "select * from team";
             $sql = mysql_query($query, $db);
             
             if(mysql_num_rows($sql) > 0) {
@@ -76,15 +76,15 @@
             
             if(VerifyTeamMemberExist($id, $userId) && $id && TeamIdExists($id)) {
                 $query = "select from team where teamId =" . myEsc($id);
-                $sql = mysql_query($query, $db)
+                $sql = mysql_query($query, $db);
                 if(mysql_num_rows($sql) > 0) {
                     $result = array();
                     while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                        &result[] = $rlt;
+                        $result[] = $rlt;
                     }
                     
                     foreach($result[0] as $column=>$value) {
-                        &aTeam->$item = $value;
+                        $aTeam->$item = $value;
                     }
                     return $aTeam;
                 }                
@@ -147,14 +147,14 @@
             
             $teamList = array();
             
-            $query = sprintf("select teamId from teamMember where userId = " . myEsc($userId);
+            $query = "select teamId from teamMember where userId = " . myEsc($userId);
             $sql = mysql_query($query, $db);
             if(mysql_num_rows($sql) > 0) {
                 $getTeamIdResult = array();
                 while($getTeamIdResult = mysql_fetch_array($sql, MYSQL_ASSOC)) {
                     $teamId = $getTeamIdResult['teamId'];
-                    $query = sprintf("select * from team where teamId = " . myEsc($teamId);
-                    while($getTeamInfoResult = mysql_fetch_array($sql, MYSQL_ASSOC) {
+                    $query = "select * from team where teamId = " . myEsc($teamId);
+                    while($getTeamInfoResult = mysql_fetch_array($sql, MYSQL_ASSOC)) {
                         $teamInfoResult = array();
                         $teamInfoResult[] = $getTeamInfoResult;
                         foreach($teamInfoResult[0] as $item=>$value) {
@@ -200,11 +200,15 @@
             }
         }
         
-        public function DeleteTeam($teamId) {
+        public function DeleteTeam($teamId) 
+        {
             global $db;
-            if($teamId) }
+            if($teamId) 
+            {
                 $query = "delete from team where teamId = " . myEsc($teamId);
                 $sql = mysql_query($query, $db);
                 return $sql;
             }            
         }      
+    }
+?>

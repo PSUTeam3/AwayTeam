@@ -44,7 +44,7 @@
         }
         
         public function DeleteTeam($team) {
-            return $this->DeleteTeam($team->teamId)
+            return $this->DeleteTeam($team->teamId);
         }
         
         private function arrayToObject($teamArray) {
