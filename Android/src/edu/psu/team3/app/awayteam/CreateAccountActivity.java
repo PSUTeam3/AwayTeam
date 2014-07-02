@@ -219,20 +219,7 @@ public class CreateAccountActivity extends Activity {
 			mAuthTask = new UserAccountTask();
 
 			try {
-				List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-				pairs.add(new BasicNameValuePair("loginId", mUsername));
-				pairs.add(new BasicNameValuePair("password", mPassword1));
-				pairs.add(new BasicNameValuePair("firstName", mFirstName));
-				pairs.add(new BasicNameValuePair("lastName", mLastName));
-				pairs.add(new BasicNameValuePair("email", mEmail));
-				pairs.add(new BasicNameValuePair("cellPhone", mPhone));
-				if (mEPhone == null) {
-					pairs.add(new BasicNameValuePair("emergencyPhone", ""));
-				} else {
-					pairs.add(new BasicNameValuePair("emergencyPhone", mEPhone));
-				}
-
-				mAuthTask.execute(pairs);
+				mAuthTask.execute();
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -298,10 +285,8 @@ public class CreateAccountActivity extends Activity {
 
 		@Override
 		protected Integer doInBackground(Object... params) {
-			@SuppressWarnings("unchecked")
-			List<NameValuePair> pairs = (List<NameValuePair>) params[0];
 
-			Integer result = CommUtil.CreateNewUser(getBaseContext(), pairs);
+			Integer result = CommUtil.CreateNewUser(getBaseContext(), mUsername, mPassword1, mFirstName, mLastName, mEmail, mPhone, mEPhone);
 			Log.v("Background", "returned from commutil.  result = " + result);
 			return result;
 

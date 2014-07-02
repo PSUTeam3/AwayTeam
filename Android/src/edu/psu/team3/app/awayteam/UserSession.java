@@ -2,17 +2,23 @@ package edu.psu.team3.app.awayteam;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Base64;
 import android.util.Log;
 
 public final class UserSession {
+	// strings for saving and recalling shared prefs
+	private static final String PREFS = "sessionpref";
+	private static final String USERNAME = "username";
+	private static final String PASSWORD = "password";
+	private static final String REMEMBER = "remember";
+
 	private static volatile UserSession INSTANCE = new UserSession();
 
 	private String username = null; // user's username entered for login
@@ -23,8 +29,10 @@ public final class UserSession {
 											// user credentials and
 											// automatically login again when
 											// the app is restarted
-	
-	public Team activeTeam = new Team();
+	private static Context mContext = null;//holds context for accessing prefs and other functions
+
+	public List<NameValuePair> teamList = new ArrayList<NameValuePair>();//list of available teams
+	public Team activeTeam = null;//current team being viewed
 
 	// empty constructor to ensure only one copy of the class exists
 	// - all variables will be filled in after successful authentication
@@ -34,7 +42,10 @@ public final class UserSession {
 
 	}
 
-	public static UserSession getInstance() {
+	public static UserSession getInstance(Context context) {
+		if (mContext == null && context != null) {
+			mContext = context;
+		}
 		return INSTANCE;
 	}
 
@@ -54,8 +65,14 @@ public final class UserSession {
 		loginSecret = userSecret;
 		rememberLogin = rememberMe;
 
-		if (rememberMe) {
-			// TODO: save immediately to shared prefs
+		if (rememberMe && mContext != null) {
+			Log.v("Session", "Saving preferences");
+			SharedPreferences.Editor prefs = mContext.getSharedPreferences(
+					PREFS, Context.MODE_PRIVATE).edit();
+			prefs.putString(USERNAME, username);
+			prefs.putString(PASSWORD, password);
+			prefs.putBoolean(REMEMBER, rememberLogin);
+			prefs.commit();
 		}
 	}
 
@@ -69,8 +86,33 @@ public final class UserSession {
 		loginSecret = userSecret;
 	}
 
+	// change the password
+	public void changePassword(String newPass) {
+		password = newPass;
+		if (rememberLogin && mContext != null) {
+			SharedPreferences.Editor prefs = mContext.getSharedPreferences(
+					PREFS, Context.MODE_PRIVATE).edit();
+			prefs.putString(USERNAME, username);
+			prefs.putString(PASSWORD, password);
+			prefs.putBoolean(REMEMBER, rememberLogin);
+			prefs.commit();
+		}
+	}
+
 	// check if the user is remembered by the app
 	public boolean remembered() {
+		// check if the user session has been initialized yet - if not, this is
+		// before login
+		if (mContext != null) {
+			SharedPreferences prefs = mContext.getSharedPreferences(PREFS,
+					Context.MODE_PRIVATE);
+			rememberLogin = prefs.getBoolean(REMEMBER, false);
+			if (rememberLogin) {
+				username = prefs.getString(USERNAME, null);
+				password = prefs.getString(PASSWORD, null);
+			}
+		}
+		Log.v("Session", "Remembered user session? " + rememberLogin);
 		return rememberLogin;
 	}
 
@@ -87,18 +129,25 @@ public final class UserSession {
 	// End the session and delete all stored data on the user
 	// call this when the user selects "logout"
 	public void terminateSession() {
-		// TODO: clear out all the shared prefs
+		if (mContext != null) {
+			SharedPreferences.Editor prefs = mContext.getSharedPreferences(
+					PREFS, Context.MODE_PRIVATE).edit();
+			prefs.clear();
+			prefs.commit();
+		}
 	}
 
 	// Create a hash to authenticate a session
+	@SuppressLint("DefaultLocale")
 	public List<NameValuePair> createHash() {
 		byte[] hash = null;
 		List<NameValuePair> secret = new ArrayList<NameValuePair>();
 		long mstime = System.currentTimeMillis();
 		long seconds = mstime / 1000;
 		String time = String.valueOf(seconds);
-		String token = time + username.toLowerCase() + loginID;// combine the parts of the
-													// token
+		String token = time + username.toLowerCase() + loginID;// combine the
+																// parts of the
+		// token
 
 		// Log.v("secret", "concatenated text: " + token);
 
@@ -114,7 +163,7 @@ public final class UserSession {
 		}
 
 		// Log.v("secret", "hashed secret: " + hexify(hash));
-		
+
 		secret.add(new BasicNameValuePair("AWT_AUTH", loginID));
 		secret.add(new BasicNameValuePair("AWT_AUTH_CHALLENGE", hexify(hash)));
 
@@ -125,6 +174,7 @@ public final class UserSession {
 
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
+	@SuppressLint("DefaultLocale")
 	private static String hexify(byte[] bytes) {
 		char[] hexChars = new char[bytes.length * 2];
 		for (int j = 0; j < bytes.length; j++) {
