@@ -33,7 +33,7 @@
             
             $id = mysql_insert_id();
             
-            if(id >=0) {
+            if($id >=0) {
                 $this->taskId = $id;
             }
             

@@ -28,11 +28,15 @@
                 myEsc($this->locLatitude),
                 myEsc($this->locLongitude),
                 
-                mysql_query($query, $db);
+            mysql_query($query, $db);
                 
-                $id = mysql_insert_id();
-                
-                return $id;
+            $id = mysql_insert_id();
+            
+            if($id >=0) {
+                $this->locId = $id;
+            }
+            
+            return $id;
         }
         
         public function SelectAllLocations() {
@@ -85,7 +89,6 @@
                 $sql = mysql_query($query, $db);
                 return $sql;
             }  
-        }
-        
+        }        
     }
 ?>

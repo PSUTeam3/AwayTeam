@@ -12,6 +12,7 @@
         public $teamLocationId;
         public $teamDescription;
         public $teamManaged;
+        public $teamScheduleId;
         
         public function __construct() {
             $this->initialize();
@@ -22,15 +23,17 @@
             $this->teamName = "";
             $this->teamLocationId = -999;
             $this->teamDescription = "";
-            $this->teamManaged = False;            
+            $this->teamManaged = False; 
+            $this->teamScheduleId = -999;
         }
         
         public function InsertTeam() {
-            $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged) values ('%s',%d,'%s','%s')",
+            $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged,teamScheduleId) values ('%s',%d,'%s','%s',%d)",
                 myEsc($this->teamName),
                 myEsc($this->teamLocationId),
                 myEsc($this->teamDescription),
-                myEsc($this->teamManaged));
+                myEsc($this->teamManaged),
+                myEsc($this->teamScheduleId));
                 
             mysql_query($query, $db);
             
