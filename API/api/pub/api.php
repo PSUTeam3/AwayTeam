@@ -523,7 +523,7 @@
                 $this->response('',406);
             }
 
-            $array1         = $this->_response;
+            $array1         = $this->_request;
             $response       = $xUser->ModifyUser($array1);
 
             $jsonstr        = array('response' => $response);
