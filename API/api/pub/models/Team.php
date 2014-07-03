@@ -66,7 +66,7 @@
             }
         }
         
-        public function SelectTeamFromId($id, $loginId) {
+        public function SelectTeamFromId($teamId, $loginId) {
             global $db;
             $aTeam = new Team;
             
@@ -81,17 +81,17 @@
                 $userId = $result[0]['loginId'];
             }
             
-            if(VerifyTeamMemberExist($id, $userId) && $id && TeamIdExists($id)) {
+            if(VerifyTeamMemberExist($teamId, $userId) && $id && TeamIdExists($id)) {
                 $query = "select from team where teamId =" . myEsc($id);
                 $sql = mysql_query($query, $db)
                 if(mysql_num_rows($sql) > 0) {
                     $result = array();
                     while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                        &result[] = $rlt;
+                        $result[] = $rlt;
                     }
                     
                     foreach($result[0] as $column=>$value) {
-                        &aTeam->$item = $value;
+                        $aTeam->$item = $value;
                     }
                     return $aTeam;
                 }                
@@ -190,7 +190,7 @@
             
         }
         
-        public function ModifyTeamName()
+        public function ModifyTeamName($newTeamName)
         {
             global $db;
             

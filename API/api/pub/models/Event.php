@@ -38,7 +38,59 @@
             return $id;
         }
         
-        public function ModifyEventName() {                      
+        public function SelectEventFromEventId($eventId) {
+            global $db;
+            
+            $anEvent = new Event;            
+            $query = "select * from event where eventId = " . myEsc($eventID);
+            $sql = mysql_query($query, $db);
+            if(mysql_num_rows($sql) > 0) {
+                $result = array();
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $result[] = $rlt;
+                }
+                
+                foreach($result[0] as $column=>$value) {
+                    $anEvent->$item = $value;
+                }
+                
+                return $anEvent;                
+            }
+        }
+        
+        public function SelectEventFromEventName($eventName) {
+            global $db;
+            
+            $anEvent = new Event;
+            $query = "select * from event where eventName = " . myEsc($eventName);
+            $sql = mysql_query($query, $db(
+            if(mysql_num_rows($sql) > 0) {
+                $result = array();
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $result[] = $rlt;
+                }
+                
+                foreach($result[0] as $column->$value) {
+                    $anEvent->$item = $value;
+                }
+                
+                return $anEvent;
+            }
+        }
+        
+        public function ModifyEventName($newEventName) {  
+            global $db;
+            
+            if($this->eventId = -999) {
+                return false;
+            } else if ( $newEventName && EventNameUsed($newEventName)) {            
+                $query = "update event set eventName = " . myEsc($newEventName)  .
+                        "where eventId = " . myEsc($this->eventId);
+                $sql = mysql_query($query, $db);
+                return $sql;
+            } else {
+                return false;
+            }
         }
     }
 ?>
