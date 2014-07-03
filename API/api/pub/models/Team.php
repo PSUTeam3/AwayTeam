@@ -29,7 +29,7 @@
         
         public function InsertTeam() {
             $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged,teamScheduleId) values ('%s',%d,'%s','%s',%d)",
-                myEsc($this->teamName),
+                myEsc(strtolower($this->teamName)),
                 myEsc($this->teamLocationId),
                 myEsc($this->teamDescription),
                 myEsc($this->teamManaged),

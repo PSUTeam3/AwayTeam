@@ -23,7 +23,7 @@
         public function InsertEvent() {
             global $db;
             $query = sprintf("insert into event(eventName, eventDescription, eventLocationId) values ('%s','%s','d')",
-                    myEsc($this->eventName),
+                    myEsc(strtolower($this->eventName)),
                     myEsc($this->eventDescription),
                     myEsc($this->eventLocationId));
             
@@ -36,6 +36,18 @@
             }
             
             return $id;
+        }
+        
+        public function SelectAllEvents() {
+            global $db;
+            
+            $query = "select * from event";            
+            mysql_query($query, $db);
+            $id = mysql_insert_id();
+            
+            if($id >= 0) {
+                
+            }
         }
         
         public function SelectEventFromEventId($eventId) {
@@ -102,6 +114,15 @@
                 return $sql;
             } else {
                 return false;
+            }
+        }
+        
+        public function DeleteEvent($eventId) {
+            global $db;
+            if($eventId) {
+                $query = "delete from event where eventId = " . myEsc($eventId);
+                $sql = mysql_query($query, $db);
+                return $sql;
             }
         }
     }

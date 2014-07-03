@@ -1,5 +1,7 @@
 <?php
 
+    require_once('/home/awayteam/api/pub/apiconfig.php');
+    
     class TeamMemberUtilities
     {
         public function TeamMemberIdExists($id) {

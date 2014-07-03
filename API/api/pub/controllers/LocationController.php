@@ -2,14 +2,14 @@
     
     //Owner: David Vu
     
-    require_once('/home/awayteam/api/pub/models/Team.php');
+    require_once('/home/awayteam/api/pub/models/Location.php');
     require_once('/home/awayteam/api/pub/apiconfig.php');
     
-    class LocationController extends LocationController
+    class LocationController extends Location
     {
         public function CreateLocation($locationParametersArray) {
             $aLocation = new Location;
-            $aLocation = arrayToObject($teamParametersArray);
+            $aLocation = arrayToObject($locationParametersArray);
             $newLocationId = $aLocation->InsertLocation();
         }
         
