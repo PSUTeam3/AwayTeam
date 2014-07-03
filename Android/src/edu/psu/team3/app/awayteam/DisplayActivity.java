@@ -9,6 +9,7 @@ import edu.psu.team3.app.awayteam.R.string;
 import edu.psu.team3.app.awayteam.ViewGroupUtils;
 import android.app.Activity;
 import android.app.ActionBar;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -24,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -35,8 +37,9 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 	SectionsPagerAdapter mSectionsPagerAdapter;
 
+
 	/**
-	 * The {@link ViewPager} that will host the section contents.
+	 * The {ViewPager} that will host the section contents.
 	 */
 	ViewPager mViewPager;
 
@@ -137,13 +140,15 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			return true;
 		}
 		if (id==R.id.action_create_team){
-			//TODO: implement and create dialog for creating a new team
-			
+			 DialogFragment newFragment = new CreateTeamDialog();
+			    newFragment.show(getFragmentManager(), null);
+			    //TODO: check for updated team info
 			return true;
 		}
 		if (id==R.id.action_join_team){
 			//TODO: implement and create dialog for joining an existing team
-			
+			DialogFragment newFragment = new JoinTeamDialog();
+		    newFragment.show(getFragmentManager(), null);
 			return true;
 		}
 		if (id == R.id.action_logout) {
@@ -200,7 +205,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			case "Team Tasks":
 				return new TaskFragment();
 			case "Map":
-				return new MapFragment();
+				return new PlaceholderFragment(); //TODO: swap to map fragment when map API installed
 			}
 			return new PlaceholderFragment();
 		}
@@ -234,6 +239,15 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_display,
 					container, false);
+			//button listeners:
+			rootView.findViewById(R.id.create_button).setOnClickListener(new OnClickListener(){
+				@Override
+				public void onClick(View arg0) {
+					DialogFragment newFragment = new CreateTeamDialog();
+				    newFragment.show(getFragmentManager(), null);
+				    //TODO: Check for team updates
+				}
+			});
 			return rootView;
 		}
 	}
@@ -273,5 +287,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			mPassTask = null;
 		}
 	}
+	
+	
 
 }
