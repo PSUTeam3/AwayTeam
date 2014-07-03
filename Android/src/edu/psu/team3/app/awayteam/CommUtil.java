@@ -298,4 +298,51 @@ public class CommUtil {
 
 		return 0;
 	}
+	
+	//Create a new team
+	//INPUTS: team name, description, location name, lat and lon, managed
+	//RETURN: 1 = success, team created
+	// 0 = unknown error or connection failure
+	// -1 = team name already used
+	public static int CreateTeam(Context context, String teamName,
+			String locationName, String description, int lat, int lon, boolean managed) {
+		//TODO: update with correct URI
+		String url = "https://api.awayteam.redshrt.com/team/CreateTeam";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		List<NameValuePair> pairs = UserSession.getInstance(context).createHash();
+		pairs.add(new BasicNameValuePair("loginId", UserSession.getInstance(context).getUsername()));
+		pairs.add(new BasicNameValuePair("teamName", teamName));
+		pairs.add(new BasicNameValuePair("description", description));
+		pairs.add(new BasicNameValuePair("locationName", locationName));
+		pairs.add(new BasicNameValuePair("locationLat", Integer.toString(lat)));
+		pairs.add(new BasicNameValuePair("locationLon", Integer.toString(lon)));
+		pairs.add(new BasicNameValuePair("managed", Boolean.toString(managed)));
+
+		JSONObject result = null;
+		Log.v("COMM", "sending request to network " + url);
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			Log.v("COMM", "Create Team results: " + result.toString());
+			if (result.getString("response").equals("success")) {
+				// TODO: collect team id and name - update user session
+
+				return 1;
+			} else if (result.getString("response").equals("failure")) {
+				switch (result.getString("message")) {
+				case "Team Name Already Used":
+					return -1;
+				default:
+					return 0;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
 }
