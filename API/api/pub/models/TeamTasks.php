@@ -8,7 +8,7 @@
         public $taskTitle;
         public $taskDescription;
         public $taskCompleted;
-        public $taskTeamId
+        public $taskTeamId;
         
         public function __construct() {
             $this->initialize();

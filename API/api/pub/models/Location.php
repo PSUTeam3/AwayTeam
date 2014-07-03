@@ -5,10 +5,10 @@
     
     class Location
     {
-        $this->locId;
-        $this->locName;
-        $this->locLatitude;
-        $this->locLongitude;
+        public $locId;
+        public $locName;
+        public $locLatitude;
+        public $locLongitude;
         
         public function __construct() {
             $this->initialize();
@@ -26,7 +26,7 @@
                 myEsc($this->locId),
                 myEsc($this->locName),
                 myEsc($this->locLatitude),
-                myEsc($this->locLongitude),
+                myEsc($this->locLongitude));
                 
             mysql_query($query, $db);
                 
@@ -84,7 +84,7 @@
         
         public function DeleteLocation($locId) {
             global $db;
-            if($locId) }
+            if($locId) {
                 $query = "delete from location where locId = " . myEsc($locId);
                 $sql = mysql_query($query, $db);
                 return $sql;

@@ -18,7 +18,7 @@
         }
         
         public function GetLocationFromId($locId) {
-            return this->SelectLocationFromLocationId($locId);
+            return $this->SelectLocationFromLocationId($locId);
         }
     }
     

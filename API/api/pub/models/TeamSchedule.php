@@ -14,7 +14,7 @@
         }
         
         public function initialize() {
-            $this->teamScheduleId = -999
+            $this->teamScheduleId = -999;
             $this->teamScheduleEventId = -999;           
         }       
     }
