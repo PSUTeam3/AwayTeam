@@ -177,13 +177,12 @@
        
         public function ModifyTeam() {
             global $db;
-            $query = sprintf("update team set teamName='%s', teamLocationId='%d', teamDescription='%s', teamManaged='%s' where teamId = " . myEsc($teamId),
+            $query = sprintf("update team set teamName='%s', teamLocationId=%d, teamDescription='%s', teamManaged='%s' where teamId = " . myEsc($this->teamId),
                 myEsc($this->teamName),
                 myEsc($this->teamLocationId),
                 myEsc(strtolower($this->teamDescription)),
                 myEsc($this->teamManaged));
                                         
-                //send back code if successful or not
             $sql = mysql_query($query, $db);	
                 
             return $sql;

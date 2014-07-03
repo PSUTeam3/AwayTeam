@@ -145,7 +145,7 @@
             {
                 $this->response('',406);
             }
-            if(isset($_GET['userId']) && isset($_GET['teamId'])) {
+            if(isset($_GET['loginId']) && isset($_GET['teamId'])) {
                 $userId = $_GET['userId'];
                 $teamId = $_GET['teamId'];
                 if(VerifyTeamMemberExist($teamId, $userId)) {
@@ -169,7 +169,7 @@
                 $this->response('',406);
             }
 
-            if(isset($_GET['userId']) && isset($_GET['teamId'])) {
+            if(isset($_GET['loginId']) && isset($_GET['teamId'])) {
                 $userId = $_GET['userId'];
                 $teamId = $_GET['teamId'];
                 if(VerifyTeamMemberExist($teamId, $userId)) {

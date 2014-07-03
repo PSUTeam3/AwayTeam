@@ -63,7 +63,7 @@
             
             $anEvent = new Event;
             $query = "select * from event where eventName = " . myEsc($eventName);
-            $sql = mysql_query($query, $db(
+            $sql = mysql_query($query, $db);
             if(mysql_num_rows($sql) > 0) {
                 $result = array();
                 while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
@@ -76,6 +76,18 @@
                 
                 return $anEvent;
             }
+        }
+        
+        public function ModifyEvent() {
+            global $db;
+            $query = sprintf("update event set eventName='%s', eventDescription='%s',eventLocationId=%d where eventId = " . myEsc($this->eventId),
+                    myEsc($this->eventName),
+                    myEsc($this->eventDescription),
+                    myEsc($this->eventLocationId));
+            
+            $sql = mysql_query($query, $db);	
+                
+            return $sql;                  
         }
         
         public function ModifyEventName($newEventName) {  
