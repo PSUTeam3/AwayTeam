@@ -15,12 +15,15 @@
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
-
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <item name="android:spinnerItemStyle">@style/spinnerItemStyle</item>
+        <!-- <item name="android:spinnerItemStyle">@style/spinnerItemStyle</item> -->
     </style>
 
-    <style name="spinnerItemStyle" parent="AppTheme">
+    <style name="actionBarTheme" parent="AppBaseTheme">
+        <item name="android:spinnerItemStyle">@style/actionBarSpinnerStyle</item>
+    </style>
+
+    <style name="actionBarSpinnerStyle">
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textSize">25sp</item>
         <item name="android:textStyle">bold</item>
@@ -32,7 +35,7 @@
         <item name="android:padding">16dp</item>
     </style>
 
-    <style name="spinnerBasicStyle" parent="AppBaseTheme">
+    <style name="spinnerBasicStyle" parent="android:Theme.Light">
         <item name="android:textColor">@android:color/black</item>
         <item name="android:textSize">25sp</item>
     </style>

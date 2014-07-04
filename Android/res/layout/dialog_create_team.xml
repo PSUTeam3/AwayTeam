@@ -29,10 +29,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
                 android:layout_weight="0"
-                android:text="Private*" />
-
+                android:text="Private" />
         </LinearLayout>
-        
+
         <EditText
             android:id="@+id/teamLocationInput"
             android:layout_width="match_parent"
@@ -47,19 +46,18 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
             android:ems="10"
-            android:inputType="textMultiLine" 
-            android:hint="Type description here"/>
+            android:hint="Type description here"
+            android:inputType="textMultiLine" />
 
         <android.widget.TextView
-            android:id="@+id/textView1"
+            android:id="@+id/createTeamPrivateExplain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="*A private team will have managers that must approve all members to join"
+            android:layout_marginBottom="10dp"
+            android:text="A private team will have managers that must approve all members to join."
             android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:layout_marginBottom="10dp"
-             />
-
+            android:visibility="gone"
+            android:layout_marginLeft="10dp" />
     </LinearLayout>
-    
 
 </ScrollView>

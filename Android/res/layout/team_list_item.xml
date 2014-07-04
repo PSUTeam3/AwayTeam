@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" 
+        android:layout_marginLeft="10dp"
         android:layout_weight="1">
 
         <TextView
@@ -22,6 +23,7 @@
             android:id="@+id/teamEntryLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="0"
             android:text="Team Location"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         
@@ -31,7 +33,10 @@
         android:id="@+id/teamEntryManaged"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_action_cc_bcc"
-        android:visibility="invisible" />
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_lock"
+        android:visibility="invisible"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"  />
 
 </LinearLayout>
