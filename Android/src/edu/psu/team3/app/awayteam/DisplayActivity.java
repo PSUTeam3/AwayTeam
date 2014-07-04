@@ -37,7 +37,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 	SectionsPagerAdapter mSectionsPagerAdapter;
 
-
 	/**
 	 * The {ViewPager} that will host the section contents.
 	 */
@@ -65,6 +64,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		// attach listener for handling spinner selection change
 		Spinner spinnerView = (Spinner) getLayoutInflater().inflate(
 				R.layout.team_spinner_layout, null);
+
 		// swap out title for spinner
 		ViewGroupUtils.replaceView(titleView, spinnerView);
 
@@ -77,7 +77,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		// update spinner entries
 		// TODO: move this to a spinner util class?
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, teamList);
+				R.layout.team_spinner_item, teamList);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinnerView.setAdapter(adapter);
 
@@ -139,16 +139,17 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			}
 			return true;
 		}
-		if (id==R.id.action_create_team){
-			 DialogFragment newFragment = new CreateTeamDialog();
-			    newFragment.show(getFragmentManager(), null);
-			    //TODO: check for updated team info
+		if (id == R.id.action_create_team) {
+			DialogFragment newFragment = new CreateTeamDialog();
+			newFragment.show(getFragmentManager(), null);
+			// TODO: check for updated team info
 			return true;
 		}
-		if (id==R.id.action_join_team){
-			//TODO: implement and create dialog for joining an existing team
+		if (id == R.id.action_join_team) {
+			// TODO: implement and create dialog for joining an existing team
 			DialogFragment newFragment = new JoinTeamDialog();
-		    newFragment.show(getFragmentManager(), null);
+			newFragment.show(getFragmentManager(), null);
+			// TODO: check for updated team info
 			return true;
 		}
 		if (id == R.id.action_logout) {
@@ -205,7 +206,8 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			case "Team Tasks":
 				return new TaskFragment();
 			case "Map":
-				return new PlaceholderFragment(); //TODO: swap to map fragment when map API installed
+				return new PlaceholderFragment(); // TODO: swap to map fragment
+													// when map API installed
 			}
 			return new PlaceholderFragment();
 		}
@@ -239,15 +241,26 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_display,
 					container, false);
-			//button listeners:
-			rootView.findViewById(R.id.create_button).setOnClickListener(new OnClickListener(){
-				@Override
-				public void onClick(View arg0) {
-					DialogFragment newFragment = new CreateTeamDialog();
-				    newFragment.show(getFragmentManager(), null);
-				    //TODO: Check for team updates
-				}
-			});
+			// button listeners:
+			rootView.findViewById(R.id.create_button).setOnClickListener(
+					new OnClickListener() {
+						@Override
+						public void onClick(View arg0) {
+							DialogFragment newFragment = new CreateTeamDialog();
+							newFragment.show(getFragmentManager(), null);
+							// TODO: Check for team updates
+						}
+					});
+			rootView.findViewById(R.id.join_button).setOnClickListener(
+					new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							DialogFragment newFragment = new JoinTeamDialog();
+							newFragment.show(getFragmentManager(), null);
+							// TODO: Check for team updates
+						}
+					});
 			return rootView;
 		}
 	}
@@ -287,7 +300,5 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			mPassTask = null;
 		}
 	}
-	
-	
 
 }

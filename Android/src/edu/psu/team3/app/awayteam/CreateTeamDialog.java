@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -36,7 +38,8 @@ public class CreateTeamDialog extends DialogFragment {
 		// inflate custom view
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		builder.setTitle("Create New Team");
-		builder.setIcon(getResources().getDrawable(R.drawable.ic_action_add_group));
+		builder.setIcon(getResources().getDrawable(
+				R.drawable.ic_action_add_group));
 		builder.setView(inflater.inflate(R.layout.dialog_create_team, null))
 				// Add action buttons
 				.setPositiveButton("Create",
@@ -80,6 +83,26 @@ public class CreateTeamDialog extends DialogFragment {
 					attemptCreateTeam();
 				}
 			});
+			mManagedView = (CheckBox) getDialog().findViewById(
+					R.id.managedCheckBox);
+			mManagedView
+					.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+						@Override
+						public void onCheckedChanged(CompoundButton buttonView,
+								boolean isChecked) {
+							if (isChecked) {
+								getDialog().findViewById(
+										R.id.createTeamPrivateExplain)
+										.setVisibility(View.VISIBLE);
+							} else {
+								getDialog().findViewById(
+										R.id.createTeamPrivateExplain)
+										.setVisibility(View.GONE);
+							}
+						}
+
+					});
 		}
 	}
 
