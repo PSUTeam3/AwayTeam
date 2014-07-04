@@ -45,8 +45,9 @@
         public function SelectTeamMemberFromId($id) {
             global $db;
             $aTeamMember = new TeamMember;
+
             if($id && TeamMemberIdExists($id)) {
-                $query = "select * from team_member where id = " . myEsc($id);
+                $query = "select * from team_member where teamMemberId = " . myEsc($id);
                 $sql = mysql_query($query, $db);
                 if(mysql_num_rows($sql) > 0) {
                     $result = array();
@@ -61,6 +62,25 @@
                     return $aTeamMember;
                 }
             }            
+        }
+        
+        public function SelectTeamMemberFromTeamId($teamId) {
+            global $db;
+            $aTeamMember = new TeamMember;
+            $teamMemberList = array();
+            
+            if($teamId) {
+                $query = "select * from team_member where teamId = " . myEsc($teamId);
+                $sql = mysql_query($query, $db);
+                
+                if(mysql_num_rows($sql) > 0) {
+                    while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                        $teamMemberList = $rlt;
+                    }
+                }                
+            }
+            
+            return $teamMemberList;
         }
         
         public function ModifyTeamMember($id) {

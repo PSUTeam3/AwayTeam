@@ -3,6 +3,7 @@
     include_once('/home/awayteam/api/pub/apiconfig.php');
     include_once('/home/awayteam/api/pub/models/TeamUtilities.php');
     include_once('/home/awayteam/api/pub/models/TeamMembers.php');
+    include_once('/home/awayteam/api/pub/models/Location.php');
     
     class Team
     {
@@ -153,14 +154,14 @@
             global $db;           
             
             $teamList = array();
-            
+            $location = new Location;
             $query = "select teamId from teamMember where userId = " . myEsc($userId);
             $sql = mysql_query($query, $db);
             if(mysql_num_rows($sql) > 0) {
                 $getTeamIdResult = array();
                 while($getTeamIdResult = mysql_fetch_array($sql, MYSQL_ASSOC)) {
                     $teamId = $getTeamIdResult['teamId'];
-                    $query = "select teamId, teamName from team where teamId = " . myEsc($teamId);
+                    $query = "select * from team where teamId = " . myEsc($teamId);
                     while($getTeamInfoResult = mysql_fetch_array($sql, MYSQL_ASSOC)) {
                         $teamInfoResult = array();
                         $teamInfoResult[] = $getTeamInfoResult;
@@ -168,6 +169,11 @@
                             $tTeam->$item = $value;                            
                         }
                         $teamList[] = $tTeam;
+                        
+                        $location = SelectLocationFromLocationId($getTeamInfoResult['teamLocationId']);
+                        $teamList[] = $location;
+                        
+                        $teamList[] = SelectTeamMemberFromTeamId($teamId);                        
                     }                    
                 }              
             }
