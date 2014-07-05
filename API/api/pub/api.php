@@ -5,6 +5,7 @@
     
     require_once("Rest.inc.php");
     require_once("controllers/UserController.php");
+    require_once("controllers/ExpenseController.php");
     require_once("controllers/TeamController.php");
     require_once("controllers/TeamMemberController.php");
     
@@ -42,7 +43,7 @@
                 $this->response('',406);
             }   
     
-            $teamArray = $this->request;
+            $teamArray = $this->_request;
             $newTeamId = $newTeam->CreateTeam($teamArray);
     
             $jsonMsg = array();
@@ -531,6 +532,103 @@
             $this->response($this->json($jsonstr),200);
 
         }
+
+        private function Expense_CreateExpense()
+        {   
+            //requireAuth
+
+            $xExpense = new ExpenseController;
+    
+            if ($this->get_request_method() != "POST")
+            {   
+                $this->response('', 406);
+            }   
+            $expArray = $this->_request;
+            $newExp = $xExpense->CreateExpense($expArray);
+
+            $jsonMsg = array(); 
+
+            if ($newExp >= 0)
+            {   
+                $jsonMsg = array('response' => 'success', 'message'=> $newExp);
+            }   
+            else
+            {   
+                $jsonMsg = array('response' => 'failure', 'message'=> $newExp);
+            }   
+
+            $this->response($this->json($jsonMsg),200);
+        }   
+
+        private function Expense_ModifyExpense()
+        {   
+            $xExpense = new ExpenseController;
+
+            if($this->get_request_method() != "POST")
+            {   
+                $this->response('',406);
+            }   
+
+            $array1         = $this->_request;
+            $response       = $xExpense->ModifyExpense($array1);
+
+            $jsonstr        = array('response' => $response);
+
+            $this->response($this->json($jsonstr),200);
+        }   
+
+        private function Expense_DeleteExpense()
+        {
+            $xExpense = new ExpenseController;
+            
+            if ($this->get_request_method() != "POST")
+            {
+                $this->response('',406);
+            }
+            
+            $array1                 = $this->_request;
+            $xExpense->expenseId    = $array1['expenseId'];
+            $response               = $xExpense->RemoveExpense();
+            
+            $jsonstr                = array('response' => $response);
+
+            $this->response($this->json($jsonstr),200);
+        }
+
+        private function Expense_GetExpense()
+        {
+            $xExpense = new ExpenseController;
+            if ($this->get_request_method() != "POST")
+            {
+                $this->response('',406);
+            }
+
+            $array1         = $this->_request;
+            $results        = $xExpense->GetExpense($array1);
+
+            if (is_array($results))
+            {
+               // do nothing... good stuff 
+            }
+            else
+            {
+                if ($results->expenseId == -999)
+                {
+                    //nothing found
+                    $jsonstr = array('response' => 'no results');
+                    $this->response($this->json($jsonstr),200);
+                    exit;
+                }
+            }
+            //results found
+            $jsonstr = array('response' => $results);
+            $this->response($this->json($jsonstr),200);
+
+        }
+
+        //GetReceipt(expenseId)
+        //PutReceipt(expenseId)
+
 
 //==========================================DO NOT EDIT BELOW=======================================
 
