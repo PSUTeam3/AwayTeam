@@ -9,6 +9,8 @@
     require_once("controllers/TeamController.php");
     require_once("controllers/TeamMemberController.php");
     
+    require_once("externalControllers/FoursquareController.php");
+    
     class API extends REST 
     {
     
@@ -355,38 +357,12 @@
             $info = $this->_request;
             
             //check authentication; assign user; change password.
+            $authUser = $this->AuthRequired($info);
+
             if (isset($info['loginId']))
             {
-                if (isset($info['AWT_AUTH']) && isset($info['AWT_AUTH_CHALLENGE']))
-                {
-                    $userIdentifier = $info['AWT_AUTH'];
-                    $challenge      = $info['AWT_AUTH_CHALLENGE'];
-
-                    $good = $xUser->ValidateAuthenticationChallange($info['loginId'], $userIdentifier, $challenge);
-
-                    if ($good == false)
-                    {
-                        $x = array('response' => 'failure', 'message' => 'auth required');
-                        $this->response($this->json($x), 200);
-                        exit;
-                    }
-                    else
-                    {
-                        //$x = array('response' => 'good');
-                        //$this->response($this->json($x), 200);
-                        //exit;
-                    }
-                }
-                else
-                {
-                    //fail
-                    $x = array('response' => 'failure', 'message' => 'auth required');
-                    $this->response($this->json($x), 401);
-
-                    exit;
-                }
-
                 $xUser = $xUser->GetUserFromLoginID($info['loginId']);
+
                 if ($xUser->userId <> "-999")
                 {
                     if (isset($info['newPassword']))
@@ -535,7 +511,6 @@
 
         private function Expense_CreateExpense()
         {   
-            //requireAuth
 
             $xExpense = new ExpenseController;
     
@@ -544,6 +519,7 @@
                 $this->response('', 406);
             }   
             $expArray = $this->_request;
+            $authUser = $this->AuthRequired($expArray);
             $newExp = $xExpense->CreateExpense($expArray);
 
             $jsonMsg = array(); 
@@ -570,10 +546,17 @@
             }   
 
             $array1         = $this->_request;
+            $authUser       = $this->AuthRequired($array1);
             $response       = $xExpense->ModifyExpense($array1);
-
-            $jsonstr        = array('response' => $response);
-
+            
+            if ($response)
+            {
+                $jsonstr = array('response' => 'success', 'message' => 'expense modified');
+            }
+            else
+            {
+                $jsonstr = array('response' => 'failure', 'message' => 'expense not modified');
+            }
             $this->response($this->json($jsonstr),200);
         }   
 
@@ -587,11 +570,18 @@
             }
             
             $array1                 = $this->_request;
+            $authUser               = $this->AuthRequired($array1);
             $xExpense->expenseId    = $array1['expenseId'];
             $response               = $xExpense->RemoveExpense();
-            
-            $jsonstr                = array('response' => $response);
 
+            if ($response)
+            {
+                $jsonstr = array('response' => 'success', 'message' => 'expense deleted');
+            }
+            else
+            {
+                $jsonstr = array('response' => 'failure', 'message' => 'expense not deleted');
+            }           
             $this->response($this->json($jsonstr),200);
         }
 
@@ -604,6 +594,7 @@
             }
 
             $array1         = $this->_request;
+            $authUser = $this->AuthRequired($array1);
             $results        = $xExpense->GetExpense($array1);
 
             if (is_array($results))
@@ -629,6 +620,21 @@
         //GetReceipt(expenseId)
         //PutReceipt(expenseId)
 
+        private function FQ_GetSpots()
+        {
+            $xFQ = new FoursquareController;
+            
+            if ($this->get_request_method() != "POST")
+            {
+                $this->response('',406);
+            }
+            
+            $array1 = $this->_request;
+            $results = $xFQ->FindSpot($array1);
+
+            $jsonstr = array('response' => $results);
+            $this->response($this->json($jsonstr),200);
+        }
 
 //==========================================DO NOT EDIT BELOW=======================================
 
@@ -641,6 +647,46 @@
             {
                 return json_encode($data);
             }
+        }
+
+        private function AuthRequired($info)
+        {
+            $xUser = new UserController;
+
+            //check authentication; assign user; change password.
+            if (isset($info['loginId']))
+            {   
+                if (isset($info['AWT_AUTH']) && isset($info['AWT_AUTH_CHALLENGE']))
+                {   
+                    $userIdentifier = $info['AWT_AUTH'];
+                    $challenge      = $info['AWT_AUTH_CHALLENGE'];
+
+                    $good = $xUser->ValidateAuthenticationChallange($info['loginId'], $userIdentifier, $challenge);
+
+                    if ($good == false)
+                    {   
+                        $x = array('response' => 'failure', 'message' => 'auth required');
+                        $this->response($this->json($x), 200);
+                        exit;
+                    }   
+                    else
+                    {   
+                        //succesful hash
+                        $authenticated['loginId'] = $info['loginId'];
+                        $authenticated['userId']  = $xUser->GetUserFromID($info['loginId']);
+                    
+                        return $authenticated;
+                    }   
+                }   
+                else
+                {   
+                    //fail
+                    $x = array('response' => 'failure', 'message' => 'auth required');
+                    $this->response($this->json($x), 401);
+                    exit;
+                }   
+            }
+
         }
     }
     
