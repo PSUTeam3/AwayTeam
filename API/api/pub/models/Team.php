@@ -51,19 +51,17 @@
             global $db;
             $query = "select * from team";
             $sql = mysql_query($query, $db);
+            $teamList = array();
             
             if(mysql_num_rows($sql) > 0) {
                 $result = array();
                 
-                while($row = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                    $result[] = $rlt;
-                }
+                while($row = mysql_fetch_object($sql)) {
+                    $tTeam = $row;
+                    $teamList[] = $tTeam;
+                }                               
                 
-                foreach($result[0] as $item=>$value) {
-                    $tTeam->$item=$value;
-                }
-                
-                return $tTeam;
+                return $teamList;
             }
         }
         
@@ -165,6 +163,7 @@
                     while($getTeamInfoResult = mysql_fetch_array($sql, MYSQL_ASSOC)) {
                         $teamInfoResult = array();
                         $teamInfoResult[] = $getTeamInfoResult;
+                        
                         foreach($teamInfoResult[0] as $item=>$value) {
                             $tTeam->$item = $value;                            
                         }
