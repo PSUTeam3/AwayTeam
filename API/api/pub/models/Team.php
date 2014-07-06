@@ -30,19 +30,31 @@
         }
         
         public function InsertTeam() {
-            $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged,teamScheduleId) values ('%s',%d,'%s','%s',%d)",
+            global $db;
+            
+            if (strtolower($this->teamManaged) == "true")
+            {
+                $this->teamManaged = 1;
+            }
+            else
+            {
+                $this->teamManaged = 0;
+            }
+
+            $query = sprintf("insert into team (teamName,teamDescription,teamManaged) values ('%s','%s','%d')",
+            // orig $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged,teamScheduleId) values ('%s',%d,'%s','%s',%d)",
                 myEsc(strtolower($this->teamName)),
-                myEsc($this->teamLocationId),
                 myEsc($this->teamDescription),
-                myEsc($this->teamManaged),
-                myEsc($this->teamScheduleId));
+                myEsc($this->teamManaged));
+            logIt("insert team query");
+            logIt(var_export($query, true));
                 
             mysql_query($query, $db);
             
             $id = mysql_insert_id();
             
             if($id>=0) {
-                $this->userId = $id;
+                $this->teamId = $id;
             }
             
             return $id;

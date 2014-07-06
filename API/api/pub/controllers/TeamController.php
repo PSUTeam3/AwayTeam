@@ -7,10 +7,11 @@
     
     class TeamController extends Team
     {    
-        public function CreateTeam ($teamParamatersArray) {
+        public function CreateTeam ($teamParametersArray) {
             $tTeam = new Team;
-            $tTeam = arrayToObject($teamParametersArray);            
+            $tTeam = $this->arrayToObject($teamParametersArray);            
             $newTeamId = $tTeam->InsertTeam();
+            return $newTeamId;
         }
         
         public function GetAllTeams() {
@@ -50,7 +51,7 @@
         private function arrayToObject($teamArray) {
             $tTeam = new Team;
             foreach($teamArray as $item=>$value) {
-                $tTeam->item = $value;
+                $tTeam->$item = $value;
             }
             
             return $tTeam;            
