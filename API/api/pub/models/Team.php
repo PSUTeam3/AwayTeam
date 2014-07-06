@@ -3,6 +3,7 @@
     include_once('/home/awayteam/api/pub/apiconfig.php');
     include_once('/home/awayteam/api/pub/models/TeamUtilities.php');
     include_once('/home/awayteam/api/pub/models/TeamMembers.php');
+    include_once('/home/awayteam/api/pub/models/TeamMemberUtilities.php');
     include_once('/home/awayteam/api/pub/models/Location.php');
     
     class Team
@@ -68,6 +69,8 @@
         public function SelectTeamFromId($teamId, $loginId) {
             global $db;
             $aTeam = new Team;
+            $tm = new TeamMembers;
+            $tu = new TeamUtilities;
             
             $query = "select userId from user where loginId = '" . myEsc($loginId) ."'";
             $sql = mysql_query($query, $db);
@@ -77,11 +80,12 @@
                     $result[] = $rlt;
                 }
                 
-                $userId = $result[0]['loginId'];
+                $userId = $result[0]['userId'];
             }
             
-            if(VerifyTeamMemberExist($teamId, $userId) && $id && TeamIdExists($id)) {
-                $query = "select from team where teamId =" . myEsc($id);
+            if($tm->VerifyTeamMemberExist($teamId, $userId) && $teamId && $tu->TeamIdExists($teamId)) {
+                $query = "select * from team where teamId =" . myEsc($teamId);
+            logIt(var_export($query, true));
                 $sql = mysql_query($query, $db);
                 if(mysql_num_rows($sql) > 0) {
                     $result = array();
@@ -90,11 +94,12 @@
                     }
                     
                     foreach($result[0] as $column=>$value) {
-                        $aTeam->$item = $value;
+                        $aTeam->$column = $value;
                     }
                     return $aTeam;
                 }                
             } else {
+                logIt("not getting there");
                 //What do we want to do with empty id field?
                 //Error message
             }
@@ -125,7 +130,7 @@
                 $teamId = $result[0]['teamId'];
             }
             
-            if(VerifyTeamMemberExist($teamId, $userId) && $teamName && TeamNameUsed($teamName)){
+            if(TeamMemberExist($teamId, $userId) && $teamName && TeamNameUsed($teamName)){
                 $query = "select * from team where teamName =" . myEsc($teamName);
                 $sql = mysql_query($query, $db);
                 
@@ -180,7 +185,7 @@
             return $teamList;            
         }
        
-        public function ModifyTeam() {
+        public function ModifyTeamModel() {
             global $db;
             $query = sprintf("update team set teamName='%s', teamLocationId=%d, teamDescription='%s', teamManaged='%s' where teamId = " . myEsc($this->teamId),
                 myEsc($this->teamName),
@@ -194,7 +199,7 @@
             
         }
         
-        public function ModifyTeamName($newTeamName)
+        public function ModifyTeamNameModel($newTeamName)
         {
             global $db;
             

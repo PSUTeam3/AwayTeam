@@ -67,12 +67,15 @@
             }   
     
             $selectTeam = $selectTeam->GetAllTeams();    
-            $selectTeam = get_object_vars($selectTeam);    
+            //fixed var name
+            $respArray = get_object_vars($selectTeam);    
             $respArray = array('status' => "success", 'response' => $selectTeam);
             $this->response($this->json($respArray), 200);
         }
         private function Team_GetTeam() 
         {
+            //multiple errors in here. you have the function requireing POST, but you are looking for GET responses.
+            //mismatched function calls and parameter values
             $selectTeam = new TeamController;
             $failure = true;
 
@@ -81,27 +84,29 @@
                 $this->response('',406);
             }
 
-            if(isset($_GET['loginId']))
+            $info = $this->_request;
+
+            if(isset($info['loginId']))
             {
-                $username = $_GET['loginId'];
-                if(isset($_GET['teamId'])) 
+                $username = $info['loginId'];
+                if(isset($info['teamId'])) 
                 {
-                    $teamId = $_GET['teamId'];
+                    $teamId = $info['teamId'];
                     if(!empty($teamId)) 
                     {
-                        $selectTeam = $selectTeam->GetTeamFromId($teamId, $loginId);
+                        $selectTeam = $selectTeam->GetTeamFromID($info['teamId'], $info['loginId']);
                     }
-                } elseif(isset($_GET['teamName'])) 
+                } elseif(isset($info['teamName'])) 
                     {
-                    $teamName = $_GET['teamName'];
+                    $teamName = $info['teamName'];
                     if(!empty($teamName)) 
                     {
-                        $selectTeam = $selectTeam->GetTeamFromName($teamName, $loginId);
+                        $selectTeam = $selectTeam->GetTeamFromName($info['teamName'], $info['loginId']);
                     }
                 }
             }
 
-            if($selectTeam->userId == -999 or $selectTeam->teamName="") 
+            if($selectTeam->teamId == -999 or $selectTeam->teamName=="") 
             {
                 $failure=true;
             } else 

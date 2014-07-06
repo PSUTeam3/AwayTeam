@@ -17,8 +17,8 @@
             return $this->SelectAllTeams();
         }
         
-        public function GetTeamFromID($teamId) {
-            return $this->SelectTeamFromId($teamId);
+        public function GetTeamFromID($teamId,$loginId) {
+            return $this->SelectTeamFromId($teamId,$loginId);
         }
         
         public function GetTeamFromTeamName($teamName) {
@@ -31,14 +31,14 @@
         public function ModifyTeamName($teamParametersArray) {
             $tTeam = new Team;
             $tTeam = arrayToObject($teamParamatersArray);
-            $retCode = $tTeam->ModifyTeamName();
+            $retCode = $tTeam->ModifyTeamNameModel();
             return $retCode;
         }
         
-        public function ModifyTeam ($teamParamatersArray) {
+        public function ModifyTeam($teamParamatersArray) {
             $tTeam = new Team;
             $tTeam = arrayToObject($teamParametersArray);
-            $retCode = $tTeam->ModifyTeam();
+            $retCode = $tTeam->ModifyTeamModel();
             
             return $retCode;
         }

@@ -130,7 +130,7 @@
             } else if ($id && TeamIdExists($id)) {
                 $query = "update team_member set teamId=" . myEsc($id) 
                         . " where id = " .myEsc($this->teamMemberId);
-                $sql = mysqul_query($query, $db);
+                $sql = mysql_query($query, $db);
                 return $sql;
             } else {
                 return false;
@@ -140,8 +140,8 @@
         public function VerifyTeamMemberExist($teamId, $userId) {
             global $db;
             if($teamId && $userId) {
-                $query = "select count(teamMemberId) as num from team_member where 
-                        teamId = " . myEsc($teamId) . " and userId = " . myEsc($userId);
+                $query = "select count(teamMemberId) as num from team_member where teamId = " . myEsc($teamId) . " and userId = " . myEsc($userId);
+                $sql = mysql_query($query, $db);
                 $data = mysql_fetch_assoc($sql);
                 
                 if($data['num'] == 0) {
