@@ -49,36 +49,32 @@
             $newTeamId = $newTeam->CreateTeam($teamArray);
     
             $jsonMsg = array();
-            if ($newTeamId > 0) {
-                $jsonMsg = array('response' => 'success', 'message'=> $newTeamId);
+            if ($newTeamId > -999) {
+                $jsonMsg = array('status' => 'success', 'response'=> $newTeamId);
             } else {
-                $jsonMsg = array('response' => 'failure', 'message'=> 'failure has occurred');
+                $jsonMsg = array('status' => 'success', 'response'=> $newTeamId);
             }   
     
             $this->response($this->json($jsonMsg), 200);
         }   
     
         private function Team_GetAllTeams() {
-            $selectTeamList = new TeamController;
+            $selectTeam = new TeamController;
             $failure = true;
     
             if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }   
     
-            $selectTeamList = $selectTeamList->GetAllTeams();    
+            $selectTeam = $selectTeam->GetAllTeams();    
             //fixed var name
-            $respArray = get_object_vars($selectTeam);
-            if($respArray) {
-                $respArray = array('response' => 'success', 'message' => $selectTeam);
-            } else {
-                $respArray = array('response' => 'failure', 'message' => 'no teams registered');
-            }
+            $respArray = get_object_vars($selectTeam);    
+            $respArray = array('status' => "success", 'response' => $selectTeam);
             $this->response($this->json($respArray), 200);
         }
         private function Team_GetTeam() 
         {
-            //multiple errors in here. you have the function requiring POST, but you are looking for GET responses.
+            //multiple errors in here. you have the function requireing POST, but you are looking for GET responses.
             //mismatched function calls and parameter values
             $selectTeam = new TeamController;
             $failure = true;
@@ -120,11 +116,11 @@
 
             if($failure == true) 
             {
-                $respArray = array('response' => 'failure', 'message' => 'team not found');
+                $respArray = array('status' => "failure", 'response' => "team not found");
             } else 
             {
                 $newTeam = get_object_vars($selectTeam);
-                $respArray = array('response' => 'success', 'message' => $newTeam);
+                $respArray = array('status' => "success", 'response' => $newTeam);
             }
 
             $this->response($this->json($respArray), 200);
@@ -145,7 +141,7 @@
             }
 
             $teamListArray = get_object_vars($teamList);
-            $respArray = array('response' => 'success', 'message' => $teamListArray);
+            $respArray = array('status' => "success", 'response' => $teamListArray);
             $this->response($this->json($respArray), 200);
 
         }
