@@ -88,7 +88,7 @@
                 
                 return $anEvent;
             }
-        }
+        }       
         
         public function ModifyEvent() {
             global $db;

@@ -72,6 +72,14 @@
                 while($row = mysql_fetch_object($sql)) {
                     $tTeam = $row;
                     $teamList[] = $tTeam;
+                    
+                    $query = "select locName from location where locId = '" . myEsc($row->teamLocationId) . "'";
+                    $sql = mysql_query($query, $db);
+                    
+                    while($row = mysql_fetch_object($sql)) {
+                        $tLocation = $row;
+                        $teamList[] = $tLocation;
+                    }
                 }                               
                 
                 return $teamList;

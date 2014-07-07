@@ -40,28 +40,52 @@
 
         private function Team_CreateTeam() {
             $newTeam = new TeamController;
-    
+            $jsonMsg = array();
+            $failure = false;
+            
             if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }   
     
             $teamArray = $this->_request;
-            $newTeamId = $newTeam->CreateTeam($teamArray);
-    
-            $jsonMsg = array();
-            if ($newTeamId > -999) {
+            
+            $authUser = $this->AuthRequired($teamArray);
+            
+            if($authUser) {
+                $jsonMsg = array('status' => 'failure', 'response' => "authentication is missing");
+                $failure = true;
+            } else if(!isset($info['teamName'])) {
+                $jsonMsg = array('status' => 'failure', 'response'=> "teamName is not filled in");
+                $failure = true;
+            } else if(!isset($info['teamLocationId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "teamLocationId is not filled in");                
+                $failure = true;
+            } else if(!isset($info['teamManaged'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "teamManaged is not filled in");
+                $failure = true;
+            }
+            
+            if($failure == false) {
+                if(TeamNameUsed($info['teamName'])) {
+                    jsonMsg = array('status' => 'failure', 'response'=> "team name is already used");
+                    $failure = true;
+                }
+            }
+            
+            if($failure == false) {
+                $newTeamId = $newTeam->CreateTeam($teamArray);
+            }    
+            
+            if ($newTeamId > 0) {
                 $jsonMsg = array('status' => 'success', 'response'=> $newTeamId);
-            } else {
-                $jsonMsg = array('status' => 'success', 'response'=> $newTeamId);
-            }   
+            } 
     
             $this->response($this->json($jsonMsg), 200);
         }   
     
         private function Team_GetAllTeams() {
             $selectTeam = new TeamController;
-            $failure = true;
-    
+                
             if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }   
@@ -69,12 +93,12 @@
             $selectTeam = $selectTeam->GetAllTeams();    
             //fixed var name
             $respArray = get_object_vars($selectTeam);    
-            $respArray = array('status' => "success", 'response' => $selectTeam);
-            $this->response($this->json($respArray), 200);
+            $jsonMsg = array('status' => "success", 'response' => $selectTeam);
+            $this->response($this->json($jsonMsg), 200);
         }
         private function Team_GetTeam() 
         {
-            //multiple errors in here. you have the function requireing POST, but you are looking for GET responses.
+            //multiple errors in here. you have the function requiring POST, but you are looking for GET responses.
             //mismatched function calls and parameter values
             $selectTeam = new TeamController;
             $failure = true;
@@ -132,9 +156,11 @@
             if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }
-
-            if(isset($_GET['loginId'])) {
-                $loginId = $_GET['loginId'];
+            
+            $info = $this->_request;
+            
+            if(isset($info['loginId'])) {
+                $loginId = $info['loginId'];
                 if(!empty($loginId)) {
                     $teamList = $getTeamList->GetTeamListForUser($loginId);
                 }
@@ -153,9 +179,12 @@
             {
                 $this->response('',406);
             }
-            if(isset($_GET['loginId']) && isset($_GET['teamId'])) {
-                $userId = $_GET['userId'];
-                $teamId = $_GET['teamId'];
+            
+            $info = $this->_request;
+            
+            if(isset($info['loginId']) && isset($info['teamId'])) {
+                $userId = $info['userId'];
+                $teamId = $info['teamId'];
                 if(VerifyTeamMemberExist($teamId, $userId)) {
                     $respArray = $this->_response;
                     $response = $modifyTeam->ModifyTeam($respArray);
@@ -176,10 +205,12 @@
             if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }
-
-            if(isset($_GET['loginId']) && isset($_GET['teamId'])) {
-                $userId = $_GET['userId'];
-                $teamId = $_GET['teamId'];
+            
+            $info = $this->_request;
+            
+            if(isset($info['loginId']) && isset($info['teamId'])) {
+                $userId = $info['userId'];
+                $teamId = $info['teamId'];
                 if(VerifyTeamMemberExist($teamId, $userId)) {
                     $respArray = $this->_response;
                     $response = $changeTeamName->ModifyTeamName($respArray);
