@@ -16,6 +16,7 @@ import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -298,29 +299,31 @@ public class CommUtil {
 
 		return 0;
 	}
-	
-	//Create a new team
-	//INPUTS: team name, description, location name, lat and lon, managed
-	//RETURN: 1 = success, team created
+
+	// Create a new team
+	// INPUTS: team name, description, location name, lat and lon, managed
+	// RETURN: 1 = success, team created
 	// 0 = unknown error or connection failure
 	// -1 = team name already used
 	public static int CreateTeam(Context context, String teamName,
-			String locationName, String description, int lat, int lon, boolean managed) {
-		//TODO: update with correct URI
-		String url = "https://api.awayteam.redshrt.com/team/CreateTeam";
+			String locationName, String description, int lat, int lon,
+			boolean managed) {
+		String url = "https://api.awayteam.redshrt.com/team/createteam";
 
 		if (!NetworkTasks.NetworkAvailable(context)) {
 			return 0;
 		}
 
-		List<NameValuePair> pairs = UserSession.getInstance(context).createHash();
-		pairs.add(new BasicNameValuePair("loginId", UserSession.getInstance(context).getUsername()));
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", UserSession.getInstance(
+				context).getUsername()));
 		pairs.add(new BasicNameValuePair("teamName", teamName));
-		pairs.add(new BasicNameValuePair("description", description));
+		pairs.add(new BasicNameValuePair("teamDescription", description));
 		pairs.add(new BasicNameValuePair("locationName", locationName));
 		pairs.add(new BasicNameValuePair("locationLat", Integer.toString(lat)));
 		pairs.add(new BasicNameValuePair("locationLon", Integer.toString(lon)));
-		pairs.add(new BasicNameValuePair("managed", Boolean.toString(managed)));
+		pairs.add(new BasicNameValuePair("teamManaged", Boolean.toString(managed)));
 
 		JSONObject result = null;
 		Log.v("COMM", "sending request to network " + url);
@@ -339,6 +342,87 @@ public class CommUtil {
 				default:
 					return 0;
 				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	// Collect the list of all teams on the system
+	// RETURN: list of all the teams formatted as: id,teamname,location,managed
+	public static List<Object[]> GetAllTeamsList(Context context) {
+		String url = "https://api.awayteam.redshrt.com/team/getallteams";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return null;
+		}
+
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+
+		JSONObject result = null;
+		Log.v("COMM", "sending request to network " + url);
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			Log.v("COMM", "Team List results: " + result.toString());
+			if (result.getString("status").equals("success")) {
+				//collect data and pass array to display list
+				List<Object[]> teamList = new ArrayList<Object[]>();
+				JSONArray response = result.getJSONArray("response");
+				Log.v("COMM","parsing JSON: "+response.length());
+				for(int i = 0;i<response.length();i++){
+					Log.v("COMM",response.getJSONObject(i).getString("teamName"));
+					int id = response.getJSONObject(i).getInt("teamId");
+					String name = response.getJSONObject(i).getString("teamName");
+					String location = response.getJSONObject(i).getString("teamLocationId");
+					if(location.equals("null")){
+						location="";
+					}
+					boolean managed = response.getJSONObject(i).getString("teamManaged").equals("1"); //this is kind of a hack - should be fixed
+					teamList.add(new Object[]{id,name,location,managed});
+				}
+				return teamList;
+			} else if (result.getString("status").equals("failure")) {
+				// only error is no teams available
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	// Get all the information about a team
+	// This call will update the user session and build an Active Team
+	// INPUTS: team name, description, location name, lat and lon, managed
+	// RETURN: 1 = success, team created
+	// 0 = unknown error or connection failure
+	// -1 = team name already used
+	public static int GetTeam(Context context) {
+		// TODO: update with correct URI
+		String url = "https://api.awayteam.redshrt.com/team/getallteams";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+
+		JSONObject result = null;
+		Log.v("COMM", "sending request to network " + url);
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			Log.v("COMM", "Team List results: " + result.toString());
+			if (result.getString("response").equals("success")) {
+				// TODO: collect data and build up team information
+				return 1;
+			} else if (result.getString("response").equals("failure")) {
+				// only error is no teams available
+				return 0;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
