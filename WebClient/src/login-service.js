@@ -1,7 +1,6 @@
 angular.module('loginService', [])
 .provider('loginService', function () {
-  var userToken = localStorage.getItem('userToken'),
-      errorState = 'error',
+  var errorState = 'error',
       logoutState = 'home';
 
   this.$get = function ($rootScope, $http, $q, $state) {
@@ -122,6 +121,8 @@ angular.module('loginService', [])
        * Public properties
        */
       userRole: null,
+      userIdentifier: null,
+      userSecret: null,
       user: {},
       isLoggedIn: null,
       pendingStateChange: null,
@@ -147,20 +148,31 @@ angular.module('loginService', [])
        // setToken(user.token); //TODO don't currently have token handling
         // update user
         angular.extend(wrappedService.user, user.message);
+        angular.extend($rootScope.editUserObj, user.message);
         // flag true on isLoggedIn
         wrappedService.isLoggedIn = true;
         // update userRole
         wrappedService.userRole = userRoles.admin; //TODO currently setting all users to admin until roles are defined
         return user;
       },
-      loginUser: function (httpPromise, loginId) {
-        httpPromise.success(function(){
-              var userPromise = $http({
-                  url: "https://api.awayteam.redshrt.com/user/GetUser?loginId="+loginId,
-                  method: "GET"
-              });
+      loginUser: function (httpPromise, login, rememberUser) {
+        httpPromise.success(function(user, status, headers, config) {
+            if (user.response === "success") {
+                wrappedService.userIdentifier = user.userIdentifier;
+                wrappedService.userSecret = user.userSecret;
 
-              userPromise.success(wrappedService.loginHandler);
+                if(rememberUser === "true"){
+                    localStorage.setItem("awayteamLoginId", login.loginId);
+                    localStorage.setItem("awayteamPassword", login.password);
+                }
+
+                var userPromise = $http({
+                    url: "https://api.awayteam.redshrt.com/user/GetUser?loginId=" + login.loginId,
+                    method: "GET"
+                });
+
+                userPromise.success(wrappedService.loginHandler);
+            }
           });
       },
       logoutUser: function (httpPromise) {
@@ -170,8 +182,13 @@ angular.module('loginService', [])
          */
         setToken(null);
         this.userRole = userRoles.public;
+        this.userIdentifier = "";
+        this.userSecret = "";
         this.user = {};
+        $rootScope.editUserObj = {};
         this.isLoggedIn = false;
+        localStorage.removeItem("awayteamLoginId");
+        localStorage.removeItem("awayteamPassword");
         $state.go(logoutState);
       },
       resolvePendingState: function (httpPromise) {

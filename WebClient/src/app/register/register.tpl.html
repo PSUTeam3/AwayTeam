@@ -1,7 +1,8 @@
   <form class="form-signin" name="registerForm" role="registration" ng-submit="registerUser(registerForm)">
     <h2 class="form-signin-heading"><i class="fa fa-user"></i>Register User</h2>
 
-    <div class="form-input username">
+    <div class="form-input">
+        <label>Username</label>
         <input type="text" class="form-control" placeholder="Username" name="username" ng-model="registerObj.loginId" autofocus="true"
         ng-minlength="4" ng-maxlength="16" ng-required="true" user-unique="">
       <div class="errors" ng-class="{ active: registerForm.username.$invalid && registerForm.username.$dirty }">
@@ -17,7 +18,8 @@
       </div>
     </div>
 
-    <div class="form-input firstName">
+    <div class="form-input">
+        <label>First Name</label>
       <input type="text" class="form-control" placeholder="First Name" name="firstName" ng-model="registerObj.firstName" ng-minlength="2" ng-maxlength="32" ng-required="true">
       <div class="errors" ng-class="{ active: registerForm.firstName.$invalid && registerForm.firstName.$dirty }">
         <div class="error ng-hide" ng-show="registerForm.firstName.$error.minlength">
@@ -29,7 +31,8 @@
       </div>
     </div>
 
-    <div class="form-input lastName">
+    <div class="form-input">
+        <label>Last Name</label>
       <input type="text" class="form-control" placeholder="Last Name" name="lastName" ng-model="registerObj.lastName" ng-minlength="2" ng-maxlength="32" ng-required="true">
       <div class="errors" ng-class="{ active: registerForm.lastName.$invalid && registerForm.lastName.$dirty }">
         <div class="error ng-hide" ng-show="registerForm.lastName.$error.minlength">
@@ -41,19 +44,21 @@
       </div>
     </div>
 
-    <div class="form-input email">
-      <input type="email" class="form-control email" placeholder="E-Mail" name="email" ng-model="registerObj.email" ng-required="true" remote-validated="used">
+    <div class="form-input">
+        <label>Email</label>
+      <input type="email" class="form-control email" placeholder="E-Mail" name="email" ng-model="registerObj.email" ng-required="true" remote-validated="used" email-unique="">
       <div class="errors" ng-class="{ active: registerForm.email.$invalid && registerForm.email.$dirty }">
         <div class="error ng-hide" ng-show="registerForm.email.$error.email">
           <p>E-Mail seems invalid.</p>
         </div>
-        <div class="error ng-hide" ng-show="registerForm.email.$error.used">
+        <div class="error ng-hide" ng-show="registerForm.email.$error.emailUnique">
           <p>E-Mail is already taken.</p>
         </div>
       </div>
     </div>
 
-    <div class="form-input password">
+    <div class="form-input">
+        <label>Password</label>
       <input type="password" class="form-control password" placeholder="Password" name="password" ng-model="registerObj.password" ng-minlength="4" ng-maxlength="16" ng-required="true" password-match="registerObj.password2">
       <input type="password" class="form-control password2" placeholder="Repeat Password" name="password2" ng-model="registerObj.password2">
       <div class="errors" ng-class="{ active: registerForm.password.$invalid && registerForm.password.$dirty }">
@@ -69,7 +74,8 @@
       </div>
     </div>
 
-   <div class="form-input cellPhone">
+   <div class="form-input">
+       <label>Cell Phone</label>
       <input type="text" class="form-control" placeholder="Cell Phone" name="cellPhone" ng-model="registerObj.cellPhone" ng-minlength="7" ng-maxlength="32" ng-required="true">
       <div class="errors" ng-class="{ active: registerForm.cellPhone.$invalid && registerForm.cellPhone.$dirty }">
         <div class="error ng-hide" ng-show="registerForm.cellPhone.$error.minlength">
@@ -80,9 +86,23 @@
         </div>
       </div>
     </div>
+
+      <div class="form-input">
+          <label>Emergency Phone</label>
+          <input type="text" class="form-control" placeholder="Emergency Phone" name="emergencyPhone" ng-model="registerObj.emergencyPhone" ng-minlength="7" ng-maxlength="32" ng-required="true">
+          <div class="errors" ng-class="{ active: registerForm.emergencyPhone.$invalid && registerForm.emergencyPhone.$dirty }">
+              <div class="error ng-hide" ng-show="registerForm.emergencyPhone.$error.minlength">
+                  <p>Provided number is too short!</p>
+              </div>
+              <div class="error ng-hide" ng-s how="registerForm.emergencyPhone.$error.maxlength">
+                  <p>Max number length is 32, please shorten it.</p>
+              </div>
+          </div>
+      </div>
+
     <button class="btn btn-primary" type="submit"
       ng-class="{ 'btn-primary': registerForm.$valid && registerForm.$dirty, 'btn-success': redirect }"
-      ng-disabled="false">
+      ng-disabled="registerForm.$invalid || registerForm.$pristine || xhr || redirect">
       <span ng-hide="redirect">Register <i class="fa fa-repeat fa-spin" ng-show="xhr"></i></span>
       <span ng-show="redirect">Redirecting... <i class="fa fa-repeat fa-spin"></i></span>
     </button>

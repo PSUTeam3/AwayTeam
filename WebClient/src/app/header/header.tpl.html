@@ -20,7 +20,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
        <!-- Login Form -->
-      <form class="navbar-form navbar-right" name="loginForm" role="login" ng-submit="login()" ng-hide="ls.isLoggedIn || !ls.doneLoading">
+      <form class="navbar-form navbar-right" name="loginForm" role="login" ng-submit="attemptLogin()" ng-hide="ls.isLoggedIn || !ls.doneLoading" ng-init="setLoginForm();">
         <div class="form-group">
           <input type="text" class="form-control" ng-model="login.loginId" name="loginId" placeholder="Username">
         </div>
@@ -29,19 +29,41 @@
         </div>
         <button type="submit" class="btn btn-default hidden-devices" ng-disabled="login.working">Login <i class="fa" ng-class="login.working ? 'fa-cog fa-spin' : 'fa-sign-in'"></i></button>
         <button type="submit" class="btn btn-default hidden-devices" ng-disabled="login.working" ui-sref="register">Register <i class="fa" ng-class="'fa-user'"></i></button>
+        <br/>
+        <label class="checkbox-inline">
+            <input type="checkbox" name="rememberMe" ng-model="login.rememberMe" ng-true-value="true" ng-false-value="false" ng-class="{ 'active': !ls.isLoggedIn }"> Remember Credentials?
+        </label>
       </form>
+
 	  <!-- Spinner -->
       <button class="btn btn-default navbar-btn navbar-right" ng-hide="ls.doneLoading">
         <i class="fa fa-spinner fa-spin"></i>
       </button>
       <!-- Logout Form -->
-      <form class="navbar-form navbar-right" role="logout" ng-submit="logout()" ng-show="ls.isLoggedIn">
-        <div class="form-group">
+      <form class="navbar-form navbar-right" ng-show="ls.isLoggedIn">
+          <div class="btn-group user-dropdown" dropdown>
+              <button type="button" class="btn">{{ ls.user.loginId }}</button>
+              <button type="button" class="btn dropdown-toggle">
+                  <span class="caret"></span>
+                  <span class="sr-only">Split button!</span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                  <li><a href="#" ui-sref="register">Add Account</a></li>
+                  <li><a href="#" ui-sref="editAccount">Edit Account</a></li>
+                  <li><a href="#" ng-click="changePWOpen()">Change Password</a></li>
+                  <li class="divider"></li>
+                  <li><a href="#" ng-click="logout()">Logout</a></li>
+              </ul>
+          </div>
+
+         <!--<span class="user-popover" popover-template="header/userPopover.tpl.html" popover-trigger="click" popover-placement="bottom" >{{ ls.user.loginId }}</span>-->
+
+        <!--<div class="form-group">
           <label>Hello {{ ls.user.firstName }}</label>
         </div>
         <div class="form-group">
           <button  type="submit" class="btn btn-default">Logout <i class="fa fa-signout"></i></button>
-        </div>
+        </div>-->
       </form>
       </ul>
     </div><!-- /.navbar-collapse -->

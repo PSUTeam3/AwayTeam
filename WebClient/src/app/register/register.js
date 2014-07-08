@@ -78,6 +78,31 @@
         };
     }]);
 
+    app.directive('emailUnique', ['$http', function (async) {
+        return {
+            require: 'ngModel',
+            link: function (scope, elem, attrs, ctrl) {
+
+                elem.on('blur', function (evt) {
+                    scope.$apply(function () {
+                        var val = elem.val();
+                        if (val !== "") {
+                            var ajaxConfiguration = { method: 'GET', url: 'http://api.awayteam.redshrt.com/user/EmailExist?email=' + val};
+                            async(ajaxConfiguration)
+                                .success(function (data, status, headers, config) {
+                                    if (data.message === "not available") {
+                                        ctrl.$setValidity('emailUnique', false);
+                                    } else {
+                                        ctrl.$setValidity('emailUnique', true);
+                                    }
+                                });
+                        }
+                    });
+                });
+            }
+        };
+    }]);
+
 }(angular.module("AwayTeam.register", [
     'AwayTeam.router'
 ])));
