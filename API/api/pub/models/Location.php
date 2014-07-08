@@ -22,8 +22,7 @@
         }
         
         public function InsertLocation() {
-            $query = sprintf("insert into location (locId, locName, locLatitude, locLongitude) values ('%d','%s', '%s')",
-                myEsc($this->locId),
+            $query = sprintf("insert into location (locName, locLatitude, locLongitude) values ('%d','%s', '%s')",                
                 myEsc($this->locName),
                 myEsc($this->locLatitude),
                 myEsc($this->locLongitude));

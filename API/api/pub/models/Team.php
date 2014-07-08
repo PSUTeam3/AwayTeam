@@ -41,9 +41,9 @@
                 $this->teamManaged = 0;
             }
 
-            $query = sprintf("insert into team (teamName,teamDescription,teamManaged) values ('%s','%s','%d')",
+            $query = sprintf("insert into team (teamName,teamDescription,teamManaged) values ('%s','%s',%d)",
             // orig $query = sprintf("insert into team (teamName,teamLocationId,teamDescription,teamManaged,teamScheduleId) values ('%s',%d,'%s','%s',%d)",
-                myEsc(strtolower($this->teamName)),
+                myEsc($this->teamName),
                 myEsc($this->teamDescription),
                 myEsc($this->teamManaged));
             logIt("insert team query");
@@ -62,6 +62,7 @@
         
         public function SelectAllTeams() {
             global $db;
+            
             $query = "select * from team";
             $sql = mysql_query($query, $db);
             $teamList = array();
@@ -80,7 +81,7 @@
                         $tLocation = $row;
                         $teamList[] = $tLocation;
                     }
-                }                               
+                }
                 
                 return $teamList;
             }
@@ -105,7 +106,7 @@
             
             if($tm->VerifyTeamMemberExist($teamId, $userId) && $teamId && $tu->TeamIdExists($teamId)) {
                 $query = "select * from team where teamId =" . myEsc($teamId);
-            logIt(var_export($query, true));
+                logIt(var_export($query, true));
                 $sql = mysql_query($query, $db);
                 if(mysql_num_rows($sql) > 0) {
                     $result = array();

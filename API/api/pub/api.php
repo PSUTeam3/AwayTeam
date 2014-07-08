@@ -93,7 +93,7 @@
             $selectTeam = $selectTeam->GetAllTeams();    
             //fixed var name
             $respArray = get_object_vars($selectTeam);    
-            $jsonMsg = array('status' => "success", 'response' => $selectTeam);
+            $jsonMsg = array('status' => 'success', 'response' => $selectTeam);
             $this->response($this->json($jsonMsg), 200);
         }
         private function Team_GetTeam() 
@@ -109,6 +109,8 @@
             }
 
             $info = $this->_request;
+            
+            $authUser = $this->AuthRequired($info);
 
             if(isset($info['loginId']))
             {
@@ -140,11 +142,11 @@
 
             if($failure == true) 
             {
-                $respArray = array('status' => "failure", 'response' => "team not found");
+                $respArray = array('status' => 'failure', 'response' => "team not found");
             } else 
             {
                 $newTeam = get_object_vars($selectTeam);
-                $respArray = array('status' => "success", 'response' => $newTeam);
+                $respArray = array('status' => 'success', 'response' => $newTeam);
             }
 
             $this->response($this->json($respArray), 200);

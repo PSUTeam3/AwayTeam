@@ -22,7 +22,7 @@
         
         public function InsertEvent() {
             global $db;
-            $query = sprintf("insert into event(eventName, eventDescription, eventLocationId) values ('%s','%s','d')",
+            $query = sprintf("insert into event(eventName, eventDescription, eventLocationId) values ('%s','%s',%d)",
                     myEsc(strtolower($this->eventName)),
                     myEsc($this->eventDescription),
                     myEsc($this->eventLocationId));
