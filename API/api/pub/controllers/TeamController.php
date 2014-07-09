@@ -29,18 +29,15 @@
         public function GetTeamListForUser($loginId) {
             return $this->GetTeamList($loginId);
         }
-        public function ModifyTeamName($teamParametersArray) {
-            $tTeam = new Team;
-            $tTeam = arrayToObject($teamParamatersArray);
-            $retCode = $tTeam->ModifyTeamNameModel();
-            return $retCode;
+        
+        public function ModifyTeamName($teamId, $teamName) {            
+            return $this->ModifyTeamNameModel($teamId,$teamName);
         }
         
         public function ModifyTeam($teamParamatersArray) {
             $tTeam = new Team;
             $tTeam = arrayToObject($teamParametersArray);
-            $retCode = $tTeam->ModifyTeamModel();
-            
+            $retCode = $tTeam->ModifyTeamModel();            
             return $retCode;
         }
         

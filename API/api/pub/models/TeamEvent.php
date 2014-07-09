@@ -4,28 +4,32 @@
     class Event 
     {
         //Attributes
-        public $eventId;
-        public $eventName;
-        public $eventDescription;
-        public $eventLocationId;
+        public $teamEventId;
+        public $teamEventName;
+        public $teamEventDescription; 
+        public $teamEventLocationName;
+        public $teamEventStartTime;
+        public $teamEventEndTime;
         
         public function __construct() {
             $this->initialize();
         }
         
         public function initialize() {
-            $this->eventId = -999;
-            $this->eventName = "";
-            $this->eventDescription = "";
-            $this->eventLocationId = -999;
+            $this->teamEventId = -999;
+            $this->teamEventName = "";
+            $this->teamEventDescription = "";
+            $this->teamEventLocationName = -999;            
+            $this->teamEventStartTime = '2013-12-31';
+            $this->teamEventEndTime = '2013-12-31';
         }
         
         public function InsertEvent() {
             global $db;
-            $query = sprintf("insert into event(eventName, eventDescription, eventLocationId) values ('%s','%s',%d)",
-                    myEsc(strtolower($this->eventName)),
-                    myEsc($this->eventDescription),
-                    myEsc($this->eventLocationId));
+            $query = sprintf("insert into event(eventName, eventDescription, eventLocationId) values ('%s','%s','%s')",
+                    myEsc(strtolower($this->teamEventName)),
+                    myEsc($this->teamEventDescription),
+                    myEsc($this->teamEventLocationName));
             
             mysql_query($query, $db);
             
@@ -102,14 +106,14 @@
             return $sql;                  
         }
         
-        public function ModifyEventName($newEventName) {  
+        public function ModifyEventName($teamEventId, $newEventName) {  
             global $db;
             
-            if($this->eventId = -999) {
+            if($teamEventId = -999) {
                 return false;
             } else if ( $newEventName && EventNameUsed($newEventName)) {            
                 $query = "update event set eventName = " . myEsc($newEventName)  .
-                        "where eventId = " . myEsc($this->eventId);
+                        "where eventId = " . myEsc($teamEventId);
                 $sql = mysql_query($query, $db);
                 return $sql;
             } else {

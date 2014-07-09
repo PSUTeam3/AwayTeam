@@ -24,6 +24,18 @@
         }
         
         public function InsertTeamMember() {
+            global $db;
+            
+            if (strtolower($this->pendingApproval) == "true")
+            {
+                $this->pendingApproval = 1;
+            }
+            else
+            {
+                $this->pendingApproval = 0;
+            }
+
+            
             $query = sprintf("insert into team_member (teamId, userId, manager, pendingApproval) values (%d,%d,'%s','%s')",               
                 myEsc($this->teamId),
                 myEsc($this->userId),
@@ -83,7 +95,7 @@
             return $teamMemberList;
         }
         
-        public function ModifyTeamMember($id) {
+        public function ModifyTeamMember() {
             global $db;
             $query = sprintf("update team_member set teamId='%d', userId='%d', manager='%s', pendingApproval='%s' where id=" . myEsc($id),
                     myEsc($this->teamId),
@@ -95,13 +107,13 @@
             return $sql;          
         }        
 
-        public function ModifyManagerAttribute($newManagerValue) {
+        public function ModifyManagerAttribute($teamMemberId, $newManagerValue) {
             global $db;
-            if($this->teamMemberId == -999) {
+            if($teamMemberId == -999) {
                 return false;
-            } else if($newManagerValue && TeamMemberIdExists($this->teamMemberId)) {
+            } else if($newManagerValue && TeamMemberIdExists($teamMemberId)) {
                 $query = "update team_member set manager=" .myEsc($newManagerValue) 
-                        . " where id = " .myEsc($this->teamMemberId);
+                        . " where id = " .myEsc($teamMemberId);
                 $sql = mysql_query($query, $db);
                 return $sql;
             } else {
@@ -109,13 +121,13 @@
             }
         }
         
-        public function ModifyPendingApproval($booleanValue) {
+        public function ModifyPendingApproval($teamMemberId, $booleanValue) {
             global $db;
-            if($this->teamMemberId == -999) {
+            if($teamMemberId== -999) {
                 return false;
-            } else if($booleanValue && TeamMemberIdExists($this->teamMemberId)) {
+            } else if($booleanValue && TeamMemberIdExists($teamMemberId)) {
                 $query = "update team_member set pendingApproval=" .myEsc($booleanValue)
-                        . " where id = " .myEsc($this->teamMemberId);
+                        . " where id = " .myEsc($teamMemberId);
                 $sql = mysql_query($query, $db);
                 return $sql;                
             } else {
@@ -123,13 +135,13 @@
             }
         }
         
-        public function ModifyTeamId($id) {
+        public function ModifyTeamMemberTeamId($teamMemberId, $teamId) {
             global $db;
-            if($this->teamMemberId == -999) {
+            if($teamMemberId == -999) {
                 return false;
-            } else if ($id && TeamIdExists($id)) {
-                $query = "update team_member set teamId=" . myEsc($id) 
-                        . " where id = " .myEsc($this->teamMemberId);
+            } else if ($teamMemberId && TeamIdExists($teamId)) {
+                $query = "update team_member set teamId=" . myEsc($teamId) 
+                        . " where teamMemberId = " .myEsc($teamMemberId);
                 $sql = mysql_query($query, $db);
                 return $sql;
             } else {
@@ -150,6 +162,17 @@
                     return true;
                 }
             }
+        }
+        
+        public function DeleteTeamMember($teamMemberId) {
+            global $db;
+            
+            if($teamMemberId) {
+                $query = "delete from team_member where teamMemberId = " .myEsc($teamMemberId);
+            }
+            
+            $sql = mysql_query($query, $db);
+            return $sql;
         }
         
         

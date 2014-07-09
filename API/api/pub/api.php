@@ -57,8 +57,8 @@
             } else if(!isset($info['teamName'])) {
                 $jsonMsg = array('status' => 'failure', 'response'=> "teamName is not filled in");
                 $failure = true;
-            } else if(!isset($info['teamLocationId'])) {
-                $jsonMsg = array('status' => 'failure', 'response' => "teamLocationId is not filled in");                
+            } else if(!isset($info['teamLocationName'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "teamLocationName is not filled in");                
                 $failure = true;
             } else if(!isset($info['teamManaged'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "teamManaged is not filled in");
@@ -91,9 +91,13 @@
             }   
     
             $selectTeam = $selectTeam->GetAllTeams();    
-            //fixed var name
-            $respArray = get_object_vars($selectTeam);    
-            $jsonMsg = array('status' => 'success', 'response' => $selectTeam);
+            
+            if(!empty($selecTeam)) { 
+                $jsonMsg = array('status' => 'success', 'response' => $selectTeam);
+            } else {
+                $jsonMsg = array('status' => 'failure', 'response' => "no teams registered");
+            }
+            
             $this->response($this->json($jsonMsg), 200);
         }
         private function Team_GetTeam() 
@@ -101,6 +105,7 @@
             //multiple errors in here. you have the function requiring POST, but you are looking for GET responses.
             //mismatched function calls and parameter values
             $selectTeam = new TeamController;
+            $aTeam = new Team;
             $failure = true;
 
             if($this->get_request_method() != "POST") 
@@ -108,8 +113,7 @@
                 $this->response('',406);
             }
 
-            $info = $this->_request;
-            
+            $info = $this->_request;            
             $authUser = $this->AuthRequired($info);
 
             if(isset($info['loginId']))
@@ -117,22 +121,12 @@
                 $username = $info['loginId'];
                 if(isset($info['teamId'])) 
                 {
-                    $teamId = $info['teamId'];
-                    if(!empty($teamId)) 
-                    {
-                        $selectTeam = $selectTeam->GetTeamFromID($info['teamId'], $info['loginId']);
-                    }
-                } elseif(isset($info['teamName'])) 
-                    {
-                    $teamName = $info['teamName'];
-                    if(!empty($teamName)) 
-                    {
-                        $selectTeam = $selectTeam->GetTeamFromName($info['teamName'], $info['loginId']);
-                    }
-                }
+                    $teamId = $info['teamId'];                   
+                    $aTeam = $selectTeam->GetTeamFromID($info['teamId'], $info['loginId']);
+                }                
             }
 
-            if($selectTeam->teamId == -999 or $selectTeam->teamName=="") 
+            if($aTeam->teamId == -999 or $aTeam->teamName=="") 
             {
                 $failure=true;
             } else 
@@ -145,7 +139,7 @@
                 $respArray = array('status' => 'failure', 'response' => "team not found");
             } else 
             {
-                $newTeam = get_object_vars($selectTeam);
+                $newTeam = get_object_vars($aTeam);
                 $respArray = array('status' => 'success', 'response' => $newTeam);
             }
 
@@ -160,12 +154,10 @@
             }
             
             $info = $this->_request;
+            $authUser = $this->AuthRequired($info);
             
-            if(isset($info['loginId'])) {
-                $loginId = $info['loginId'];
-                if(!empty($loginId)) {
-                    $teamList = $getTeamList->GetTeamListForUser($loginId);
-                }
+            if(isset($info['loginId'])) {              
+                $teamList = $getTeamList->GetTeamListForUser($info['loginId']);
             }
 
             $teamListArray = get_object_vars($teamList);

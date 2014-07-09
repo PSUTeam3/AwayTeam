@@ -23,6 +23,17 @@
         }
         
         public function InsertTeamTask() {
+            global $db;
+            
+            if (strtolower($this->taskCompleted) == "true")
+            {
+                $this->taskCompleted = 1;
+            }
+            else
+            {
+                $this->taskCompleted = 0;
+            }
+            
             $query = sprintf("insert into team_tasks (taskTitle, taskDescription, taskCompleted, taskTeamId) values ('%s', '%s','%s',%d)",
                     myEsc($this->taskTitle),
                     myEsc($this->taskDescription),
@@ -38,6 +49,28 @@
             }
             
             return $id;
+        }
+        
+        public function ModifyTeamTask() {
+            global $db;
+            
+            if (strtolower($this->taskCompleted) == "true")
+            {
+                $this->taskCompleted = 1;
+            }
+            else
+            {
+                $this->taskCompleted = 0;
+            }
+            
+            $query = sprintf("update team_tasks set taskTitle='%s', taskDescription ='s', taskCompleted=%d, where taskId = %d",
+                    myEsc($this->taskTitle),
+                    myEsc($this->taskDescription),
+                    myEsc($this->taskCompleted));
+                    
+            $sql = mysql_query($query, $db);	
+                
+            return $sql;
         }
         
         public function MarkTeamTaskComplete($taskId) {
