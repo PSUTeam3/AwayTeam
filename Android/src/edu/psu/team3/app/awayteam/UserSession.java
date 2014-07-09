@@ -2,10 +2,13 @@ package edu.psu.team3.app.awayteam;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -18,6 +21,7 @@ public final class UserSession {
 	private static final String USERNAME = "username";
 	private static final String PASSWORD = "password";
 	private static final String REMEMBER = "remember";
+	private static final String TEAMID = "teamid";
 
 	private static volatile UserSession INSTANCE = new UserSession();
 
@@ -29,15 +33,20 @@ public final class UserSession {
 											// user credentials and
 											// automatically login again when
 											// the app is restarted
-	private static Context mContext = null;//holds context for accessing prefs and other functions
+	private static Context mContext = null;// holds context for accessing prefs
+											// and other functions
 
-	public List<NameValuePair> teamList = new ArrayList<NameValuePair>();//list of available teams
-	public Team activeTeam = null;//current team being viewed
+	public List<Object[]> teamList = new ArrayList<Object[]>();// list of
+																// available
+																// teams in
+																// format
+																// [id,name]
+	public Team activeTeam = null;// current team being viewed
+	public int currentTeamID = -1; // current selection in the team list (-1
+									// indicates no team selected)
 
 	// empty constructor to ensure only one copy of the class exists
 	// - all variables will be filled in after successful authentication
-	// TODO: check shared prefs for user info to give login form for immediate
-	// login
 	private UserSession() {
 
 	}
@@ -72,6 +81,7 @@ public final class UserSession {
 			prefs.putString(USERNAME, username);
 			prefs.putString(PASSWORD, password);
 			prefs.putBoolean(REMEMBER, rememberLogin);
+			prefs.putInt(TEAMID, currentTeamID);
 			prefs.commit();
 		}
 	}
@@ -84,6 +94,27 @@ public final class UserSession {
 	public void setUp(String userLoginID, String userSecret) {
 		loginID = userLoginID;
 		loginSecret = userSecret;
+	}
+
+	// Collect an array of team names
+	public List<String> getTeamListNames() {
+		ArrayList<String> result = new ArrayList<String>();
+		for (Object[] row : teamList) {
+			result.add(row[1].toString());
+		}
+
+		return result;
+	}
+
+	// find the location of a team based on teamID
+	public int getTeamListPosition(int teamID) {
+		for (int i = 0; i < teamList.size(); i++) {
+			if ((int) teamList.get(i)[0] == teamID) {
+				return i;
+			}
+		}
+		return 0;
+
 	}
 
 	// change the password
@@ -99,6 +130,8 @@ public final class UserSession {
 		}
 	}
 
+	//
+
 	// check if the user is remembered by the app
 	public boolean remembered() {
 		// check if the user session has been initialized yet - if not, this is
@@ -110,6 +143,7 @@ public final class UserSession {
 			if (rememberLogin) {
 				username = prefs.getString(USERNAME, null);
 				password = prefs.getString(PASSWORD, null);
+				currentTeamID = prefs.getInt(TEAMID, -1);
 			}
 		}
 		Log.v("Session", "Remembered user session? " + rememberLogin);

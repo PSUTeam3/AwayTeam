@@ -27,7 +27,6 @@ import android.widget.Toast;
 public class JoinTeamDialog extends DialogFragment {
 	private GetListTask mGetListTask = null;
 
-	private MatrixCursor searchCursor = null;
 	private List<Object[]> searchList = new ArrayList<Object[]>();
 
 	private ListView mTeamListView;
@@ -35,8 +34,6 @@ public class JoinTeamDialog extends DialogFragment {
 
 	// list for holding values from server
 	// format is team ID,teamName,teamLocation,managed
-	private String[] columns = new String[] { "id", "name", "location",
-			"managed" };
 	private List<Object[]> allTeamsList = new ArrayList<Object[]>();
 
 	@Override
@@ -117,12 +114,22 @@ public class JoinTeamDialog extends DialogFragment {
 					int position, long rowID) {
 				Object[] selection = (Object[]) adapter
 						.getItemAtPosition(position);
-				Log.v("LIST", "Selected: " + selection[1].toString());
 				Toast.makeText(getActivity(),
 						selection[1].toString() + " selected",
 						Toast.LENGTH_SHORT).show();
-				// TODO: take action when a team is selected
+				//Take action based on whether the team is managed
+				if ((boolean) selection[3]) {
+					Toast.makeText(
+							getActivity(),
+							"Team information will become visible when a Team Manager approves membership",
+							Toast.LENGTH_LONG).show();
+					//indicate that view does not change yet
 
+				}else{
+					//Public team selected - pass back team id so it can be loaded
+					((DisplayActivity) getActivity()).teamDialogReturn((int) selection[0]);
+				}
+				getDialog().dismiss();
 			}
 
 		});
@@ -135,12 +142,10 @@ public class JoinTeamDialog extends DialogFragment {
 			if (((String) row[1]).toLowerCase().contains(query.toLowerCase())
 					|| ((String) row[2]).toLowerCase().contains(
 							query.toLowerCase())) {
-				// TODO: add to search cursor (or to a search list - whichever
-				// ends up working easiest)
 				searchList.add(row);
 			}
 		}
-		// TODO: update listView with search results
+		// update listView with search results
 		refreshList(searchList);
 	}
 
@@ -161,8 +166,6 @@ public class JoinTeamDialog extends DialogFragment {
 			List<Object[]> result = null;
 			result = CommUtil.GetAllTeamsList(getActivity());
 
-			Log.v("Background", "returned from commutil.  result = " + result);
-
 			return result;
 		}
 
@@ -171,7 +174,6 @@ public class JoinTeamDialog extends DialogFragment {
 			mGetListTask = null;
 
 			if (result != null) {
-				// TODO: update the list displayed
 				allTeamsList = result;
 				refreshList(allTeamsList);
 
