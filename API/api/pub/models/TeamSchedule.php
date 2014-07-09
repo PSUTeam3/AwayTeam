@@ -38,7 +38,7 @@
                 $this->teamId = $id;
             }
             
-            return $id           
+            return $id;       
         }
         
         public function SelectTeamSchedule($teamScheduleId) {

@@ -67,7 +67,7 @@
             
             if($failure == false) {
                 if(TeamNameUsed($info['teamName'])) {
-                    jsonMsg = array('status' => 'failure', 'response'=> "team name is already used");
+                    $jsonMsg = array('status' => 'failure', 'response'=> "team name is already used");
                     $failure = true;
                 }
             }
