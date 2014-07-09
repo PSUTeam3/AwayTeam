@@ -27,6 +27,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -34,8 +36,12 @@ import android.widget.Toast;
 
 public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	private PassChangeTask mPassTask = null;
+	private GetTeamTask mGetTeam = null;
+	private RefreshSpinnerTask mRefreshList = null;
 
 	SectionsPagerAdapter mSectionsPagerAdapter;
+
+	private Spinner spinnerView;
 
 	/**
 	 * The {ViewPager} that will host the section contents.
@@ -61,25 +67,41 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		int titleId = Resources.getSystem().getIdentifier("action_bar_title",
 				"id", "android");
 		View titleView = findViewById(titleId);
+		
 		// attach listener for handling spinner selection change
-		Spinner spinnerView = (Spinner) getLayoutInflater().inflate(
+		spinnerView = (Spinner) getLayoutInflater().inflate(
 				R.layout.team_spinner_layout, null);
 
 		// swap out title for spinner
 		ViewGroupUtils.replaceView(titleView, spinnerView);
-
-		// TODO: fill spinner with useful data
-		List<String> teamList = new ArrayList<String>();
-		teamList.add("Test Team 1");
-		teamList.add("Test Team 2");
-		teamList.add("Test Team 3");
-
 		// update spinner entries
-		// TODO: move this to a spinner util class?
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				R.layout.team_spinner_item, teamList);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinnerView.setAdapter(adapter);
+		if(mRefreshList==null){
+			try{
+				mRefreshList = new RefreshSpinnerTask();
+				mRefreshList.execute();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		//TODO: may have to move this into the refresh spinner function?
+		spinnerView
+				.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView<?> parent,
+							View view, int position, long id) {
+						Toast.makeText(
+								parent.getContext(),
+								(String) parent.getItemAtPosition(position)
+										+ " selected", Toast.LENGTH_SHORT)
+								.show();
+
+						// TODO: load a new team based on selection
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> parent) {
+					}
+				});
 
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the activity.
@@ -142,14 +164,11 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		if (id == R.id.action_create_team) {
 			DialogFragment newFragment = new CreateTeamDialog();
 			newFragment.show(getFragmentManager(), null);
-			// TODO: check for updated team info
 			return true;
 		}
 		if (id == R.id.action_join_team) {
-			// TODO: implement and create dialog for joining an existing team
 			DialogFragment newFragment = new JoinTeamDialog();
 			newFragment.show(getFragmentManager(), null);
-			// TODO: check for updated team info
 			return true;
 		}
 		if (id == R.id.action_logout) {
@@ -248,7 +267,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 						public void onClick(View arg0) {
 							DialogFragment newFragment = new CreateTeamDialog();
 							newFragment.show(getFragmentManager(), null);
-							// TODO: Check for team updates
 						}
 					});
 			rootView.findViewById(R.id.join_button).setOnClickListener(
@@ -258,13 +276,50 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 						public void onClick(View v) {
 							DialogFragment newFragment = new JoinTeamDialog();
 							newFragment.show(getFragmentManager(), null);
-							// TODO: Check for team updates
 						}
 					});
 			return rootView;
 		}
 	}
+	
+	// Collects the new team ID from a dialog
+	public void teamDialogReturn(int teamID){
+		Log.v("DISPLAY","received team selection: "+teamID);
+		UserSession.getInstance(getBaseContext()).currentTeamID = teamID;
+		//run background task to update spinner
+		if(mRefreshList==null){
+			try{
+				mRefreshList = new RefreshSpinnerTask();
+				mRefreshList.execute();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		//run background task to get team info
+		if(mGetTeam==null){
+			try{
+				mGetTeam = new GetTeamTask();
+				mGetTeam.execute(teamID);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void refreshTeamSpinner(){
+		//reload the spinner data
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+				R.layout.team_spinner_item, UserSession.getInstance(getBaseContext()).getTeamListNames());
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinnerView.setAdapter(adapter);
+		//set the spinner to the correct location
+		UserSession s = UserSession.getInstance(this);
+		if(s.currentTeamID>0){
+			spinnerView.setSelection(s.getTeamListPosition(s.currentTeamID));
+		}
+	}
 
+	// temporarily in place for changing passwords to demo authentication
 	public class PassChangeTask extends AsyncTask<Object, Void, Integer> {
 
 		@Override
@@ -301,4 +356,83 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		}
 	}
 
+	// Collect a team from the server
+	//requires a team ID passed as only parameter
+	public class GetTeamTask extends AsyncTask<Object, Void, Integer> {
+
+		@Override
+		protected Integer doInBackground(Object... params) {
+			UserSession s = UserSession.getInstance(getBaseContext());
+			// dispatch the collection method
+			Integer result = 0;
+			result = CommUtil.GetTeam(getBaseContext(), (int) params[0], s.getUsername());
+
+			Log.v("Background", "returned from commutil.  result = " + result);
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mGetTeam = null;
+			UserSession s = UserSession.getInstance(getBaseContext());
+
+			switch (result) {
+			case 1: // success!
+				// TODO: reload current fragment to show team data
+
+				break;
+			default: // some other error occured
+
+				Toast.makeText(getBaseContext(),
+						"Unable to get Team information", Toast.LENGTH_SHORT)
+						.show();
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			mPassTask = null;
+		}
+
+	}
+	
+	// Update Team Spinner
+		public class RefreshSpinnerTask extends AsyncTask<Object, Void, Integer> {
+
+			@Override
+			protected Integer doInBackground(Object... params) {
+				UserSession s = UserSession.getInstance(getBaseContext());
+				Integer result = 0;
+				result = CommUtil.GetMemberTeamsList(getBaseContext(), s.getUsername());
+
+				Log.v("Background", "returned from commutil.  result = " + result);
+
+				return result;
+			}
+
+			@Override
+			protected void onPostExecute(final Integer result) {
+				mGetTeam = null;
+				UserSession s = UserSession.getInstance(getBaseContext());
+
+				switch (result) {
+				case 1: // success!
+					// refresh the list
+					refreshTeamSpinner();
+					break;
+				default: // some other error occured
+
+					Toast.makeText(getBaseContext(),
+							"Unable to get list of your teams", Toast.LENGTH_SHORT)
+							.show();
+				}
+			}
+
+			@Override
+			protected void onCancelled() {
+				mPassTask = null;
+			}
+
+		}
 }

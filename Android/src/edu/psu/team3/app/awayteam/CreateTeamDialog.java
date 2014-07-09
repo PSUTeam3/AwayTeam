@@ -152,20 +152,20 @@ public class CreateTeamDialog extends DialogFragment {
 		@Override
 		protected void onPostExecute(final Integer result) {
 			mCreateTask = null;
-
-			switch (result) {
-			case 1: // success!
+			if (result > 0) {// success!
 				Toast.makeText(getActivity().getBaseContext(),
 						"New Team Created", Toast.LENGTH_SHORT).show();
-				dismiss();
-				break;
-			case -1:// team name taken
+				//callback the team id
+				((DisplayActivity) getActivity()).teamDialogReturn(result);
+				getDialog().dismiss();
+			} else if (result == -1) {// team name taken
 				mTeamNameView.setError("Team Name Taken");
 				mTeamNameView.requestFocus();
-			default: // some other error occured
+			} else {// some other error occured
 				Toast.makeText(getActivity().getBaseContext(),
 						"Unable to Create Team", Toast.LENGTH_SHORT).show();
 			}
+
 		}
 
 		@Override

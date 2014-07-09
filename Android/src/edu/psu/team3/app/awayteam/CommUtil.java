@@ -3,25 +3,13 @@ package edu.psu.team3.app.awayteam;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
-import edu.psu.team3.app.awayteam.NetworkTasks;
 
 public class CommUtil {
 
@@ -37,11 +25,9 @@ public class CommUtil {
 			return 0;
 		}
 		JSONObject result = null;
-		Log.v("COMM", "sending request to network " + url);
 		// collect the results
 		try {
 			result = NetworkTasks.RequestData(false, url, null);
-			Log.v("COMM", "Exists results: " + result.toString());
 			if (result.getString("response").equals("success")) {
 				if (result.getString("message").equals("available")) {
 					// success & available
@@ -93,16 +79,11 @@ public class CommUtil {
 		}
 
 		JSONObject result = null;
-		Log.v("COMM", "sending request to network " + url);
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			Log.v("COMM", "Create results: " + result.toString());
 			if (result.getString("response").equals("success")) {
 				// connection was good
-				Log.v("Comm",
-						"result string interpreted as: "
-								+ Integer.parseInt(result.getString("message")));
 
 				if (Integer.parseInt(result.getString("message")) > 0) {
 					// User created and database ID returned
@@ -150,11 +131,9 @@ public class CommUtil {
 		pairs.add(new BasicNameValuePair("loginId", username));
 		pairs.add(new BasicNameValuePair("password", password));
 		JSONObject result = null;
-		Log.v("COMM", "sending request to network " + url);
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			Log.v("COMM", "Login results: " + result.toString());
 			if (result.getString("response").equals("success")) {
 				// collect secret to store with session data
 				String userID = result.get("userIdentifier").toString();
@@ -206,11 +185,9 @@ public class CommUtil {
 		pairs.add(new BasicNameValuePair("loginId", username));
 		pairs.add(new BasicNameValuePair("password", password));
 		JSONObject result = null;
-		Log.v("COMM", "sending request to network " + url);
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			Log.v("COMM", "Login results: " + result.toString());
 			if (result.getString("response").equals("success")) {
 				// collect secret to store with session data
 				String userID = result.get("userIdentifier").toString();
@@ -263,14 +240,9 @@ public class CommUtil {
 		pairs.add(new BasicNameValuePair("loginId", username));
 		pairs.add(new BasicNameValuePair("newPassword", newPass));
 		JSONObject result = null;
-		Log.v("COMM", "sending request to network " + url);
-		for (NameValuePair pair : pairs) {
-			Log.v("COMM", "  pair contents: " + pair.toString());
-		}
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			Log.v("COMM", "Password results: " + result.toString());
 			if (result.getString("response").equals("success")) {
 				// Update user session password
 				UserSession s = UserSession.getInstance(context);
@@ -323,20 +295,17 @@ public class CommUtil {
 		pairs.add(new BasicNameValuePair("locationName", locationName));
 		pairs.add(new BasicNameValuePair("locationLat", Integer.toString(lat)));
 		pairs.add(new BasicNameValuePair("locationLon", Integer.toString(lon)));
-		pairs.add(new BasicNameValuePair("teamManaged", Boolean.toString(managed)));
+		pairs.add(new BasicNameValuePair("teamManaged", Boolean
+				.toString(managed)));
 
 		JSONObject result = null;
-		Log.v("COMM", "sending request to network " + url);
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			Log.v("COMM", "Create Team results: " + result.toString());
-			if (result.getString("response").equals("success")) {
-				// TODO: collect team id and name - update user session
-
-				return 1;
-			} else if (result.getString("response").equals("failure")) {
-				switch (result.getString("message")) {
+			if (result.getString("status").equals("success")) {
+				return result.getInt("response");
+			} else if (result.getString("status").equals("failure")) {
+				switch (result.getString("response")) {
 				case "Team Name Already Used":
 					return -1;
 				default:
@@ -362,26 +331,29 @@ public class CommUtil {
 				.createHash();
 
 		JSONObject result = null;
-		Log.v("COMM", "sending request to network " + url);
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			Log.v("COMM", "Team List results: " + result.toString());
 			if (result.getString("status").equals("success")) {
-				//collect data and pass array to display list
+				// collect data and pass array to display list
 				List<Object[]> teamList = new ArrayList<Object[]>();
 				JSONArray response = result.getJSONArray("response");
-				Log.v("COMM","parsing JSON: "+response.length());
-				for(int i = 0;i<response.length();i++){
-					Log.v("COMM",response.getJSONObject(i).getString("teamName"));
+				for (int i = 0; i < response.length(); i++) {
 					int id = response.getJSONObject(i).getInt("teamId");
-					String name = response.getJSONObject(i).getString("teamName");
-					String location = response.getJSONObject(i).getString("teamLocationId");
-					if(location.equals("null")){
-						location="";
+					String name = response.getJSONObject(i).getString(
+							"teamName");
+					String location = response.getJSONObject(i).getString(
+							"teamLocationId");
+					if (location.equals("null")) {
+						location = "";
 					}
-					boolean managed = response.getJSONObject(i).getString("teamManaged").equals("1"); //this is kind of a hack - should be fixed
-					teamList.add(new Object[]{id,name,location,managed});
+					boolean managed = response.getJSONObject(i)
+							.getString("teamManaged").equals("1"); // this is
+																	// kind of a
+																	// hack -
+																	// should be
+																	// fixed
+					teamList.add(new Object[] { id, name, location, managed });
 				}
 				return teamList;
 			} else if (result.getString("status").equals("failure")) {
@@ -400,9 +372,8 @@ public class CommUtil {
 	// RETURN: 1 = success, team created
 	// 0 = unknown error or connection failure
 	// -1 = team name already used
-	public static int GetTeam(Context context) {
-		// TODO: update with correct URI
-		String url = "https://api.awayteam.redshrt.com/team/getallteams";
+	public static int GetTeam(Context context, int teamID, String userName) {
+		String url = "https://api.awayteam.redshrt.com/team/getteam";
 
 		if (!NetworkTasks.NetworkAvailable(context)) {
 			return 0;
@@ -410,17 +381,67 @@ public class CommUtil {
 
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
+		pairs.add(new BasicNameValuePair("teamId", String.valueOf(teamID)));
+		pairs.add(new BasicNameValuePair("userName", userName));
 
 		JSONObject result = null;
-		Log.v("COMM", "sending request to network " + url);
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			Log.v("COMM", "Team List results: " + result.toString());
 			if (result.getString("response").equals("success")) {
 				// TODO: collect data and build up team information
 				return 1;
 			} else if (result.getString("response").equals("failure")) {
+				// an error occurred
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	// Collect the list of teams the user is a member of
+	// RETURN: 1 if successful, 0 if error
+	// ACTIONS: updates the teamList in the UserSession if successful
+	public static int GetMemberTeamsList(Context context, String userName) {
+		String url = "https://api.awayteam.redshrt.com/team/getteamlist";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId",userName));
+
+		JSONObject result = null;
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("status").equals("success")) {
+				// TODO: collect data and pass array to UserSession
+//				List<Object[]> teamList = new ArrayList<Object[]>();
+//				JSONArray response = result.getJSONArray("response");
+//				for (int i = 0; i < response.length(); i++) {
+//					int id = response.getJSONObject(i).getInt("teamId");
+//					String name = response.getJSONObject(i).getString(
+//							"teamName");
+//					String location = response.getJSONObject(i).getString(
+//							"teamLocationId");
+//					if (location.equals("null")) {
+//						location = "";
+//					}
+//					boolean managed = response.getJSONObject(i)
+//							.getString("teamManaged").equals("1"); // this is
+//																	// kind of a
+//																	// hack -
+//																	// should be
+//																	// fixed
+//					teamList.add(new Object[] { id, name, location, managed });
+//				}
+				return 1;
+			} else if (result.getString("status").equals("failure")) {
 				// only error is no teams available
 				return 0;
 			}
