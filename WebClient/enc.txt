@@ -1,0 +1,51 @@
+add some new attributes to user table that the user doesnt know about:
+
+    userIdentifier varchar(64)
+    userSecret     varchar(64)
+
+both would have unique values that look something like this:
+
+    41ff44345224bcec6b8ebfbc80590583f05d09f652b973144598711bdf19a67f
+
+
+
+
+So back to the app.
+
+user logs in
+
+you send username and password to service....
+the service returns (somehow)
+    -userIdentifier
+    -userSecret
+
+
+so now with every request that requires authentication you should pass the following...
+    -userId or loginId
+    -userIdentifier
+    -encryptedhash_using_userSecret_of_Message_like($userIdentifier . $timestampOnClientOrWhatever)
+
+
+the server receives those 3 items... but you both know that the 3'rd is encrypted
+
+so the server figures out if this is valid hash (meaning its not a replay attack or not a hack attempt)
+    select userSecret from user where userId='$userId' and userIdentifier='$userIdentifier';
+
+    you should get a variable back called $userSecret... which is the private encryption key...
+        -if you dont get something back, you know its a fake request. - bomb out.
+
+
+    if you made it this far
+        encrypt the same message using the timestamp of the server but with offset
+            -but you have to know that the timestamp will be different... so give it like a 30 sec gap.
+                $bad = true;
+                loop though $timestampOnServer ($i) from < 30 and > 30 seconds
+                    if $encHash from client == theSameEncrypt_w/UserSecret($userIdentifier . $i)
+                    {
+                        $bad = false;
+                    }
+                
+
+    if $bad = true.... the msg is a fake...
+    if $bad = false ... the user is really the user 
+
