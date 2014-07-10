@@ -51,10 +51,7 @@
             
             $authUser = $this->AuthRequired($teamArray);
             
-            if($authUser) {
-                $jsonMsg = array('status' => 'failure', 'response' => "authentication is missing");
-                $failure = true;
-            } else if(!isset($info['teamName'])) {
+            if(!isset($info['teamName'])) {
                 $jsonMsg = array('status' => 'failure', 'response'=> "teamName is not filled in");
                 $failure = true;
             } else if(!isset($info['teamLocationName'])) {
@@ -85,15 +82,15 @@
     
         private function Team_GetAllTeams() {
             $selectTeam = new TeamController;
-                
+            $teamList = array();
             if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }   
     
-            $selectTeam = $selectTeam->GetAllTeams();    
+            $teamList = $selectTeam->GetAllTeams();    
             
-            if(!empty($selecTeam)) { 
-                $jsonMsg = array('status' => 'success', 'response' => $selectTeam);
+            if(!empty($teamList)) { 
+                $jsonMsg = array('status' => 'success', 'response' => $teamList);
             } else {
                 $jsonMsg = array('status' => 'failure', 'response' => "no teams registered");
             }
