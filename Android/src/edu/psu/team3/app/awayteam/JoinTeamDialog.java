@@ -71,13 +71,13 @@ public class JoinTeamDialog extends DialogFragment {
 			e.printStackTrace();
 		}
 
-		// TODO: create a test array so you can practice searching
+		// create a test array so you can practice searching
 		// Move this functionality to the background task to update UI
-		allTeamsList.clear();
-		allTeamsList.add(new Object[] { 0, "Team1", "Chicago", false });
-		allTeamsList.add(new Object[] { 0, "Team2", "Denver", false });
-		allTeamsList.add(new Object[] { 0, "Team3", "Philadelphia", false });
-		allTeamsList.add(new Object[] { 0, "Team4", "New York", true });
+//		allTeamsList.clear();
+//		allTeamsList.add(new Object[] { 0, "DemoTeam1", "Chicago", false });
+//		allTeamsList.add(new Object[] { 0, "Team2", "Denver", false });
+//		allTeamsList.add(new Object[] { 0, "Team3", "Philadelphia", false });
+//		allTeamsList.add(new Object[] { 0, "Team4", "New York", true });
 
 		refreshList(allTeamsList);
 
@@ -127,7 +127,7 @@ public class JoinTeamDialog extends DialogFragment {
 
 				}else{
 					//Public team selected - pass back team id so it can be loaded
-					((DisplayActivity) getActivity()).teamDialogReturn((int) selection[0]);
+					((DisplayActivity) getActivity()).refreshTeam((int) selection[0]);
 				}
 				getDialog().dismiss();
 			}

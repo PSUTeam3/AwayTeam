@@ -24,7 +24,6 @@ public class CreateTeamDialog extends DialogFragment {
 	private String mTeamName = null;
 	private String mDescription = null;
 	private String mLocationName = null;
-	private int mLat, mLon = 0;
 	private boolean mManaged = false;
 
 	private EditText mTeamNameView;
@@ -141,7 +140,7 @@ public class CreateTeamDialog extends DialogFragment {
 			// dispatch the login method
 			Integer result = 0;
 			result = CommUtil.CreateTeam(getActivity().getBaseContext(),
-					mTeamName, mLocationName, mDescription, mLat, mLon,
+					mTeamName, mLocationName, mDescription, 
 					mManaged);
 
 			Log.v("Background", "returned from commutil.  result = " + result);
@@ -156,7 +155,7 @@ public class CreateTeamDialog extends DialogFragment {
 				Toast.makeText(getActivity().getBaseContext(),
 						"New Team Created", Toast.LENGTH_SHORT).show();
 				//callback the team id
-				((DisplayActivity) getActivity()).teamDialogReturn(result);
+				((DisplayActivity) getActivity()).refreshTeam(result);
 				getDialog().dismiss();
 			} else if (result == -1) {// team name taken
 				mTeamNameView.setError("Team Name Taken");
