@@ -145,7 +145,9 @@
 
         private function Team_GetTeamList() {
             $getTeamList = new TeamController;
-
+            $teamList = array();
+            $teamListArray = array();
+            
             if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }
@@ -155,10 +157,17 @@
             
             if(isset($info['loginId'])) {              
                 $teamList = $getTeamList->GetTeamListForUser($info['loginId']);
+            } else {
+                $respArray = $respArray = array('status' => "failure", 'response' => 'loginId required');
             }
-
-            $teamListArray = get_object_vars($teamList);
-            $respArray = array('status' => "success", 'response' => $teamListArray);
+            
+            if(!empty($teamList)) {
+                $teamListArray = get_object_vars($teamList);
+                $respArray = array('status' => "success", 'response' => $teamListArray);                
+            } else {
+                $respArray = array('status' => "failure", 'response' => 'user not part of any team');
+            }
+            
             $this->response($this->json($respArray), 200);
 
         }

@@ -83,7 +83,7 @@
             $aTeam = new Team;
             $tm = new TeamMembers;
             $tu = new TeamUtilities;
-            
+            logit("selecting userId in selectTeamFromId");
             $query = "select userId from user where loginId = '" . myEsc(strtolower($loginId)) ."'";
             $sql = mysql_query($query, $db);
             if(mysql_num_rows($sql) > 0) {
@@ -93,6 +93,7 @@
                 }              
             }
             
+            logit("verifying teamMemberExist in selectTeamFromId");
             if($tm->VerifyTeamMemberExist($teamId, $userId) && $tu->TeamIdExists($teamId)) {
                 $query = "select * from team where teamId =" . myEsc($teamId);
                 logIt(var_export($query, true));
@@ -109,7 +110,7 @@
                     return $aTeam;
                 }                
             } else {
-                logIt("not getting there");
+                logIt("team member doesn't exist");
                 //What do we want to do with empty id field?
                 //Error message
             }
