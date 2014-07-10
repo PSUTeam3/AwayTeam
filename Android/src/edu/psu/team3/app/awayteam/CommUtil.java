@@ -278,7 +278,7 @@ public class CommUtil {
 	// 0 = unknown error or connection failure
 	// -1 = team name already used
 	public static int CreateTeam(Context context, String teamName,
-			String locationName, String description, int lat, int lon,
+			String locationName, String description,
 			boolean managed) {
 		String url = "https://api.awayteam.redshrt.com/team/createteam";
 
@@ -293,8 +293,6 @@ public class CommUtil {
 		pairs.add(new BasicNameValuePair("teamName", teamName));
 		pairs.add(new BasicNameValuePair("teamDescription", description));
 		pairs.add(new BasicNameValuePair("locationName", locationName));
-		pairs.add(new BasicNameValuePair("locationLat", Integer.toString(lat)));
-		pairs.add(new BasicNameValuePair("locationLon", Integer.toString(lon)));
 		pairs.add(new BasicNameValuePair("teamManaged", Boolean
 				.toString(managed)));
 
