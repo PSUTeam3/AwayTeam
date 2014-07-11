@@ -12,8 +12,7 @@
         public $teamName;
         public $teamLocationName;
         public $teamDescription;
-        public $teamManaged;
-        public $teamScheduleId;
+        public $teamManaged;        
         
         public function __construct() {
             $this->initialize();
@@ -25,7 +24,6 @@
             $this->teamLocationName = "";
             $this->teamDescription = "";
             $this->teamManaged = False; 
-            $this->teamScheduleId = -999;
         }
         
         public function InsertTeam() {
@@ -66,9 +64,7 @@
             $sql = mysql_query($query, $db);
             $teamList = array();
             
-            if(mysql_num_rows($sql) > 0) {
-                $result = array();
-                
+            if(mysql_num_rows($sql) > 0) {                
                 while($row = mysql_fetch_object($sql)) {
                     $tTeam = $row;
                     $teamList[] = $tTeam;                  
@@ -86,8 +82,7 @@
             logit("selecting userId in selectTeamFromId");
             $query = "select userId from user where loginId = '" . myEsc(strtolower($loginId)) ."'";
             $sql = mysql_query($query, $db);
-            if(mysql_num_rows($sql) > 0) {
-                $result = array();
+            if(mysql_num_rows($sql) > 0) {  
                 while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
                     $userId = $rlt['userId'];
                 }              
@@ -165,17 +160,18 @@
         }
 
         public function GetTeamList($userId) {
-            global $db;  
-
-            $query = "select teamId from teamMember where userId = " . myEsc($userId);
-            $sql = mysql_query($query, $db);
-            if(mysql_num_rows($sql) > 0) {
-                $getTeamIdResult = array();
-                while($getTeamIdResult = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+            global $db;
+            $teamInfoResult = array();
+            $query = "select teamId from team_member where userId = " . myEsc($userId);
+            $getTeamIdsSql = mysql_query($query, $db);
+            if(mysql_num_rows($getTeamIdsSql) > 0) {
+                $getTeamIdResult = array(); 
+                while($getTeamIdResult = mysql_fetch_array($getTeamIdsSql, MYSQL_ASSOC)) {      
                     $query = "select teamId,teamName from team where teamId = " . myEsc($getTeamIdResult['teamId']);
-                    while($getTeamInfoResult = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                        $teamInfoResult = array();
-                        $teamInfoResult[] = $getTeamInfoResult;                                            
+                    $getTeamObjectsSql = mysql_query($query, $db);
+                    while($getTeamInfoResult = mysql_fetch_object($getTeamObjectsSql)) {                    
+                        $aTeam = $getTeamInfoResult;
+                        $teamInfoResult[] = $aTeam;                                            
                     }                    
                 }              
             }
@@ -191,7 +187,7 @@
                 myEsc(strtolower($this->teamDescription)),
                 myEsc($this->teamManaged));
                                         
-            $sql = mysql_query($query, $db);	
+            $sql = mysql_query($query, $db);
                 
             return $sql;
             

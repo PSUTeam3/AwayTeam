@@ -43,15 +43,55 @@
                 myEsc($this->pendingApproval));
             
                             
-                mysql_query($query, $db);
-                
-                $id = mysql_insert_id();
-                
-                if(id >=0) {
-                    $this->userId = $id;
-                }
-                
-                return $id;
+            mysql_query($query, $db);
+            
+            $id = mysql_insert_id();
+            
+            if($id >=0) {
+                $this->teamMemberId = $id;
+            }
+            
+            return $$this->teamMemberId ;
+        }
+        
+        public function JoinTeam() {
+            global $db;
+            
+            $$this->manager = "false";
+            $query = "select teamManaged from team where teamId = " . myEsc($this->teamId);
+            
+            $sql = mysql_query($query, $db);
+            if(mysql_num_rows($sql)) {
+                $result = array();
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $teamManaged = $rlt["teamManaged"];
+                }               
+            }
+            
+            if($teamManaged == true) {
+                $this->pendingApproval = 1;
+
+                $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,'%s',%d)",
+                    myEsc($this->teamId),
+                    myEsc($this->loginId),
+                    myEsc($this->manager),
+                    myEsc($this->pendingApproval));            
+            } else {
+                $pendingApproval = 0;
+                $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,'%s',%d)",
+                    myEsc($this->teamId),
+                    myEsc($this->loginId),
+                    myEsc($this->manager),
+                    myEsc($this->pendingApproval)); 
+            }
+            
+            $id = mysql_insert_id();
+            
+            if($id>=0) {
+                $this->teamMemberId = $id;
+            }
+            
+            return $this->teamMemberId;           
         }
         
         public function SelectTeamMemberFromId($id) {

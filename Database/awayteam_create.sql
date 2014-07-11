@@ -66,9 +66,15 @@ CREATE TABLE IF NOT EXISTS `awayteam`.`team_event` (
   `teamEventLocationString` VARCHAR(45) NULL,
   `teamEventStartTime` DATETIME NULL,
   `teamEventEndTime` DATETIME NULL,
-  PRIMARY KEY (`teamEventId`))
+  `teamEventTeamId` INT NULL,
+  PRIMARY KEY (`teamEventId`),
+  INDEX `teamEvent_teamId_idx` (`teamEventTeamId` ASC),
+  CONSTRAINT `teamEvent_teamId`
+    FOREIGN KEY (`teamEventTeamId`)
+    REFERENCES `awayteam`.`team` (`teamId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
 
 -- -----------------------------------------------------
 -- Table `awayteam`.`team`
@@ -81,14 +87,7 @@ CREATE TABLE IF NOT EXISTS `awayteam`.`team` (
   `teamLocationName` VARCHAR(45) NULL,
   `teamDescription` VARCHAR(45) NULL,
   `teamManaged` TINYINT(1) NULL,
-  `teamScheduleId` INT NULL,
-  PRIMARY KEY (`teamId`),
-  INDEX `teamEvent_idx` (`teamScheduleId` ASC),
-  CONSTRAINT `teamEvent`
-    FOREIGN KEY (`teamScheduleId`)
-    REFERENCES `awayteam`.`team_event` (`teamEventId`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  PRIMARY KEY (`teamId`))
 ENGINE = InnoDB;
 
 
@@ -111,6 +110,7 @@ CREATE TABLE IF NOT EXISTS `awayteam`.`team_tasks` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
+
 
 
 -- -----------------------------------------------------
