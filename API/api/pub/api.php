@@ -7,6 +7,7 @@
     require_once("controllers/UserController.php");
     require_once("controllers/ExpenseController.php");
     require_once("controllers/TeamController.php");
+    require_once("models/TeamUtilities.php");
     require_once("controllers/TeamMemberController.php");
     
     require_once("externalControllers/FoursquareController.php");
@@ -40,6 +41,7 @@
 
         private function Team_CreateTeam() {
             $newTeam = new TeamController;
+            $tu = new TeamUtilities;
             $jsonMsg = array();
             $failure = false;
             
@@ -50,20 +52,22 @@
             $teamArray = $this->_request;
             
             $authUser = $this->AuthRequired($teamArray);
-            
-            if(!isset($info['teamName'])) {
+
+            logIt(var_export($teamArray, true));            
+
+            if(!isset($teamArray['teamName'])) {
                 $jsonMsg = array('status' => 'failure', 'response'=> "teamName is not filled in");
                 $failure = true;
-            } else if(!isset($info['teamLocationName'])) {
+            } else if(!isset($teamArray['teamLocationName'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "teamLocationName is not filled in");                
                 $failure = true;
-            } else if(!isset($info['teamManaged'])) {
+            } else if(!isset($teamArray['teamManaged'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "teamManaged is not filled in");
                 $failure = true;
             }
             
             if($failure == false) {
-                if(TeamNameUsed($info['teamName'])) {
+                if($tu->TeamNameUsed($teamArray['teamName'])) {
                     $jsonMsg = array('status' => 'failure', 'response'=> "team name is already used");
                     $failure = true;
                 }
@@ -145,6 +149,7 @@
 
         private function Team_GetTeamList() {
             $getTeamList = new TeamController;
+            $xUser = new UserController;
             $teamList = array();
             $teamListArray = array();
             
@@ -154,9 +159,12 @@
             
             $info = $this->_request;
             $authUser = $this->AuthRequired($info);
-            
-            if(isset($info['loginId'])) {              
-                $teamList = $getTeamList->GetTeamListForUser($info['loginId']);
+
+            $xUser = $xUser->GetUserFromLoginID($info['loginId']);            
+            $userId = $xUser->userId;
+
+            if(isset($userId)) {              
+                $teamList = $getTeamList->GetTeamListForUser($userId);
             } else {
                 $respArray = $respArray = array('status' => "failure", 'response' => 'loginId required');
             }

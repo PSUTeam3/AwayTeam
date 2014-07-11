@@ -20,7 +20,7 @@
             return $this->SelectTeamMemberFromTeamId($teamID);
         }
         
-        public function ModifyTeamMember($teamMemberParametersArray) {
+        public function ModifyTeamMemberController($teamMemberParametersArray) {
             $tTeamMember = new TeamMembers;
             $tTeamMember = $this->arrayToObject($teamMemberParametersArray);
             $retCode = $tTeamMember->ModifyTeamMember();

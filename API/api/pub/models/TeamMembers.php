@@ -1,6 +1,6 @@
 <?php
     include_once('/home/awayteam/api/pub/apiconfig.php');
-    include_once('/home/awayteam/api/pub/models/TeamMembersUtilities.php');
+    include_once('/home/awayteam/api/pub/models/TeamMemberUtilities.php');
     
     class TeamMembers
     {

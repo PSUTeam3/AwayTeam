@@ -68,7 +68,7 @@
             {
                 $query = "select * from user where userId=" . myEsc($id);
             }
-
+    
             $sql = mysql_query($query, $db);
             if (mysql_num_rows($sql) > 0)
             {
