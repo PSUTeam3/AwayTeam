@@ -10,6 +10,7 @@
         public $teamEventLocationName;
         public $teamEventStartTime;
         public $teamEventEndTime;
+        public $teamEventTeamId;
         
         public function __construct() {
             $this->initialize();

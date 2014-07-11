@@ -23,7 +23,7 @@
             return $this->MarkTeamTaskComplete($taskId);
         }
         
-        public function RemvoeTeamTask($taskId) {
+        public function RemoveTeamTask($taskId) {
             return $this->DeleteTeamTask();
         }
         
