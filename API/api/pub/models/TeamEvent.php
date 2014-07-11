@@ -112,7 +112,7 @@
             
             if($teamEventId = -999) {
                 return false;
-            } else if ( $newEventName && EventNameUsed($newEventName)) {            
+            } else if ( $newEventName) {            
                 $query = "update event set eventName = " . myEsc($newEventName)  .
                         "where eventId = " . myEsc($teamEventId);
                 $sql = mysql_query($query, $db);
