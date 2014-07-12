@@ -41,9 +41,19 @@
         }
 
         //data functions
-        public function UpdateUser($id)
+        public function UpdateUser()
         {
             global $db; //finish...
+
+            if (isset($this->loginId))
+            {
+                if ($this->userId == -999)
+                {
+                    $xtmp = new User();
+                    $xtmp = $xtmp->SelectUserFromLoginID($this->loginId);
+                    $this->userId = $xtmp->userId;
+                }
+            }
             $query = sprintf("update user set email='%s', firstName='%s', lastName='%s', cellPhone='%s', emergencyPhone='%s', loginId='%s' where userId=%d", 
             myEsc(strtolower($this->email)), 
             myEsc($this->firstName),

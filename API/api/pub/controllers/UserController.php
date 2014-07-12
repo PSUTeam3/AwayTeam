@@ -11,9 +11,7 @@
         {
             
             $tUser = new User;
-            logIt(var_export($usrArray, true));
             $tUser = $this->arrayToObject($usrArray);
-            logIt(var_export($tUser, true));
             $code = $tUser->UpdateUser();
             
             //send return code

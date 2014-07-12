@@ -147,6 +147,7 @@
                 $respArray = array('status' => 'success', 'response' => $newTeam);
             }
 
+            logIt(var_export($respArray, true));
             $this->response($this->json($respArray), 200);
         }
 
@@ -582,11 +583,12 @@
                 $this->response('',406);
             }
 
+
             $array1         = $this->_request;
+            $authUser = $this->AuthRequired($array1);
+
             $response       = $xUser->ModifyUser($array1);
-
             $jsonstr        = array('response' => $response);
-
             $this->response($this->json($jsonstr),200);
 
         }
@@ -755,7 +757,7 @@
                     {   
                         //succesful hash
                         $authenticated['loginId'] = $info['loginId'];
-                        $authenticated['userId']  = $xUser->GetUserFromID($info['loginId']);
+                        $authenticated['userId']  = $xUser->GetUserFromLoginID($info['loginId']);
                     
                         return $authenticated;
                     }   
