@@ -173,8 +173,7 @@
             }
             
             if(!empty($teamList)) {
-                $teamListArray = get_object_vars($teamList);
-                $respArray = array('status' => "success", 'response' => $teamListArray);                
+                $respArray = array('status' => "success", 'response' => $teamList);                
             } else {
                 $respArray = array('status' => "failure", 'response' => 'user not part of any team');
             }
