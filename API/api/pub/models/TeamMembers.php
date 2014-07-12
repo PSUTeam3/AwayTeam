@@ -54,37 +54,46 @@
             return $$this->teamMemberId ;
         }
         
-        public function JoinTeam() {
+        public function AddTeamMember() {
             global $db;
             
-            $$this->manager = "false";
+            $this->manager = 0;
+            $query = "select userId from user where loginId = '" .myEsc($this->loginId) . "'";
+            $sql = mysql_query($query,$db);
+            
+            if(mysql_num_rows($sql)) {
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $userId = $rlt['userId'];
+                }
+            }
             $query = "select teamManaged from team where teamId = " . myEsc($this->teamId);
             
             $sql = mysql_query($query, $db);
             if(mysql_num_rows($sql)) {
-                $result = array();
                 while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
                     $teamManaged = $rlt["teamManaged"];
                 }               
             }
             
-            if($teamManaged == true) {
+            if($teamManaged == 1) {
                 $this->pendingApproval = 1;
 
-                $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,'%s',%d)",
+                $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,%d,%d)",
                     myEsc($this->teamId),
-                    myEsc($this->loginId),
+                    myEsc($userId),
                     myEsc($this->manager),
                     myEsc($this->pendingApproval));            
             } else {
                 $pendingApproval = 0;
-                $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,'%s',%d)",
+                $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,%d,%d)",
                     myEsc($this->teamId),
-                    myEsc($this->loginId),
+                    myEsc($userId),
                     myEsc($this->manager),
                     myEsc($this->pendingApproval)); 
             }
             
+            mysql_query($query,$db);
+
             $id = mysql_insert_id();
             
             if($id>=0) {

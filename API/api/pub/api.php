@@ -53,7 +53,7 @@
             
             $authUser = $this->AuthRequired($teamArray);
 
-            logIt(var_export($teamArray, true));            
+            logIt(var_export($teamArray, true));
 
             if(!isset($teamArray['teamName'])) {
                 $jsonMsg = array('status' => 'failure', 'response'=> "teamName is not filled in");
@@ -229,6 +229,42 @@
             } else {
                 $this->response('', 406);
             }
+        }
+        
+        private function TeamMember_JoinTeam() {
+            $joinTeam = new TeamMemberController;
+            $tu = new TeamUtilities;
+            $failure = false;
+            $teamMemberId = -999;
+            
+            if($this->get_request_method() != "POST") {
+                $this->response('',406);
+            }
+            
+            $info = $this->_request;
+            if(!isset($info['teamId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "team id is not filled in");
+                $failure = true;
+            } else if(!isset($info['loginId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "username is not filled in");
+                $failure = true;
+            } else if($tu->TeamIdExists($info['teamId']) == false) {
+                $jsonMsg = array('status' => 'failure', 'response' => "team Id does not exist");
+                $failure = true;
+            }
+            
+            if($failure == false ) {               
+                $teamMemberId = $joinTeam->JoinTeam($info);
+                
+                if ($teamMemberId > 0) {
+                    $jsonMsg = array('status' => 'success', 'response'=> $teamMemberId);
+                } else {
+                    $jsonMsg = array('status' => 'failure', 'response' => "user couldn't be added to team");
+                }
+            }          
+    
+            $this->response($this->json($jsonMsg), 200);
+
         }
 
         private function User_EmailExist()

@@ -15,7 +15,7 @@
         public function JoinTeam($teamMemberParametersArray) {
             $aTeamMember = new TeamMembers;
             $aTeamMember = $this->arrayToObject($teamMemberParametersArray);
-            $newTeamMemberId = $aTeamMember->JoinTeam();
+            $newTeamMemberId = $aTeamMember->AddTeamMember();
             return $newTeamMemberId;
         }
         
@@ -50,9 +50,8 @@
             return $this->DeleteTeamMember($teamMemberId);
         }
         
-        private function arrayToObject($array)
-        {
-            $teamMember = new TeamMember;
+        private function arrayToObject($array) {
+            $teamMember = new TeamMembers;
             //convertArray to User Object
             foreach($array as $item=>$value)
             {
