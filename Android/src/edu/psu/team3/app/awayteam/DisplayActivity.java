@@ -1,26 +1,17 @@
 package edu.psu.team3.app.awayteam;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import edu.psu.team3.app.awayteam.LoginActivity.UserLoginTask;
-import edu.psu.team3.app.awayteam.R.string;
-import edu.psu.team3.app.awayteam.ViewGroupUtils;
-import android.app.Activity;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Intent;
 import android.content.res.Resources;
-import android.support.v13.app.FragmentPagerAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,14 +19,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class DisplayActivity extends Activity implements ActionBar.TabListener {
-	private PassChangeTask mPassTask = null;
 	private GetTeamTask mGetTeam = null;
 	private RefreshSpinnerTask mRefreshList = null;
 
@@ -51,10 +39,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		// TODO:display overview for the most recent team viewed or first team
-		// in the
-		// list
 
 		// Show default fragment when no teams exist yet
 		setContentView(R.layout.activity_display);
@@ -76,7 +60,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		ViewGroupUtils.replaceView(titleView, spinnerView);
 		// update spinner entries and team info
 		refreshTeam(UserSession.getInstance(this).currentTeamID);
-		// TODO: may have to move this into the refresh spinner function?
 		spinnerView
 				.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 					@Override
@@ -87,9 +70,27 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 								(String) parent.getItemAtPosition(position)
 										+ " selected", Toast.LENGTH_SHORT)
 								.show();
-						//Collect team ID from teamList and save to current TeamID for reference
-						UserSession s = UserSession.getInstance(getBaseContext());
-						int teamID = (int) s.teamList.get(position)[0]; //position of item in teamlist should match position in spinner since it was built off the list
+						// Collect team ID from teamList and save to current
+						// TeamID for reference
+						UserSession s = UserSession
+								.getInstance(getBaseContext());
+						int teamID = (int) s.teamList.get(position)[0]; // position
+																		// of
+																		// item
+																		// in
+																		// teamlist
+																		// should
+																		// match
+																		// position
+																		// in
+																		// spinner
+																		// since
+																		// it
+																		// was
+																		// built
+																		// off
+																		// the
+																		// list
 						s.currentTeamID = teamID;
 
 						// load a new team based on selection
@@ -153,19 +154,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_change_pass) {
-			if (mPassTask == null) {
-				try {
-					mPassTask = new PassChangeTask();
-					mPassTask.execute();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				Toast.makeText(getBaseContext(), "Changing Password to 'test'",
-						Toast.LENGTH_SHORT).show();
-			}
-			return true;
-		}
 		if (id == R.id.action_create_team) {
 			DialogFragment newFragment = new CreateTeamDialog();
 			newFragment.show(getFragmentManager(), null);
@@ -173,6 +161,11 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		}
 		if (id == R.id.action_join_team) {
 			DialogFragment newFragment = new JoinTeamDialog();
+			newFragment.show(getFragmentManager(), null);
+			return true;
+		}
+		if (id == R.id.action_modify_account) {
+			DialogFragment newFragment = new EditAccountDialog();
 			newFragment.show(getFragmentManager(), null);
 			return true;
 		}
@@ -217,7 +210,8 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			// getItem is called to instantiate the fragment for the given page.
 			// Return a PlaceholderFragment (defined as a static inner class
 			// below).
-			// TODO: check for active team before displaying anything besides
+			// TODO: (once get team is able to populate the team structure)
+			// check for active team before displaying anything besides
 			// placeholder
 			String[] titles = getResources().getStringArray(R.array.tab_titles);
 			switch (titles[position]) {
@@ -328,43 +322,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		}
 	}
 
-	// temporarily in place for changing passwords to demo authentication
-	public class PassChangeTask extends AsyncTask<Object, Void, Integer> {
-
-		@Override
-		protected Integer doInBackground(Object... params) {
-			UserSession s = UserSession.getInstance(getBaseContext());
-			// dispatch the login method
-			Integer result = 0;
-			result = CommUtil.ChangePassword(s.getUsername(), "test",
-					getBaseContext());
-
-			Log.v("Background", "returned from commutil.  result = " + result);
-
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(final Integer result) {
-			mPassTask = null;
-
-			switch (result) {
-			case 1: // success!
-				Toast.makeText(getBaseContext(), "Password Changed",
-						Toast.LENGTH_SHORT).show();
-				break;
-			default: // some other error occured
-				Toast.makeText(getBaseContext(), "Unable to Change Password",
-						Toast.LENGTH_SHORT).show();
-			}
-		}
-
-		@Override
-		protected void onCancelled() {
-			mPassTask = null;
-		}
-	}
-
 	// Collect a team from the server
 	// requires a team ID passed as only parameter
 	public class GetTeamTask extends AsyncTask<Object, Void, Integer> {
@@ -402,7 +359,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 		@Override
 		protected void onCancelled() {
-			mPassTask = null;
+			mGetTeam = null;
 		}
 
 	}
@@ -424,7 +381,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 		@Override
 		protected void onPostExecute(final Integer result) {
-			mGetTeam = null;
+			mRefreshList = null;
 			UserSession s = UserSession.getInstance(getBaseContext());
 
 			switch (result) {
@@ -442,7 +399,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 		@Override
 		protected void onCancelled() {
-			mPassTask = null;
+			mRefreshList = null;
 		}
 
 	}

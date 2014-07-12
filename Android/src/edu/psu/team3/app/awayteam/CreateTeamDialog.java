@@ -1,7 +1,5 @@
 package edu.psu.team3.app.awayteam;
 
-import edu.psu.team3.app.awayteam.DisplayActivity.PassChangeTask;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -117,7 +115,6 @@ public class CreateTeamDialog extends DialogFragment {
 		mDescription = mDescriptionView.getText().toString();
 		mLocationName = mLocNameView.getText().toString();
 		mManaged = mManagedView.isChecked();
-		// TODO: implement Lat/Long inputs
 
 		if (!cancel && mCreateTask == null) {
 			try {
@@ -135,8 +132,6 @@ public class CreateTeamDialog extends DialogFragment {
 
 		@Override
 		protected Integer doInBackground(Object... params) {
-			UserSession s = UserSession.getInstance(getActivity()
-					.getBaseContext());
 			// dispatch the login method
 			Integer result = 0;
 			result = CommUtil.CreateTeam(getActivity().getBaseContext(),

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -25,16 +24,13 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.SingleClientConnManager;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 public class NetworkTasks {
 
@@ -133,6 +129,7 @@ public class NetworkTasks {
 		registry.register(new Scheme("https", socketFactory, 443));
 		SingleClientConnManager mgr = new SingleClientConnManager(
 				client.getParams(), registry);
+		@SuppressWarnings("unused")
 		DefaultHttpClient httpClient = new DefaultHttpClient(mgr,
 				client.getParams());
 		HttpsURLConnection.setDefaultHostnameVerifier(hostnameVerifier);

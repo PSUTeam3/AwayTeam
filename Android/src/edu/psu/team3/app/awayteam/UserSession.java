@@ -12,9 +12,9 @@ import org.apache.http.message.BasicNameValuePair;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Base64;
 import android.util.Log;
 
+@SuppressLint("DefaultLocale")
 public final class UserSession {
 	// strings for saving and recalling shared prefs
 	private static final String PREFS = "sessionpref";

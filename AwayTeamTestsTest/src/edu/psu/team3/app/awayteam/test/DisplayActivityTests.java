@@ -1,11 +1,9 @@
 package edu.psu.team3.app.awayteam.test;
 
-import android.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.test.ActivityInstrumentationTestCase2;
-import android.widget.EditText;
-import edu.psu.team3.app.awayteam.*;
+import edu.psu.team3.app.awayteam.DisplayActivity;
 import edu.psu.team3.app.awayteam.R;
 
 public class DisplayActivityTests extends
@@ -63,5 +61,22 @@ public class DisplayActivityTests extends
 		
 		
 	}
+	
+	//test create team dialog
+	
+	
+	//test join team dialog
+	
+	
+	//test edit account dialog
+	
+		//		test change password dialog
+	
+	
+	//test team spinner switching
+	
+	
+	//test logout!
+	
 
 }

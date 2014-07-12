@@ -111,6 +111,57 @@ public class CommUtil {
 		return 0;
 	}
 
+	// Attempts to modify a user account
+	// INPUT:
+	// "loginId","email",
+	// "firstName","lastName","cellPhone","emergencyPhone"
+	// Returns int code based on success:
+	// 1 = success! User created
+	// 0 = unknown error or connection error
+	// -999 = username already used
+	// -998 = email already used
+	public static int ModifyUser(Context context, String username,
+			String firstName, String lastName, String email, String phone,
+			String ePhone) {
+		String url = "https://api.awayteam.redshrt.com/user/modifyuser";
+
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		pairs.add(new BasicNameValuePair("loginId", username));
+		pairs.add(new BasicNameValuePair("firstName", firstName));
+		pairs.add(new BasicNameValuePair("lastName", lastName));
+		pairs.add(new BasicNameValuePair("email", email));
+		pairs.add(new BasicNameValuePair("cellPhone", phone));
+		if (ePhone == null) {
+			pairs.add(new BasicNameValuePair("emergencyPhone", ""));
+		} else {
+			pairs.add(new BasicNameValuePair("emergencyPhone", ePhone));
+		}
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		JSONObject result = null;
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("true")) {
+				// succeeded
+				return 1;
+			} else if (!result.getString("message").isEmpty()) {
+				// Return the error from the server - make sure these error
+				// codes don't change because the UI will handle them as
+				// expected in the original API
+				return Integer.parseInt(result.getString("message"));
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return 0;
+	}
+
 	// Attempts to authenticate user - for use when user session is already
 	// stored
 	// INPUT: context, username, password
@@ -278,8 +329,7 @@ public class CommUtil {
 	// 0 = unknown error or connection failure
 	// -1 = team name already used
 	public static int CreateTeam(Context context, String teamName,
-			String locationName, String description,
-			boolean managed) {
+			String locationName, String description, boolean managed) {
 		String url = "https://api.awayteam.redshrt.com/team/createteam";
 
 		if (!NetworkTasks.NetworkAvailable(context)) {
@@ -292,7 +342,7 @@ public class CommUtil {
 				context).getUsername()));
 		pairs.add(new BasicNameValuePair("teamName", teamName));
 		pairs.add(new BasicNameValuePair("teamDescription", description));
-		pairs.add(new BasicNameValuePair("locationName", locationName));
+		pairs.add(new BasicNameValuePair("teamLocationName", locationName));
 		pairs.add(new BasicNameValuePair("teamManaged", Boolean
 				.toString(managed)));
 
@@ -301,7 +351,7 @@ public class CommUtil {
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
 			if (result.getString("status").equals("success")) {
-				return result.getInt("response");
+				return result.getJSONObject("response").getInt("teamId");
 			} else if (result.getString("status").equals("failure")) {
 				switch (result.getString("response")) {
 				case "Team Name Already Used":
@@ -341,7 +391,7 @@ public class CommUtil {
 					String name = response.getJSONObject(i).getString(
 							"teamName");
 					String location = response.getJSONObject(i).getString(
-							"teamLocationId");
+							"teamLocationName");
 					if (location.equals("null")) {
 						location = "";
 					}
@@ -411,33 +461,23 @@ public class CommUtil {
 
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
-		pairs.add(new BasicNameValuePair("loginId",userName));
+		pairs.add(new BasicNameValuePair("loginId", userName));
 
 		JSONObject result = null;
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
 			if (result.getString("status").equals("success")) {
-				// TODO: collect data and pass array to UserSession
-//				List<Object[]> teamList = new ArrayList<Object[]>();
-//				JSONArray response = result.getJSONArray("response");
-//				for (int i = 0; i < response.length(); i++) {
-//					int id = response.getJSONObject(i).getInt("teamId");
-//					String name = response.getJSONObject(i).getString(
-//							"teamName");
-//					String location = response.getJSONObject(i).getString(
-//							"teamLocationId");
-//					if (location.equals("null")) {
-//						location = "";
-//					}
-//					boolean managed = response.getJSONObject(i)
-//							.getString("teamManaged").equals("1"); // this is
-//																	// kind of a
-//																	// hack -
-//																	// should be
-//																	// fixed
-//					teamList.add(new Object[] { id, name, location, managed });
-//				}
+				// collect data and pass array to UserSession
+				List<Object[]> teamList = new ArrayList<Object[]>();
+				JSONArray response = result.getJSONArray("response");
+				for (int i = 0; i < response.length(); i++) {
+					int id = response.getJSONObject(i).getInt("teamId");
+					String name = response.getJSONObject(i).getString(
+							"teamName");
+					teamList.add(new Object[] { id, name });
+				}
+				UserSession.getInstance(context).teamList = teamList;
 				return 1;
 			} else if (result.getString("status").equals("failure")) {
 				// only error is no teams available
@@ -448,4 +488,41 @@ public class CommUtil {
 		}
 		return 0;
 	}
+
+	// Get all the information about a user
+	// INPUTS: username
+	// RETURN: a list of strings in order:
+	// FirstName,LastName,Email,Phone,EmerPhone
+	// null = error encountered
+	public static List<String> GetUser(Context context, String userName) {
+		String url = "https://api.awayteam.redshrt.com/user/getuser"+"?loginId="+userName;
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return null;
+		}
+
+
+		JSONObject result = null;
+		List<String> user = new ArrayList<String>();
+
+		try {
+			result = NetworkTasks.RequestData(false, url, null);
+			if (result.getString("response").equals("success")) {
+				JSONObject message = result.getJSONObject("message");
+				user.add(message.getString("firstName"));
+				user.add(message.getString("lastName"));
+				user.add(message.getString("email"));
+				user.add(message.getString("cellPhone"));
+				user.add(message.getString("emergencyPhone"));
+				return user;
+			} else if (result.getString("response").equals("failure")) {
+				// an error occurred
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

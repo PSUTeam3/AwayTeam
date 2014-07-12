@@ -99,7 +99,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="Name"
-                android:inputType="textPersonName" />
+                android:inputType="textCapWords|textPersonName" />
 
             <EditText
                 android:id="@+id/phone_input"
@@ -107,7 +107,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="Cell Phone"
-                android:inputType="phone" />
+                android:inputType="textPhonetic|phone" />
 
             <EditText
                 android:id="@+id/email_input"
@@ -123,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="Emergency Phone Number"
-                android:inputType="phone" />
+                android:inputType="textPhonetic|phone" />
 
             <Button
                 android:id="@+id/account_submit_button"
