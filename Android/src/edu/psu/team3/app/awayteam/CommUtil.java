@@ -125,7 +125,8 @@ public class CommUtil {
 			String ePhone) {
 		String url = "https://api.awayteam.redshrt.com/user/modifyuser";
 
-		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
 		pairs.add(new BasicNameValuePair("loginId", username));
 		pairs.add(new BasicNameValuePair("firstName", firstName));
 		pairs.add(new BasicNameValuePair("lastName", lastName));
@@ -430,7 +431,7 @@ public class CommUtil {
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
 		pairs.add(new BasicNameValuePair("teamId", String.valueOf(teamID)));
-		pairs.add(new BasicNameValuePair("userName", userName));
+		pairs.add(new BasicNameValuePair("loginId", userName));
 
 		JSONObject result = null;
 
@@ -495,12 +496,12 @@ public class CommUtil {
 	// FirstName,LastName,Email,Phone,EmerPhone
 	// null = error encountered
 	public static List<String> GetUser(Context context, String userName) {
-		String url = "https://api.awayteam.redshrt.com/user/getuser"+"?loginId="+userName;
+		String url = "https://api.awayteam.redshrt.com/user/getuser"
+				+ "?loginId=" + userName;
 
 		if (!NetworkTasks.NetworkAvailable(context)) {
 			return null;
 		}
-
 
 		JSONObject result = null;
 		List<String> user = new ArrayList<String>();

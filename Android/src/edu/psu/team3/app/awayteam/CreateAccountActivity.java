@@ -160,9 +160,9 @@ public class CreateAccountActivity extends Activity {
 			} else {
 				// First name first
 				mFirstName = nameParts[0];
-				if (nameParts.length < 3) {
+				if (nameParts.length == 2) {
 					mLastName = nameParts[1];
-				} else {
+				} else if (nameParts.length > 2) {
 					mLastName = nameParts[2];
 				}
 			}

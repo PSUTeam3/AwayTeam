@@ -91,8 +91,9 @@ public class EditAccountDialog extends DialogFragment {
 					.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View view) {
-							 DialogFragment passwordFragment = new EditPasswordDialog();
-							 passwordFragment.show(getActivity().getFragmentManager(), null);
+							DialogFragment passwordFragment = new EditPasswordDialog();
+							passwordFragment.show(getActivity()
+									.getFragmentManager(), null);
 						}
 					});
 		}
@@ -159,9 +160,9 @@ public class EditAccountDialog extends DialogFragment {
 			} else {
 				// First name first
 				mFirstName = nameParts[0];
-				if (nameParts.length < 3) {
+				if (nameParts.length == 2) {
 					mLastName = nameParts[1];
-				} else {
+				} else if (nameParts.length > 2) {
 					mLastName = nameParts[2];
 				}
 			}
@@ -246,7 +247,7 @@ public class EditAccountDialog extends DialogFragment {
 			mGetTask = null;
 
 			if (result != null) {
-				mNameView.setText(result.get(0)+" "+result.get(1));
+				mNameView.setText(result.get(0) + " " + result.get(1));
 				mEmailView.setText(result.get(2));
 				mPhoneView.setText(result.get(3));
 				mEPhoneView.setText(result.get(4));

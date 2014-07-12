@@ -172,7 +172,6 @@ public final class UserSession {
 	}
 
 	// Create a hash to authenticate a session
-	@SuppressLint("DefaultLocale")
 	public List<NameValuePair> createHash() {
 		byte[] hash = null;
 		List<NameValuePair> secret = new ArrayList<NameValuePair>();
@@ -192,14 +191,15 @@ public final class UserSession {
 			Mac mac = Mac.getInstance("HmacSHA256");
 			mac.init(secretKey);
 			hash = mac.doFinal(token.getBytes());
+			secret.add(new BasicNameValuePair("AWT_AUTH", loginID));
+			secret.add(new BasicNameValuePair("AWT_AUTH_CHALLENGE", hexify(hash)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		// Log.v("secret", "hashed secret: " + hexify(hash));
 
-		secret.add(new BasicNameValuePair("AWT_AUTH", loginID));
-		secret.add(new BasicNameValuePair("AWT_AUTH_CHALLENGE", hexify(hash)));
+		
 
 		// Log.v("secret", secret.toString());
 
@@ -208,7 +208,6 @@ public final class UserSession {
 
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
-	@SuppressLint("DefaultLocale")
 	private static String hexify(byte[] bytes) {
 		char[] hexChars = new char[bytes.length * 2];
 		for (int j = 0; j < bytes.length; j++) {
