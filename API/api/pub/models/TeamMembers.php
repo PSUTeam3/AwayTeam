@@ -103,6 +103,54 @@
             return $this->teamMemberId;           
         }
         
+         public function AddFirstTeamMember($teamId, $loginId) {
+            global $db;
+            
+            $manager = 0;
+            $pendingApproval = 0;
+            $query = "select userId from user where loginId = '" .myEsc($loginId) . "'";
+            $sql = mysql_query($query,$db);
+            
+            if(mysql_num_rows($sql)) {
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $userId = $rlt['userId'];
+                }
+            }
+            $query = "select teamManaged from team where teamId = " . myEsc($teamId);
+            
+            $sql = mysql_query($query, $db);
+            if(mysql_num_rows($sql)) {
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $teamManaged = $rlt["teamManaged"];
+                }               
+            }
+            
+            if($teamManaged == 1) {
+                $manager = 1;
+                $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,%d,%d)",
+                    myEsc($teamId),
+                    myEsc($userId),
+                    myEsc($manager),
+                    myEsc($pendingApproval));            
+            } else {
+                $manager = 0;
+                $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,%d,%d)",
+                    myEsc($teamId),
+                    myEsc($userId),
+                    myEsc($manager),
+                    myEsc($pendingApproval)); 
+            }
+            
+            mysql_query($query,$db);
+            $id = mysql_insert_id();
+            
+            if($id>=0) {
+                $this->teamMemberId = $id;
+            }
+            
+            return $this->teamMemberId;           
+        }
+        
         public function SelectTeamMemberFromId($id) {
             global $db;
             $aTeamMember = new TeamMember;

@@ -44,6 +44,7 @@
             $tu = new TeamUtilities;
             $jsonMsg = array();
             $failure = false;
+            $idArray = array();
             
             if($this->get_request_method() != "POST") {
                 $this->response('',406);
@@ -51,7 +52,7 @@
     
             $teamArray = $this->_request;
             
-            $authUser = $this->AuthRequired($teamArray);
+            //$authUser = $this->AuthRequired($teamArray);
 
             logIt(var_export($teamArray, true));
 
@@ -67,19 +68,21 @@
             }
             
             if($failure == false) {
-                if($tu->TeamNameUsed($teamArray['teamName'])) {
+                if($tu->TeamNameUsed($teamArray['teamName']) == true) {
                     $jsonMsg = array('status' => 'failure', 'response'=> "team name is already used");
                     $failure = true;
                 }
             }
             
             if($failure == false) {
-                $newTeamId = $newTeam->CreateTeam($teamArray);
+                $idArray = $newTeam->CreateTeam($teamArray, $teamArray['loginId']);
             }    
             
-            if ($newTeamId > 0) {
-                $jsonMsg = array('status' => 'success', 'response'=> $newTeamId);
-            } 
+            if (count($idArray) == 2) {
+                $jsonMsg = array('status' => 'success', 'response'=> $idArray);
+            } else {
+                $jsonMsg = array('status' => 'failure', 'response' => "team couldn't be created or creator couldn't be added as team member");
+            }
     
             $this->response($this->json($jsonMsg), 200);
         }   

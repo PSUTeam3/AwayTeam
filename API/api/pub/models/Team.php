@@ -26,9 +26,12 @@
             $this->teamManaged = False; 
         }
         
-        public function InsertTeam() {
+        public function InsertTeam($loginId) {
             global $db;
+            $teamMember = new TeamMembers;
             
+            $idArray = array();
+
             if (strtolower($this->teamManaged) == "true")
             {
                 $this->teamManaged = 1;
@@ -52,9 +55,11 @@
             
             if($id>=0) {
                 $this->teamId = $id;
+                $teamMemberId= $teamMember->AddFirstTeamMember($this->teamId,$loginId);
+                $idArray = ["teamId" => $this->teamId, "teamMemberId" => $teamMemberId];
             }
             
-            return $id;
+            return $idArray;
         }
         
         public function SelectAllTeams() {

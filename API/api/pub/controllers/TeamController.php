@@ -7,10 +7,10 @@
     
     class TeamController extends Team
     {    
-        public function CreateTeam ($teamParametersArray) {
+        public function CreateTeam ($teamParametersArray, $loginId) {
             $tTeam = new Team;
             $tTeam = $this->arrayToObject($teamParametersArray);            
-            $newTeamId = $tTeam->InsertTeam();
+            $newTeamId = $tTeam->InsertTeam($loginId);
             return $newTeamId;
         }
         
