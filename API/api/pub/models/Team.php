@@ -107,7 +107,128 @@
                     foreach($result[0] as $column=>$value) {
                         $aTeam->$column = $value;
                     }
-                    return $aTeam;
+                    
+                    //due to complex message, we need to stray from model    
+                    $theTeam = get_object_vars($aTeam);
+
+                    //convert int to true/false
+                    if ($theTeam['teamManaged'] == 0)
+                    {
+                        $theTeam['teamManaged'] = "false";
+                    }
+                    else
+                    {
+                        $theTeam['teamManaged'] = "true";
+                    }
+
+                    //getTeamMembers
+                    $query = sprintf("select user.userId, firstName, lastName, email, cellphone as phone, manager from user, team_member where user.userId=team_member.userId and team_member.teamId=%d", myEsc($teamId));
+                    $members = array();
+                    $sql = mysql_query($query, $db);
+                    if (mysql_num_rows($sql) > 0)
+                    {
+                        while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
+                        {
+                            $members[] = $rlt;
+                        }
+
+                        // now get latest location and set manager true false
+                        foreach($members as $user=>$value)
+                        {
+                            if ($members[$user]['manager'] == 0)
+                            {
+                                $members[$user]['manager'] = "false";
+                            }
+                            else
+                            {
+                                $members[$user]['manager'] = "true";
+                            }
+
+                            $location = array();
+                            $queryLoc = sprintf("select locLatitude, locLongitude from location where locUserId = %d order by locId desc limit 1", myEsc($members[$user]['userId']));
+                            logIt(var_export($queryLoc, true));
+                            $sqlLoc = mysql_query($queryLoc, $db);
+                            if (mysql_num_rows($sqlLoc) > 0)
+                            {
+                                while ($rlt  = mysql_fetch_array($sqlLoc, MYSQL_ASSOC))
+                                {
+                                    $location[] = $rlt;
+                                }
+                                
+                                $members[$user]['locLatitude'] = $location[0]['locLatitude'];
+                                $members[$user]['locLongitude'] = $location[0]['locLongitude'];
+                            }
+                            else
+                            {
+                                $members[$user]['locLatitude'] = null;
+                                $members[$user]['locLongitude'] = null;
+                            }
+                        }
+                        
+                    }
+                    else
+                    {
+                        //no members in team
+                        $members = null;
+                    }
+
+                    $theTeam['members'] = $members;
+
+                    //getTasks
+                    $query = sprintf("select taskTitle, taskDescription, taskCompleted from team_tasks where taskTeamId=%d", myEsc($teamId));
+                    $tasks = array();
+                    $sql = mysql_query($query, $db);
+                    if (mysql_num_rows($sql) > 0)
+                    {   
+                        while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
+                        {   
+                            $tasks[] = $rlt;
+                        }   
+                        
+                        foreach($tasks as $task=>$value)
+                        {
+                            if ($tasks[$task]['taskCompleted'] == 0)
+                            {
+                                $tasks[$task]['taskCompleted'] = "false";
+                            }
+                            else
+                            {
+                                $tasks[$task]['taskCompleted'] = "true";
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        //no tasks for team
+                        $tasks = null;
+                    }
+
+                    $theTeam['tasks'] = $tasks;
+
+                    //getTeams
+                    $query = sprintf("select teamEventName, teamEventDescription, teamEventLocationString, teamEventStartTime, teamEventEndTime from team_event where teamEventTeamId=%d", myEsc($teamId));                  
+                    logIt($query);
+                    $events = array();
+                    $sql = mysql_query($query, $db);
+                    if (mysql_num_rows($sql) > 0)
+                    {
+                        while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
+                        {
+                            $events[] = $rlt;
+                        }
+                        
+                    }
+                    else
+                    {
+                        //no tasks for team
+                        $events = null;
+                    }
+
+                    $theTeam['events'] = $events;
+
+                    return $theTeam;
+
                 }                
             } else {
                 logIt("team member doesn't exist");

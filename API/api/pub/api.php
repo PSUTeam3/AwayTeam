@@ -126,11 +126,12 @@
                 if(isset($info['teamId'])) 
                 {
                     $teamId = $info['teamId'];                   
-                    $aTeam = $selectTeam->GetTeamFromID($info['teamId'], $info['loginId']);
+                    //$aTeam = $selectTeam->GetTeamFromID($info['teamId'], $info['loginId']);
+                    $x1 = $selectTeam->GetTeamFromID($info['teamId'], $info['loginId']);
                 }                
             }
 
-            if($aTeam->teamId == -999 or $aTeam->teamName=="") 
+            if(($x1['teamId'] == -999) or ($x1['teamName'] == "")) 
             {
                 $failure=true;
             } else 
@@ -143,7 +144,8 @@
                 $respArray = array('status' => 'failure', 'response' => "team not found");
             } else 
             {
-                $newTeam = get_object_vars($aTeam);
+                //$newTeam = get_object_vars($aTeam);
+                $newTeam = $x1;
                 $respArray = array('status' => 'success', 'response' => $newTeam);
             }
 
