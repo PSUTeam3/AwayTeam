@@ -259,7 +259,7 @@
             }
             
             if($failure == false ) {               
-                $teamMemberId = $joinTeam->JoinTeam($info);
+                $teamMemberId = $joinTeam->JoinTeam($info['teamId'], $info['loginId']);
                 
                 if ($teamMemberId > 0) {
                     $jsonMsg = array('status' => 'success', 'response'=> $teamMemberId);

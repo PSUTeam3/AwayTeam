@@ -12,10 +12,9 @@
             return $newTeamMemberId;
         }
         
-        public function JoinTeam($teamMemberParametersArray) {
+        public function JoinTeam($teamId,$loginId) {
             $aTeamMember = new TeamMembers;
-            $aTeamMember = $this->arrayToObject($teamMemberParametersArray);
-            $newTeamMemberId = $aTeamMember->AddTeamMember();
+            $newTeamMemberId = $aTeamMember->AddTeamMember($teaamId,$loginId);
             return $newTeamMemberId;
         }
         

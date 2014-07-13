@@ -16,11 +16,11 @@
         }
         
         public function initialize() {
-            $teamMemberId = -999;
-            $teamId = -999;
-            $userID = -999;
-            $manager = false;
-            $pendingApproval = false;
+            $this->teamMemberId = -999;
+            $this->teamId = -999;
+            $this->userId = -999;
+            $this->manager = false;
+            $this->pendingApproval = false;
         }
         
         public function InsertTeamMember() {
@@ -54,11 +54,11 @@
             return $this->teamMemberId ;
         }
         
-        public function AddTeamMember() {
+        public function AddTeamMember($teamId,$loginId) {
             global $db;
             
             $this->manager = 0;
-            $query = "select userId from user where loginId = '" .myEsc($this->loginId) . "'";
+            $query = "select userId from user where loginId = '" .myEsc($loginId) . "'";
             $sql = mysql_query($query,$db);
             
             if(mysql_num_rows($sql)) {
@@ -66,7 +66,7 @@
                     $userId = $rlt['userId'];
                 }
             }
-            $query = "select teamManaged from team where teamId = " . myEsc($this->teamId);
+            $query = "select teamManaged from team where teamId = " . myEsc($teamId);
             
             $sql = mysql_query($query, $db);
             if(mysql_num_rows($sql)) {
@@ -79,10 +79,10 @@
                 $this->pendingApproval = 1;
 
                 $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,%d,%d)",
-                    myEsc($this->teamId),
+                    myEsc($teamId),
                     myEsc($userId),
                     myEsc($this->manager),
-                    myEsc($this->pendingApproval));            
+                    myEsc($this->pendingApproval));
             } else {
                 $pendingApproval = 0;
                 $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,%d,%d)",
@@ -153,9 +153,10 @@
         
         public function SelectTeamMemberFromId($id) {
             global $db;
-            $aTeamMember = new TeamMember;
+            $aTeamMember = new TeamMembers;
+            $teamMemberUtilities = new TeamMemberUtilities;
 
-            if($id && TeamMemberIdExists($id)) {
+            if($id && $teamMemberUtilities->TeamMemberIdExists($id)) {
                 $query = "select * from team_member where teamMemberId = " . myEsc($id);
                 $sql = mysql_query($query, $db);
                 if(mysql_num_rows($sql) > 0) {

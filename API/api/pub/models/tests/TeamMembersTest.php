@@ -31,6 +31,37 @@
             $this->assertTrue($result >0);
         }
         
+        public function testAddTeamMember() {
+            $teamMembers = new TeamMembers;
+            
+            $teamId = 33;
+            $loginId = 'karski';
+            $result = NULL;
+            $result = $teamMembers->AddteamMember($teamId,$loginId);
+            $this->assertTrue($result > 0);
+        }
+        
+        public function testAddFirstTeamMember() {
+            $teamMembers = new TeamMembers;
+            
+            $teamId = 14;
+            $loginId = 'karski';
+            $result = $teamMembers->AddFirstTeamMember($teamId,$loginId);
+            $this->assertTrue($result > 0);
+        }
+        
+        public function testSelectTeamMemberFromId() {
+            $teamMembers = new TeamMembers;
+            
+            $id = 19;
+            $result=NULL;
+            $result = $teamMembers->SelectTeamMemberFromId($id);
+            $this->assertTrue($result != NULL);
+            
+        }
+        
+        
+        
         
     }
 ?>
