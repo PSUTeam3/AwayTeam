@@ -122,7 +122,7 @@
                     }
 
                     //getTeamMembers
-                    $query = sprintf("select user.userId, firstName, lastName, email, cellphone as phone, manager from user, team_member where user.userId=team_member.userId and team_member.teamId=%d", myEsc($teamId));
+                    $query = sprintf("select user.userId, loginId, firstName, lastName, email, cellphone as phone, manager from user, team_member where user.userId=team_member.userId and team_member.teamId=%d", myEsc($teamId));
                     $members = array();
                     $sql = mysql_query($query, $db);
                     if (mysql_num_rows($sql) > 0)
@@ -143,6 +143,8 @@
                             {
                                 $members[$user]['manager'] = "true";
                             }
+
+                            unset($members[$user]['userId']); //remove userId from entry
 
                             $location = array();
                             $queryLoc = sprintf("select locLatitude, locLongitude from location where locUserId = %d order by locId desc limit 1", myEsc($members[$user]['userId']));
