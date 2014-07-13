@@ -36,7 +36,7 @@
             }
 
             
-            $query = sprintf("insert into team_member (teamId, userId, manager, pendingApproval) values (%d,%d,'%s','%s')",               
+            $query = sprintf("insert into team_member (teamId, userId, manager, pendingApproval) values (%d,%d,%d,%d)",               
                 myEsc($this->teamId),
                 myEsc($this->userId),
                 myEsc($this->manager),
@@ -51,7 +51,7 @@
                 $this->teamMemberId = $id;
             }
             
-            return $$this->teamMemberId ;
+            return $this->teamMemberId ;
         }
         
         public function AddTeamMember() {

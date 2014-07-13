@@ -248,7 +248,7 @@
                     $result[] = $rlt;
                 }
                 
-                $userId = $result[0]['loginId'];
+                $userId = $result[0]['userId'];
             }
             
             $query = "select teamId from team where teamName = '" . myEsc($teamName) ."'";
@@ -262,23 +262,22 @@
                 $teamId = $result[0]['teamId'];
             }
             
-            if(TeamMemberExist($teamId, $userId) && $teamName && TeamNameUsed($teamName)){
-                $query = "select * from team where teamName =" . myEsc($teamName);
-                $sql = mysql_query($query, $db);
+
+            $query = "select * from team where teamName ='" . myEsc($teamName) . "'";
+            $sql = mysql_query($query, $db);
+            
+            if(mysql_num_rows($sql) > 0) {
+                $result = array();
                 
-                if(mysql_num_rows($sql) > 0) {
-                    $result = array();
-                    
-                    while($row = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                        $result[] = $rlt;
-                    }
-                    
-                    foreach($result[0] as $item=>$value) {
-                        $tTeam->$item=$value;
-                    }
-                    
-                    return $tTeam;                   
-                }                
+                while($row = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $result[] = $rlt;
+                }
+                
+                foreach($result as $item=>$value) {
+                    $tTeam->$item=$value;
+                }
+                
+                return $tTeam;
             } else {
                 //What do we want to do with empty teamName field?
                 //Error message
@@ -307,9 +306,9 @@
        
         public function ModifyTeamModel() {
             global $db;
-            $query = sprintf("update team set teamName='%s', teamLocationId=%d, teamDescription='%s', teamManaged='%s' where teamId = " . myEsc($this->teamId),
+            $query = sprintf("update team set teamName='%s', teamLocationId=%d, teamDescription='%s', teamManaged=%d where teamId = " . myEsc($this->teamId),
                 myEsc($this->teamName),
-                myEsc($this->teamLocationId),
+                myEsc($this->teamLocationName),
                 myEsc(strtolower($this->teamDescription)),
                 myEsc($this->teamManaged));
                                         
@@ -325,14 +324,12 @@
             
             if($teamId == -999) {
                return false;               
-            } else if($newTeamName && TeamNameUsed($newTeamName)) {               
-                $query = "update team set teamName=" .  myEsc($newTeamName) . 
-                            " where teamId=" . myEsc($teamId);
-                $sql = mysql_query($query, $db);
-                return $sql;
-            } else {
-                return false;
-            }
+            }              
+            $query = "update team set teamName=" .  myEsc($newTeamName) . 
+                        " where teamId=" . myEsc($teamId);
+            $sql = mysql_query($query, $db);
+            
+            return $sql;
         }
         
         public function DeleteTeam($teamId) {
