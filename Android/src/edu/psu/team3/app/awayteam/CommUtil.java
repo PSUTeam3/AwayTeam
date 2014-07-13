@@ -437,10 +437,10 @@ public class CommUtil {
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			if (result.getString("response").equals("success")) {
-				// TODO: collect data and build up team information
+			if (result.getString("status").equals("success")) {
+				UserSession.getInstance(context).loadTeam(result.getJSONObject("response"));
 				return 1;
-			} else if (result.getString("response").equals("failure")) {
+			} else if (result.getString("status").equals("failure")) {
 				// an error occurred
 				return 0;
 			}

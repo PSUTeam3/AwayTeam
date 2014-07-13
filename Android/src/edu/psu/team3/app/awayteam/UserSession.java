@@ -8,6 +8,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -160,6 +161,15 @@ public final class UserSession {
 		return password;
 	}
 
+	// update the value of the current team and save for next startup
+	public void updateCurrentTeam(int id) {
+		currentTeamID = id;
+		SharedPreferences.Editor prefs = mContext.getSharedPreferences(PREFS,
+				Context.MODE_PRIVATE).edit();
+		prefs.putInt(TEAMID, id);
+		prefs.commit();
+	}
+
 	// End the session and delete all stored data on the user
 	// call this when the user selects "logout"
 	public void terminateSession() {
@@ -168,6 +178,20 @@ public final class UserSession {
 					PREFS, Context.MODE_PRIVATE).edit();
 			prefs.clear();
 			prefs.commit();
+		}
+	}
+
+	// Create a new team object based on JSON Object (formatted according to
+	// API)
+	public void loadTeam(JSONObject message) {
+		//create an empty team, clearing old data
+		activeTeam = new Team();
+		//collect basic team information
+		try {
+			activeTeam.importTeam(message);
+		} catch (Exception e) {
+			e.printStackTrace();
+			activeTeam = null;
 		}
 	}
 
@@ -182,8 +206,6 @@ public final class UserSession {
 																// parts of the
 		// token
 
-		// Log.v("secret", "concatenated text: " + token);
-
 		// hash function
 		try {
 			SecretKeySpec secretKey = new SecretKeySpec(loginSecret.getBytes(),
@@ -192,16 +214,11 @@ public final class UserSession {
 			mac.init(secretKey);
 			hash = mac.doFinal(token.getBytes());
 			secret.add(new BasicNameValuePair("AWT_AUTH", loginID));
-			secret.add(new BasicNameValuePair("AWT_AUTH_CHALLENGE", hexify(hash)));
+			secret.add(new BasicNameValuePair("AWT_AUTH_CHALLENGE",
+					hexify(hash)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		// Log.v("secret", "hashed secret: " + hexify(hash));
-
-		
-
-		// Log.v("secret", secret.toString());
 
 		return secret;
 	}

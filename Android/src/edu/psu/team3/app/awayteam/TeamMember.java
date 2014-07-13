@@ -4,6 +4,7 @@ import java.util.Comparator;
 
 public class TeamMember {
 
+	public String userName = "";
 	public String firstName = "";
 	public String lastName = "";
 	public String email = "";
@@ -11,8 +12,9 @@ public class TeamMember {
 	public int lat, lon = 0;
 	public boolean manager = false;
 
-	public TeamMember(String mFirstName, String mLastName, String mEmail,
+	public TeamMember(String mUserName,String mFirstName, String mLastName, String mEmail,
 			String mPhone, int mLat, int mLon, boolean mManager) {
+		userName = mUserName;
 		firstName = mFirstName;
 		lastName = mLastName;
 		email = mEmail;

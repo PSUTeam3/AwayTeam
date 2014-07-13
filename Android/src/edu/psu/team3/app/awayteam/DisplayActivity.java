@@ -10,6 +10,7 @@ import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,19 +29,15 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	private RefreshSpinnerTask mRefreshList = null;
 
 	SectionsPagerAdapter mSectionsPagerAdapter;
-
-	private Spinner spinnerView;
-
-	/**
-	 * The {ViewPager} that will host the section contents.
-	 */
+	Spinner spinnerView;
 	ViewPager mViewPager;
+	private Menu optionsMenu;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// Show default fragment when no teams exist yet
+		// set the activity that will host fragments
 		setContentView(R.layout.activity_display);
 
 		// Set up the action bar. For tabs
@@ -58,8 +55,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 		// swap out title for spinner
 		ViewGroupUtils.replaceView(titleView, spinnerView);
-		// update spinner entries and team info
-		refreshTeam(UserSession.getInstance(this).currentTeamID);
 		spinnerView
 				.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 					@Override
@@ -74,30 +69,15 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 						// TeamID for reference
 						UserSession s = UserSession
 								.getInstance(getBaseContext());
-						int teamID = (int) s.teamList.get(position)[0]; // position
-																		// of
-																		// item
-																		// in
-																		// teamlist
-																		// should
-																		// match
-																		// position
-																		// in
-																		// spinner
-																		// since
-																		// it
-																		// was
-																		// built
-																		// off
-																		// the
-																		// list
-						s.currentTeamID = teamID;
+						int teamID = (int) s.teamList.get(position)[0];
+						s.updateCurrentTeam(teamID);
 
 						// load a new team based on selection
 						if (mGetTeam == null) {
 							try {
 								mGetTeam = new GetTeamTask();
 								mGetTeam.execute(teamID);
+								setRefreshActionButtonState(true);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -109,7 +89,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 					}
 				});
 
-		// Create the adapter that will return a fragment for each of the three
+		// Create the adapter that will return a fragment for each of the
 		// primary sections of the activity.
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 
@@ -138,13 +118,37 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
+
+		// Request the team information
+		refreshTeam(UserSession.getInstance(this).currentTeamID);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-
-		// Inflate the menu; this adds items to the action bar if it is present.
+		this.optionsMenu = menu;
 		getMenuInflater().inflate(R.menu.display, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// Configure menus to reflect user role
+
+		menu.clear();
+		getMenuInflater().inflate(R.menu.display, menu);
+		if (UserSession.getInstance(getBaseContext()) != null
+				&& UserSession.getInstance(getBaseContext()).activeTeam != null) {
+			if (UserSession.getInstance(getBaseContext()).activeTeam.userManager) {
+				menu.clear();
+				getMenuInflater().inflate(R.menu.display_manager, menu);
+			}
+		}
+		this.optionsMenu = menu;
+		// TODO: get progress to load on start
+		UserSession s = UserSession.getInstance(this);
+		if (s.activeTeam == null && s.currentTeamID >= 0) {
+			setRefreshActionButtonState(true);
+		}
 		return true;
 	}
 
@@ -154,6 +158,10 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
+		if (id == R.id.action_refresh) {
+			refreshTeam(UserSession.getInstance(getBaseContext()).currentTeamID);
+			return true;
+		}
 		if (id == R.id.action_create_team) {
 			DialogFragment newFragment = new CreateTeamDialog();
 			newFragment.show(getFragmentManager(), null);
@@ -199,7 +207,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
 	 * one of the sections/tabs/pages.
 	 */
-	public class SectionsPagerAdapter extends FragmentPagerAdapter {
+	public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
 		public SectionsPagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -210,22 +218,26 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			// getItem is called to instantiate the fragment for the given page.
 			// Return a PlaceholderFragment (defined as a static inner class
 			// below).
-			// TODO: (once get team is able to populate the team structure)
 			// check for active team before displaying anything besides
 			// placeholder
-			String[] titles = getResources().getStringArray(R.array.tab_titles);
-			switch (titles[position]) {
-			case "Overview":
-				return new OverviewFragment();
-			case "Member List":
-				return new MembersFragment();
-			case "Team Calendar":
-				return new CalendarFragment();
-			case "Team Tasks":
-				return new TaskFragment();
-			case "Map":
-				return new PlaceholderFragment(); // TODO: swap to map fragment
-													// when map API installed
+			if (UserSession.getInstance(getBaseContext()).activeTeam != null) {
+				String[] titles = getResources().getStringArray(
+						R.array.tab_titles);
+				switch (titles[position]) {
+				case "Overview":
+					return new OverviewFragment();
+				case "Member List":
+					return new MembersFragment();
+				case "Team Calendar":
+					return new CalendarFragment();
+				case "Team Tasks":
+					return new TaskFragment();
+				case "Map":
+					return new PlaceholderFragment(); // TODO: swap to map
+														// fragment
+														// when map API
+														// installed
+				}
 			}
 			return new PlaceholderFragment();
 		}
@@ -234,6 +246,11 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		public int getCount() {
 			// count the number of titles in the string file
 			return getResources().getStringArray(R.array.tab_titles).length;
+		}
+
+		@Override
+		public int getItemPosition(Object item) {
+			return POSITION_NONE;
 		}
 
 		@Override
@@ -284,11 +301,13 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	// Collects the new team ID from a dialog
 	public void refreshTeam(int teamID) {
 		Log.v("DISPLAY", "received team selection: " + teamID);
-		UserSession.getInstance(getBaseContext()).currentTeamID = teamID;
+		// spin the refresh button to indicate progress
+		setRefreshActionButtonState(true);
+
 		// run background task to update spinner
 		// TeamID will already be saved as the UserSession team ID, but just
 		// double check
-		UserSession.getInstance(this).currentTeamID = teamID;
+		UserSession.getInstance(this).updateCurrentTeam(teamID);
 		if (mRefreshList == null) {
 			try {
 				mRefreshList = new RefreshSpinnerTask();
@@ -322,6 +341,21 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		}
 	}
 
+	public void setRefreshActionButtonState(final boolean refreshing) {
+		if (optionsMenu != null) {
+			final MenuItem refreshItem = optionsMenu
+					.findItem(R.id.action_refresh);
+			if (refreshItem != null) {
+				if (refreshing) {
+					refreshItem
+							.setActionView(R.layout.actionbar_indeterminate_progress);
+				} else {
+					refreshItem.setActionView(null);
+				}
+			}
+		}
+	}
+
 	// Collect a team from the server
 	// requires a team ID passed as only parameter
 	public class GetTeamTask extends AsyncTask<Object, Void, Integer> {
@@ -333,7 +367,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			Integer result = 0;
 			result = CommUtil.GetTeam(getBaseContext(), (int) params[0],
 					s.getUsername());
-
 			Log.v("Background", "returned from commutil.  result = " + result);
 
 			return result;
@@ -347,7 +380,8 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			switch (result) {
 			case 1: // success!
 				// TODO: reload current fragment to show team data
-
+				mSectionsPagerAdapter.notifyDataSetChanged();
+				mViewPager.invalidate();
 				break;
 			default: // some other error occured
 
@@ -355,11 +389,13 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 						"Unable to get Team information", Toast.LENGTH_SHORT)
 						.show();
 			}
+			setRefreshActionButtonState(false);
 		}
 
 		@Override
 		protected void onCancelled() {
 			mGetTeam = null;
+			setRefreshActionButtonState(false);
 		}
 
 	}

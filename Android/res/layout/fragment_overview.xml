@@ -19,11 +19,11 @@
         <TextView
             android:id="@+id/team_location_text"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"            
+            android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="Team Location Name"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@android:color/secondary_text_dark" />
+            android:textColor="@android:color/darker_gray" />
 
         <View
             android:layout_width="fill_parent"
@@ -34,33 +34,53 @@
             android:id="@+id/team_description_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             android:text="Team description here" />
 
         <View
+            android:id="@+id/pending_div"
             android:layout_width="fill_parent"
             android:layout_height="1dp"
-            android:background="@android:color/holo_blue_dark" />
+            android:background="@android:color/holo_blue_dark"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/pending_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pending Memberships"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="gone" />
+
+        <TableLayout
+            android:id="@+id/pending_table"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" >
+        </TableLayout>
+
+        <View
+            android:id="@+id/manager_div"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/holo_blue_dark"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/manager_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Team Managers"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:visibility="gone" />
 
-        <ListView
-            android:id="@+id/manager_listview"
+        <TableLayout
+            android:id="@+id/manager_table"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-        </ListView>
-        
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/holo_blue_dark" />
-        
+            android:layout_height="wrap_content"
+            android:visibility="gone" >
+        </TableLayout>
     </LinearLayout>
 
 </ScrollView>
