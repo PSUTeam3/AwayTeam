@@ -48,12 +48,13 @@ root@awayteamDev:/home/awayteam/Desktop/php-5.4.30#
             $this->assertTrue($result >0);
         }
         
-        public function testAddTeamMember() {
+        public function testAddTeamMemberNonManager() {
             $teamMembers = new TeamMembers;
             
             $teamId = 33;
             $loginId = 'karski';
-            $result = NULL;
+            $teamMembers->manager = 0;
+            $result = NULL;            
             $result = $teamMembers->AddteamMember($teamId,$loginId);
             $this->assertTrue($result > 0);
         }
