@@ -1,6 +1,5 @@
 <?php
     include_once('/home/awayteam/api/pub/apiconfig.php');
-    include_once('/home/awayteam/api/pub/models/TeamMemberUtilities.php');
     
     class TeamMembers
     {
@@ -21,6 +20,21 @@
             $this->userId = -999;
             $this->manager = false;
             $this->pendingApproval = false;
+        }
+        
+        public function TeamMemberIdExists($id) {
+            global $db;
+            if($id) {
+                $query = "select count(teamMemberId) as num from team_member where teamMemberId = " . myEsc($id);
+                $sql = mysql_query($query, $db);
+                $data = mysql_fetch_assoc($sql);
+                
+                if ($data['num'] == 0) {
+                    return false;
+                } else {
+                    return true;
+                }   
+            }
         }
         
         public function InsertTeamMember() {
@@ -57,7 +71,7 @@
         public function AddTeamMember($teamId,$loginId) {
             global $db;
             
-            $this->manager = 0;
+            $manager = 0;
             $query = "select userId from user where loginId = '" .myEsc($loginId) . "'";
             $sql = mysql_query($query,$db);
             
@@ -76,20 +90,20 @@
             }
             
             if($teamManaged == 1) {
-                $this->pendingApproval = 1;
+                $pendingApproval = 1;
 
                 $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,%d,%d)",
                     myEsc($teamId),
                     myEsc($userId),
-                    myEsc($this->manager),
-                    myEsc($this->pendingApproval));
+                    myEsc($manager),
+                    myEsc($pendingApproval));
             } else {
                 $pendingApproval = 0;
                 $query = sprintf("insert into team_member(teamId, userId, manager, pendingApproval) values (%d,%d,%d,%d)",
-                    myEsc($this->teamId),
+                    myEsc($teamId),
                     myEsc($userId),
-                    myEsc($this->manager),
-                    myEsc($this->pendingApproval)); 
+                    myEsc($manager),
+                    myEsc($pendingApproval)); 
             }
             
             mysql_query($query,$db);
@@ -154,9 +168,8 @@
         public function SelectTeamMemberFromId($id) {
             global $db;
             $aTeamMember = new TeamMembers;
-            $teamMemberUtilities = new TeamMemberUtilities;
 
-            if($id && $teamMemberUtilities->TeamMemberIdExists($id)) {
+            if($this->TeamMemberIdExists($id)) {
                 $query = "select * from team_member where teamMemberId = " . myEsc($id);
                 $sql = mysql_query($query, $db);
                 if(mysql_num_rows($sql) > 0) {
@@ -166,7 +179,7 @@
                     }
                     
                     foreach($result[0] as $column=>$value) {
-                        $aTeamMember->$item = $value;
+                        $aTeamMember->$column = $value;
                     }
                     
                     return $aTeamMember;
@@ -176,7 +189,7 @@
         
         public function SelectTeamMemberFromTeamId($teamId) {
             global $db;
-            $aTeamMember = new TeamMember;
+            $aTeamMember = new TeamMembers;
             $teamMemberList = array();
             
             if($teamId) {
@@ -195,7 +208,7 @@
         
         public function ModifyTeamMember() {
             global $db;
-            $query = sprintf("update team_member set teamId='%d', userId='%d', manager='%s', pendingApproval='%s' where id=" . myEsc($id),
+            $query = sprintf("update team_member set teamId=%d, userId=%d, manager=%d, pendingApproval=%d where teamMemberId=" . myEsc($this->teamMemberId),
                     myEsc($this->teamId),
                     myEsc($this->userId),
                     myEsc($this->manager),
@@ -207,11 +220,12 @@
 
         public function ModifyManagerAttribute($teamMemberId, $newManagerValue) {
             global $db;
+            
             if($teamMemberId == -999) {
                 return false;
-            } else if($newManagerValue && TeamMemberIdExists($teamMemberId)) {
+            } else if($this->TeamMemberIdExists($teamMemberId)) {
                 $query = "update team_member set manager=" .myEsc($newManagerValue) 
-                        . " where id = " .myEsc($teamMemberId);
+                        . " where teamMemberId = " .myEsc($teamMemberId);
                 $sql = mysql_query($query, $db);
                 return $sql;
             } else {
@@ -221,11 +235,12 @@
         
         public function ModifyPendingApproval($teamMemberId, $booleanValue) {
             global $db;
+
             if($teamMemberId== -999) {
                 return false;
-            } else if($booleanValue && TeamMemberIdExists($teamMemberId)) {
+            } else if($this->TeamMemberIdExists($teamMemberId)) {
                 $query = "update team_member set pendingApproval=" .myEsc($booleanValue)
-                        . " where id = " .myEsc($teamMemberId);
+                        . " where teamMemberId = " .myEsc($teamMemberId);
                 $sql = mysql_query($query, $db);
                 return $sql;                
             } else {
@@ -235,9 +250,10 @@
         
         public function ModifyTeamMemberTeamId($teamMemberId, $teamId) {
             global $db;
+                        
             if($teamMemberId == -999) {
                 return false;
-            } else if ($teamMemberId && TeamIdExists($teamId)) {
+            } else if ($this->TeamMemberIdExists($teamMemberId)) {
                 $query = "update team_member set teamId=" . myEsc($teamId) 
                         . " where teamMemberId = " .myEsc($teamMemberId);
                 $sql = mysql_query($query, $db);
@@ -272,7 +288,5 @@
             $sql = mysql_query($query, $db);
             return $sql;
         }
-        
-        
     }
 ?>

@@ -7,6 +7,7 @@
             global $db;
             if($teamId) {
                 $query = "select count(teamId) as num from team where teamId=" . myEsc($teamId);
+                logIt("teamIdExists query: " . var_export($query,true));
                 $sql = mysql_query($query, $db);
                 $data = mysql_fetch_assoc($sql);
                 

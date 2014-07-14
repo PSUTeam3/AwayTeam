@@ -14,7 +14,7 @@
         
         public function JoinTeam($teamId,$loginId) {
             $aTeamMember = new TeamMembers;
-            $newTeamMemberId = $aTeamMember->AddTeamMember($teaamId,$loginId);
+            $newTeamMemberId = $aTeamMember->AddTeamMember($teamId,$loginId);
             return $newTeamMemberId;
         }
         
