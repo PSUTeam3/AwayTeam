@@ -6,7 +6,6 @@
     {
         var $team0;
         var $team1;
-        var $teamIdList;
         var $userId;
         
         public function setUp() {
@@ -46,13 +45,11 @@
         
         public function testInsertUnmanagedTeam() {            
             $teamId = $this->team0->InsertTeam('vuda1');
-            $this->teamIdList["team0Id"] = $teamId;
             $this->assertTrue($teamId> 0);
         }
         
         public function testInsertManagedTeam() {            
-            $teamId = $this->team1->InsertTeam('vuda1');
-            $this->teamIdList["team1Id"] = $teamId;    
+            $teamId = $this->team1->InsertTeam('vuda1');   
             $this->assertTrue($teamId> 0);
         }
         
@@ -63,9 +60,9 @@
         }
         
         public function testSelectTeamFromId() {
-            $team = new Team;
+            $team = new Team;            
             $result = NULL;
-            $result = $team ->SelectTeamFromId($this->teamIdList["team0Id"],'vuda1');
+            $result = $team ->SelectTeamFromId(34,'vuda1');
             $this->assertNotNull($result);
         }
         
@@ -96,18 +93,18 @@
         public function testModifyTeamNameModel() {
             $team = new Team;
             $result = NULL;
-            $result = $team->ModifyTeamNameModel($this->teamIdList["team0Id"],"Saints");
+            $result = $team->ModifyTeamNameModel(12,"Saints");
             $this->assertNotNull($result);
         }
-        
+
         public function testDeleteTeam() {
             $team = new Team;
             $result = NULL;
-            $result = $team->DeleteTeam($this->teamIdList["team0Id"]);
-            $this->assertFalse($result);
+            $result = $team->DeleteTeam(57);
+            $this->assertTrue($result);
             
-            $result = $team->DeleteTeam($this->teamIdList["team1Id"]);
-            $this->assertFalse($result);
+            $result = $team->DeleteTeam(58);
+            $this->assertTrue($result);
         }
     }
 ?>
