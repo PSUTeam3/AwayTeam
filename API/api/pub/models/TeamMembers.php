@@ -37,6 +37,21 @@
             }
         }
         
+        public function VerifyTeamMemberExist($teamId, $userId) {
+            global $db;
+            if($teamId && $userId) {
+                $query = "select count(teamMemberId) as num from team_member where teamId = " . myEsc($teamId) . " and userId = " . myEsc($userId);
+                $sql = mysql_query($query, $db);
+                $data = mysql_fetch_assoc($sql);
+                
+                if($data['num'] == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+        
         public function InsertTeamMember() {
             global $db;
             
@@ -260,21 +275,6 @@
                 return $sql;
             } else {
                 return false;
-            }
-        }
-        
-        public function VerifyTeamMemberExist($teamId, $userId) {
-            global $db;
-            if($teamId && $userId) {
-                $query = "select count(teamMemberId) as num from team_member where teamId = " . myEsc($teamId) . " and userId = " . myEsc($userId);
-                $sql = mysql_query($query, $db);
-                $data = mysql_fetch_assoc($sql);
-                
-                if($data['num'] == 0) {
-                    return false;
-                } else {
-                    return true;
-                }
             }
         }
         

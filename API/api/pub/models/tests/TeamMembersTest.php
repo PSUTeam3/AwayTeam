@@ -23,6 +23,13 @@ root@awayteamDev:/home/awayteam/Desktop/php-5.4.30#
     {
         public function setUp() {
             dbConnect();
+            $teamMembers0 = new TeamMembers;
+            $teamMembers0->teamId = 1;
+            $teamMembers0->userId = 1;
+            $teamMembers0->manager = "false";
+            $teamMembers0->pendingApproval = "false";
+            
+            
         }
         
         public function testTeamMembersInit() {
@@ -34,16 +41,9 @@ root@awayteamDev:/home/awayteam/Desktop/php-5.4.30#
             $this->assertEquals(false,$teamMembers->manager);
             $this->assertEquals(false,$teamMembers->pendingApproval);
         }
-        
-        public function testInsertTeamMember1() {
-            $teamMembers = new TeamMembers;
-            
-            $teamMembers->teamId = 12;
-            $teamMembers->userId = 8;
-            $teamMembers->manager = 1;
-            $teamMembers->pendingApproval = "false";
-            
-            $result = $teamMembers->InsertTeamMember();
+
+        public function testInsertTeamMember() {            
+            $result = $teamMembers0->InsertTeamMember();
             
             $this->assertTrue($result >0);
         }

@@ -4,8 +4,34 @@
     
     class TeamXUnitTest extends PHPUnit_Framework_TestCase
     {
+        var $team0;
+        var $team1;
+        var $teamIdList;
+        var $userId;
+        
         public function setUp() {
             dbConnect();
+            global $db;
+            
+            $this->team0 = new Team;
+            $this->team0->teamName = "saints";
+            $this->team0->teamDescription = "who dat going to beat those saints";
+            $this->team0->teamLocationName = "la jolla";
+            $this->team0->teamManaged = "false";
+            
+            $this->team1 = new Team;
+            $this->team1->teamName = "49ers";
+            $this->team1->teamDescription = "chase for six";
+            $this->team1->teamLocationName = "santa clara";
+            $this->team1->teamManaged = "true";
+            
+            $this->teamIdList = array();
+            
+            $query = "select userId from user where loginId = 'vuda1'";
+            $sql = mysql_query($query,$db);
+            while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                $this->userId = $rlt['userId'];
+            }
         }
         
         public function testTeamInit(){
@@ -18,9 +44,15 @@
             $this->assertEquals(false,$team->teamManaged);
         }
         
-        public function testInsertTeam() {
-            $team = new Team;
-            $teamId = $team->InsertTeam('vuda1');
+        public function testInsertUnmanagedTeam() {            
+            $teamId = $this->team0->InsertTeam('vuda1');
+            $this->teamIdList["team0Id"] = $teamId;
+            $this->assertTrue($teamId> 0);
+        }
+        
+        public function testInsertManagedTeam() {            
+            $teamId = $this->team1->InsertTeam('vuda1');
+            $this->teamIdList["team1Id"] = $teamId;    
             $this->assertTrue($teamId> 0);
         }
         
@@ -33,46 +65,48 @@
         public function testSelectTeamFromId() {
             $team = new Team;
             $result = NULL;
-            $result = $team ->SelectTeamFromId(34,'vuda1');
+            $result = $team ->SelectTeamFromId($this->teamIdList["team0Id"],'vuda1');
             $this->assertNotNull($result);
         }
         
         public function testSelectTeamFromTeamName() {
             $team = new Team;
             $result = NULL;
-            $result = $team->SelectTeamFromTeamName('testCreateTrigger','vuda1');
+            $result = $team->SelectTeamFromTeamName('49ers','vuda1');
             $this->assertNotNull($result);
         }
         
-        public function testGetTeamList() {
+        public function testGetTeamList() {        
             $team = new Team;
-            $result = NULL;
-            $result = $team->GetTeamList(8);
+            $result = NULL;            
+            $result = $team->GetTeamList($this->userId);
             $this->assertNotNull($result);
         }
         
-        public function testModifyTeamModel() {
-            $team = new Team;
-            $team->teamName = "unitModifyTeamModelTest";
-            $team->teamLocationName = "Orlando";
-            $team->teamDescription = "unitTestingChanges";
-            $team->teamManaged = 0;
+        public function testModifyTeamModel() {            
+            $this->team0->teamName = "saints1";
+            $this->team0->teamLocationName = "New Orleans";
+            $this->team0->teamDescription = "moved to New Orleans";
+            $this->team0->teamManaged = 0;
             $result = NULL;
-            $result = $team->ModifyTeamModel();
+            $result = $this->team0->ModifyTeamModel();
             $this->assertNotNull($result);
         }
         
         public function testModifyTeamNameModel() {
             $team = new Team;
             $result = NULL;
-            $result = $team->ModifyTeamNameModel(34,"unitTestModifyTeamNameModel");
+            $result = $team->ModifyTeamNameModel($this->teamIdList["team0Id"],"Saints");
             $this->assertNotNull($result);
         }
         
         public function testDeleteTeam() {
             $team = new Team;
             $result = NULL;
-            $result = $team->DeleteTeam(34);
+            $result = $team->DeleteTeam($this->teamIdList["team0Id"]);
+            $this->assertFalse($result);
+            
+            $result = $team->DeleteTeam($this->teamIdList["team1Id"]);
             $this->assertFalse($result);
         }
     }
