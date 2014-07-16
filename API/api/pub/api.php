@@ -224,27 +224,39 @@
         }
 
         private function Team_ChangeTeamName() {
-            $changeTeamName = new TeamController;
+            $modifyTeamName = new TeamController;
+            $tm = new TeamMembers;
+            $failure = false;
 
-            if($this->get_request_method() != "POST") {
+            if($this->get_request_method() != "POST")
+            {
                 $this->response('',406);
-            }
+            }            
             
             $info = $this->_request;
+            $authUser = $this->AuthRequired($info);
             
-            if(isset($info['loginId']) && isset($info['teamId'])) {
-                $userId = $info['userId'];
-                $teamId = $info['teamId'];
-                if(VerifyTeamMemberExist($teamId, $userId)) {
-                    $respArray = $this->_response;
-                    $response = $changeTeamName->ModifyTeamName($respArray);
-                    $this->response($this->json(jsonstr), 200);
-                } else {
-                    $this->response($this->json(jsonstr),200);
-                }
-            } else {
-                $this->response('', 406);
+            if(!isset($info['userId'])) {
+                $respArray = array('status' => "failure", 'response' => 'user Id is not filled in');
+                $failure = true;
+            } 
+            
+            if(!isset($info['teamId'])) {
+                $respArray = array('status' => "failure", 'response' => 'teamId is not filled in');
+                $failure = true;
             }
+            
+            if($failure == false && isset($info['userId']) && isset($info['teamId'])) {
+                if($tm->VerifyTeamMemberExist($info['teamId'], $info['userId'])) {
+                    $queryResult = $modifyTeamName->ModifyTeamName($info['teamId'],$info['teamName']);
+                    if($queryResult == true) {
+                        $respArray =array('status' => "success" , 'response'=>'change successful');
+                    }
+                } else {
+                    $respArray = array('status' => "failure", 'response' => 'user not part of team');
+                }
+            }
+            $this->response($this->json($respArray),200);            
         }
         
         private function TeamMember_JoinTeam() {

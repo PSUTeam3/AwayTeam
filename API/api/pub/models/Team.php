@@ -345,15 +345,10 @@
         
         public function ModifyTeamNameModel($teamId, $newTeamName)
         {
-            global $db;
-            
-            if($teamId == -999) {
-               return false;               
-            }              
-            $query = "update team set teamName=" .  myEsc($newTeamName) . 
-                        " where teamId=" . myEsc($teamId);
-            $sql = mysql_query($query, $db);
-            
+            global $db;              
+            $query = "update team set teamName='" .  myEsc($newTeamName) . 
+                        "' where teamId=" . myEsc($teamId);
+            $sql = mysql_query($query, $db);            
             return $sql;
         }
         
