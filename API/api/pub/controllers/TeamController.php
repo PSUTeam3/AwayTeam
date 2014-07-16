@@ -34,10 +34,10 @@
             return $this->ModifyTeamNameModel($teamId,$teamName);
         }
         
-        public function ModifyTeam($teamParamatersArray) {
+        public function ModifyTeam($teamParametersArray,$userId) {
             $tTeam = new Team;
-            $tTeam = arrayToObject($teamParametersArray);
-            $retCode = $tTeam->ModifyTeamModel();            
+            $tTeam = $this->arrayToObject($teamParametersArray);
+            $retCode = $tTeam->ModifyTeamModel($userId);            
             return $retCode;
         }
         

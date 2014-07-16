@@ -306,16 +306,39 @@
             return $teamInfoResult;            
         }
        
-        public function ModifyTeamModel() {
+        public function ModifyTeamModel($userId) {
             global $db;
-            $query = sprintf("update team set teamName='%s', teamLocationId=%d, teamDescription='%s', teamManaged=%d where teamId = " . myEsc($this->teamId),
+            
+            if($this->teamManaged == "true") {
+                $this->teamManaged = 1;
+            }
+            
+            if($this->teamManaged == "false") {
+                $this->teamManaged = 0;
+            }
+            
+            $query = sprintf("update team set teamName='%s', teamLocationName='%s', teamDescription='%s', teamManaged=%d where teamId = " . myEsc($this->teamId),
                 myEsc($this->teamName),
                 myEsc($this->teamLocationName),
                 myEsc(strtolower($this->teamDescription)),
                 myEsc($this->teamManaged));
                                         
             $sql = mysql_query($query, $db);
-                
+            
+            if($sql != false && $this->teamManaged == 0) {
+                $query = "update team_member set pendingApproval = 0 where teamId = " . myEsc($this->teamId);
+                $sql = mysql_query($query, $db);
+            }
+            
+            if($sql != false && $this->teamManaged == 1) {
+                $query = "update team_member set pendingApproval = 1 where teamId = " . myEsc($this->teamId);
+                $sql = mysql_query($query, $db);
+                if($sql != false) {
+                    $query = "update team_member set manager = 1, pendingApproval=0 where teamId =" . myEsc($this->teamId) . " AND userID = " .myEsc($userId);
+                    $sql = mysql_query($query, $db);
+                }
+            }
+            
             return $sql;
             
         }
