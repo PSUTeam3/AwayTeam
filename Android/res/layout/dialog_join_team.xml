@@ -10,6 +10,13 @@
         android:layout_height="wrap_content" >
     </SearchView>
 
+    <ProgressBar
+        android:id="@+id/joinTeam_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:layout_gravity="center"/>
+
     <ListView
         android:id="@+id/teamListView"
         android:layout_width="match_parent"

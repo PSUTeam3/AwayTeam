@@ -21,15 +21,19 @@ import android.widget.Toast;
 
 public class JoinTeamDialog extends DialogFragment {
 	private GetListTask mGetListTask = null;
+	private JoinTask mJoinTask = null;
 
 	private List<Object[]> searchList = new ArrayList<Object[]>();
 
 	private ListView mTeamListView;
 	private SearchView mSearchView;
+	private View mProgressView;
 
 	// list for holding values from server
 	// format is team ID,teamName,teamLocation,managed
 	private List<Object[]> allTeamsList = new ArrayList<Object[]>();
+
+	private static Object[] mSelection = null; // selection info made by user
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -57,6 +61,7 @@ public class JoinTeamDialog extends DialogFragment {
 		mTeamListView = (ListView) getDialog().findViewById(R.id.teamListView);
 		mSearchView = (SearchView) getDialog()
 				.findViewById(R.id.teamSearchView);
+		mProgressView = getDialog().findViewById(R.id.joinTeam_progress);
 		// Collect info on all teams
 		try {
 			mGetListTask = new GetListTask();
@@ -65,14 +70,6 @@ public class JoinTeamDialog extends DialogFragment {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		// create a test array so you can practice searching
-		// Move this functionality to the background task to update UI
-//		allTeamsList.clear();
-//		allTeamsList.add(new Object[] { 0, "DemoTeam1", "Chicago", false });
-//		allTeamsList.add(new Object[] { 0, "Team2", "Denver", false });
-//		allTeamsList.add(new Object[] { 0, "Team3", "Philadelphia", false });
-//		allTeamsList.add(new Object[] { 0, "Team4", "New York", true });
 
 		refreshList(allTeamsList);
 
@@ -107,24 +104,19 @@ public class JoinTeamDialog extends DialogFragment {
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View targetView,
 					int position, long rowID) {
-				Object[] selection = (Object[]) adapter
+				mSelection = (Object[]) adapter
 						.getItemAtPosition(position);
-				Toast.makeText(getActivity(),
-						selection[1].toString() + " selected",
-						Toast.LENGTH_SHORT).show();
-				//Take action based on whether the team is managed
-				if ((boolean) selection[3]) {
-					Toast.makeText(
-							getActivity(),
-							"Team information will become visible when a Team Manager approves membership",
-							Toast.LENGTH_LONG).show();
-					//indicate that view does not change yet
-
-				}else{
-					//Public team selected - pass back team id so it can be loaded
-					((DisplayActivity) getActivity()).refreshTeam((int) selection[0]);
+				// make background call - this will determine if the
+				// dialog closes
+				if (mJoinTask == null && mSelection!=null) {
+					try {
+						mJoinTask = new JoinTask();
+						mJoinTask.execute();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
-				getDialog().dismiss();
+				
 			}
 
 		});
@@ -167,6 +159,7 @@ public class JoinTeamDialog extends DialogFragment {
 		@Override
 		protected void onPostExecute(final List<Object[]> result) {
 			mGetListTask = null;
+			mProgressView.setVisibility(View.GONE);
 
 			if (result != null) {
 				allTeamsList = result;
@@ -182,6 +175,53 @@ public class JoinTeamDialog extends DialogFragment {
 		@Override
 		protected void onCancelled() {
 			mGetListTask = null;
+		}
+	}
+
+	public class JoinTask extends AsyncTask<Object, Void, Integer> {
+
+		@Override
+		protected Integer doInBackground(Object... params) {
+			// dispatch the login method
+			int result = 0;
+			result = CommUtil.JoinTeam(getActivity(), (int) mSelection[0], UserSession
+					.getInstance(getActivity()).getUsername());
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mJoinTask = null;
+			mProgressView.setVisibility(View.GONE);
+
+			if (result == 1) {
+				//Successfully joined team or was added to pending members
+				// Take action based on whether the team is managed
+				if ((boolean) mSelection[3]) {
+					Toast.makeText(
+							getActivity(),
+							"Team information will become visible when a Team Manager approves membership",
+							Toast.LENGTH_LONG).show();
+					// indicate that view does not change yet
+
+				} else {
+					// Public team selected - pass back team id so it can be
+					// loaded
+					((DisplayActivity) getActivity())
+							.refreshTeam((int) JoinTeamDialog.mSelection[0]);
+				}
+				getDialog().dismiss();
+
+			} else {// some error occured
+				Toast.makeText(getActivity().getBaseContext(),
+						"Unable to Join Team", Toast.LENGTH_SHORT).show();
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			mJoinTask = null;
 		}
 	}
 

@@ -9,11 +9,23 @@
         android:orientation="vertical" >
 
         <TextView
+            android:id="@+id/member_manager_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:text="Team Manager"
+            android:visibility="gone" />
+
+        <TextView
             android:id="@+id/member_name_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="20dp"
             android:text="First Last Name"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textStyle="bold" />
 
         <View
             android:layout_width="fill_parent"
@@ -24,8 +36,10 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
             android:text="Phone"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@android:color/holo_blue_dark" />
 
         <LinearLayout
@@ -38,8 +52,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
                 android:layout_weight="1"
-                android:text="(123) 456-789" />
+                android:text="(123) 456-789"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <ImageButton
                 android:id="@+id/contact_text_button"
@@ -48,7 +64,7 @@
                 android:layout_gravity="right|center_vertical"
                 android:src="@drawable/ic_action_chat" />
 
-           <ImageButton
+            <ImageButton
                 android:id="@+id/contact_call_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -65,8 +81,10 @@
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
             android:text="Email"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@android:color/holo_blue_dark" />
 
         <LinearLayout
@@ -79,8 +97,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
                 android:layout_weight="1"
-                android:text="name@email.com" />
+                android:text="name@email.com"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <ImageButton
                 android:id="@+id/contact_email_button"

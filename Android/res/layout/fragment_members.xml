@@ -64,7 +64,7 @@
             android:layout_height="1dp"
             android:background="@android:color/holo_blue_dark" />
 <ListView
-    android:id="@+id/listView1"
+    android:id="@+id/memberListView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 </ListView>

@@ -128,6 +128,16 @@ public class Team {
 		}
 		return false;
 	}
+	
+	//return the team member identified by the username or null if not found
+	public TeamMember getUser(String username) {
+		for (TeamMember member : teamMembers) {
+			if (member.userName.equals(username)) {
+				return member;
+			}
+		}
+		return null;
+	}
 
 	// remove completed tasks
 	public void removeCompletedTasks() {

@@ -367,6 +367,44 @@ public class CommUtil {
 		return 0;
 	}
 
+	// Joins a team selected by the user
+	// INPUTS: team id, username
+	// RETURN: 1 = success! user added to team or added to pending for managed
+	// teams
+	// 0 = unknown error or connection failure
+	// -1 = team does not exist
+	public static int JoinTeam(Context context, int teamID, String userName) {
+		String url = "https://api.awayteam.redshrt.com/team/jointeam";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", UserSession.getInstance(
+				context).getUsername()));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+
+		JSONObject result = null;
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("status").equals("success")) {
+				return teamID;
+			} else if (result.getString("status").equals("failure")) {
+				if (result.getString("response") == "team id does not exist") {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
 	// Collect the list of all teams on the system
 	// RETURN: list of all the teams formatted as: id,teamname,location,managed
 	public static List<Object[]> GetAllTeamsList(Context context) {
@@ -438,7 +476,8 @@ public class CommUtil {
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
 			if (result.getString("status").equals("success")) {
-				UserSession.getInstance(context).loadTeam(result.getJSONObject("response"));
+				UserSession.getInstance(context).loadTeam(
+						result.getJSONObject("response"));
 				return 1;
 			} else if (result.getString("status").equals("failure")) {
 				// an error occurred
