@@ -114,6 +114,46 @@
             android:layout_width="fill_parent"
             android:layout_height="1dp"
             android:background="@android:color/holo_blue_dark" />
+
+        <TextView
+            android:id="@+id/member_manager_tools_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dp"
+            android:text="Manager Tools"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" >
+
+            <Button
+                android:id="@+id/manager_tool_remove"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/ic_action_cancel"
+                android:text="Remove Member"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/manager_tool_promote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/ic_action_add_person"
+                android:text="Assign as Manager"
+                android:visibility="gone" />
+
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

@@ -60,11 +60,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 					@Override
 					public void onItemSelected(AdapterView<?> parent,
 							View view, int position, long id) {
-						Toast.makeText(
-								parent.getContext(),
-								(String) parent.getItemAtPosition(position)
-										+ " selected", Toast.LENGTH_SHORT)
-								.show();
 						// Collect team ID from teamList and save to current
 						// TeamID for reference
 						UserSession s = UserSession
@@ -144,7 +139,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			}
 		}
 		this.optionsMenu = menu;
-		// TODO: get progress to load on start
 		UserSession s = UserSession.getInstance(this);
 		if (s.activeTeam == null && s.currentTeamID >= 0) {
 			setRefreshActionButtonState(true);
@@ -379,10 +373,14 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 			switch (result) {
 			case 1: // success!
-				// TODO: reload current fragment to show team data
 				mSectionsPagerAdapter.notifyDataSetChanged();
 				mViewPager.invalidate();
 				break;
+			case -1:
+				Toast.makeText(getBaseContext(), "Denied Access to Team",
+						Toast.LENGTH_SHORT).show();
+				mSectionsPagerAdapter.notifyDataSetChanged();
+				mViewPager.invalidate();
 			default: // some other error occured
 
 				Toast.makeText(getBaseContext(),

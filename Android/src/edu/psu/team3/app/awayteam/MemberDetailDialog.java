@@ -4,10 +4,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -23,6 +26,9 @@ public class MemberDetailDialog extends DialogFragment {
 	ImageButton smsButton;
 	ImageButton callButton;
 	ImageButton emailButton;
+	Button managerRemoveButton;
+	Button managerPromoteButton;
+	TextView managerToolsView;
 
 	TeamMember member;
 
@@ -64,6 +70,11 @@ public class MemberDetailDialog extends DialogFragment {
 		smsButton = (ImageButton) d.findViewById(R.id.contact_text_button);
 		callButton = (ImageButton) d.findViewById(R.id.contact_call_button);
 		emailButton = (ImageButton) d.findViewById(R.id.contact_email_button);
+		managerToolsView = (TextView) d
+				.findViewById(R.id.member_manager_tools_label);
+		managerPromoteButton = (Button) d
+				.findViewById(R.id.manager_tool_promote);
+		managerRemoveButton = (Button) d.findViewById(R.id.manager_tool_remove);
 		// fill data
 		nameView.setText(member.firstName + " " + member.lastName);
 		if (member.manager) {
@@ -87,7 +98,93 @@ public class MemberDetailDialog extends DialogFragment {
 		phoneView.setText(formattedPhone);
 		emailView.setText(member.email);
 		// setup buttons
-		
-	}
+		smsButton.setOnClickListener(new OnClickListener() {
 
+			@Override
+			public void onClick(View v) {
+				String number = "smsto:" + member.phone;
+				// create intent
+				Intent smsIntent = new Intent();
+				smsIntent.setData(Uri.parse(number));
+				smsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				// launch intent
+				try {
+					startActivity(smsIntent);
+				} catch (android.content.ActivityNotFoundException ex) {
+					Toast.makeText(getActivity(),
+							"There is no messaging client installed.",
+							Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+		callButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				String number = "tel:" + member.phone;
+				// create intent
+				Intent dialIntent = new Intent(Intent.ACTION_DIAL);
+				dialIntent.setData(Uri.parse(number));
+				dialIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				// launch intent
+				try {
+					startActivity(dialIntent);
+				} catch (android.content.ActivityNotFoundException ex) {
+					Toast.makeText(getActivity(),
+							"There is no phone client installed.",
+							Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+		emailButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				String email = "mailto:" + member.email;
+				// create intent
+				Intent emailIntent = new Intent();
+				emailIntent.setData(Uri.parse(email));
+				emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				emailIntent.putExtra(Intent.EXTRA_SUBJECT,
+						UserSession.getInstance(getActivity()).activeTeam.name);
+				// launch intent
+				try {
+					startActivity(emailIntent);
+				} catch (android.content.ActivityNotFoundException ex) {
+					Toast.makeText(getActivity(),
+							"There is no email client installed.",
+							Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+		// show the manager tools if the user is a manager
+		if (UserSession.getInstance(getActivity()).activeTeam.userManager) {
+			managerToolsView.setVisibility(View.VISIBLE);
+			managerRemoveButton.setVisibility(View.VISIBLE);
+
+			managerRemoveButton.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					// TODO: add function to remove member
+
+				}
+			});
+			// if the member being viewed is not already a manager, allow
+			// promotion
+			if (!member.manager) {
+				managerPromoteButton.setVisibility(View.VISIBLE);
+				managerPromoteButton.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						// TODO: add function to assign member as a manager
+
+					}
+				});
+			}
+
+		}
+
+	}
 }

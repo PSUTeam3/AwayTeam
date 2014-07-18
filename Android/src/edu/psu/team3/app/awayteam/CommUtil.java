@@ -458,7 +458,8 @@ public class CommUtil {
 	// INPUTS: team name, description, location name, lat and lon, managed
 	// RETURN: 1 = success, team created
 	// 0 = unknown error or connection failure
-	// -1 = team name already used
+	// -1 = error is a permission problem (user is not a member of the
+	// team), where a different message should be given
 	public static int GetTeam(Context context, int teamID, String userName) {
 		String url = "https://api.awayteam.redshrt.com/team/getteam";
 
@@ -480,7 +481,11 @@ public class CommUtil {
 						result.getJSONObject("response"));
 				return 1;
 			} else if (result.getString("status").equals("failure")) {
-				// an error occurred
+				if (result.getString("message").equals("Access Denied")) {
+					// user should not access this team
+					return -1;
+				}
+				// some other error occurred
 				return 0;
 			}
 		} catch (Exception e) {

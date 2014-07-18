@@ -79,14 +79,13 @@
             android:layout_margin="15dp"
             android:text="Team Managers"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@android:color/holo_blue_dark"
+            android:textColor="@android:color/holo_red_dark"
             android:visibility="gone" />
 
         <TableLayout
             android:id="@+id/manager_table"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/background_dark"
             android:visibility="gone" >
         </TableLayout>
     </LinearLayout>

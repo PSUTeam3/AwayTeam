@@ -12,41 +12,56 @@
         android:id="@+id/action_leave"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Leave Team"/>
+        android:title="     Leave Team"/>
+    <item
+        android:enabled="false"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="► Manager Tools"/>
     <item
         android:id="@+id/action_edit_team"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Edit Team"/>
+        android:title="     Edit Team"/>
     <item
         android:id="@+id/action_add_manager"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Add Managers"/>
+        android:title="     Add Manager"/>
     <item
         android:id="@+id/action_delete"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="*Delete This Team*"/>
+        android:title="     Delete This Team"/>
+        <item
+        android:enabled="false"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="► Other Teams"/>
     <item
         android:id="@+id/action_create_team"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Create New Team"/>
+        android:title="     Create New Team"/>
     <item
         android:id="@+id/action_join_team"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Join Existing Team"/>
+        android:title="     Join Existing Team"/>
+    <item
+        android:enabled="false"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="► Account Tools"/>
     <item
         android:id="@+id/action_modify_account"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Edit Account"/>
+        android:title="     Edit Account"/>
     <item
         android:id="@+id/action_logout"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Logout"/>
+        android:title="     Logout"/>
 
 </menu>
