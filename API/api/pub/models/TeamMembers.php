@@ -59,7 +59,7 @@
                 $query = "select count(teamMemberId) as num from team_member where teamId = " .myEsc($teamId);
                 $sql = mysql_query($query,$db);
                 $data = mysql_fetch_assoc($sql);
-                return $data['num']                
+                return $data['num'];
             }
         }
         
@@ -76,7 +76,7 @@
         public function VerifyManagerForUser($teamId, $userId) {
             global $db;
             if($teamId && userId) {
-                $query = "select manager from team_member where teamId = " .myEsc($teamId) "AND userId = " .myEsc($userId);
+                $query = "select manager from team_member where teamId = " . myEsc($teamId) . "AND userId = " . myEsc($userId);
                 $sql = mysql_query($query,$db);
                 $data = mysql_fetch_assoc($sql);
                 return $data['manager'];
@@ -323,7 +323,7 @@
         public function ConfirmRemove($teamId,$userId) {
             global $db;
             
-            $query = "select count(teamMemberId) as num from team_member where teamId = " .myEsc($teamId) " AND userId = " .myEsc($userId);
+            $query = "select count(teamMemberId) as num from team_member where teamId = " . myEsc($teamId) . " AND userId = " . myEsc($userId);
             $data = mysql_fetch_assoc($sql);
             return $data['num'];
         }
