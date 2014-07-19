@@ -29,7 +29,7 @@
        // var user = $http.param($scope.registerObj);
         //alert(''+user);
         $http({
-            url:"http://api.awayteam.redshrt.com/user/modifyuser",
+            url:"https://api.awayteam.redshrt.com/user/modifyuser",
             method: "POST", 
             data: $scope.editUserObj
           })

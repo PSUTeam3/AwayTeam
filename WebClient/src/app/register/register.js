@@ -27,7 +27,7 @@
        // var user = $http.param($scope.registerObj);
         //alert(''+user);
         $http({
-            url:"http://api.awayteam.redshrt.com/user/createuser",
+            url:"https://api.awayteam.redshrt.com/user/createuser",
             method: "POST", 
             data: $scope.registerObj
           })
@@ -62,7 +62,7 @@
                     scope.$apply(function () {
                         var val = elem.val();
                         if (val !== "") {
-                            var ajaxConfiguration = { method: 'GET', url: 'http://api.awayteam.redshrt.com/user/LoginIDExist?loginId=' + val};
+                            var ajaxConfiguration = { method: 'GET', url: 'https://api.awayteam.redshrt.com/user/LoginIDExist?loginId=' + val};
                             async(ajaxConfiguration)
                                 .success(function (data, status, headers, config) {
                                     if (data.message === "not available") {
@@ -87,7 +87,7 @@
                     scope.$apply(function () {
                         var val = elem.val();
                         if (val !== "") {
-                            var ajaxConfiguration = { method: 'GET', url: 'http://api.awayteam.redshrt.com/user/EmailExist?email=' + val};
+                            var ajaxConfiguration = { method: 'GET', url: 'https://api.awayteam.redshrt.com/user/EmailExist?email=' + val};
                             async(ajaxConfiguration)
                                 .success(function (data, status, headers, config) {
                                     if (data.message === "not available") {

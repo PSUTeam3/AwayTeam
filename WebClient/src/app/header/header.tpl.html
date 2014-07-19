@@ -1,4 +1,4 @@
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation" ng-controller="HeaderController">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -8,63 +8,57 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" ui-sref="home">AwayTeam</a>
+      <a class="navbar-brand" ui-sref="home"><img class="img-responsive" src="./assets/logos/atSmall.svg" width="32" height="26"/></a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="navigationLinks">
       <ul class="nav navbar-nav">
-        <li ui-sref-active="{ active: $state.includes(\'about\') }">
-            <a ui-sref="about">About</a>
-        </li>
+          <!--Team DropDown-->
+          <li id="teamDropDown" class="dropdown" ng-show="loginService.isLoggedIn" ng-controller="TeamController">
+              <a href="" class="dropdown-toggle" data-toggle="dropdown">Teams <span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                  <li ng-repeat="team in userTeams"><a href="" ng-click="selectTeam(team.teamId)" ui-sref="team">{{team.teamName}}</a></li>
+                  <li class="divider"></li>
+                  <li><a href="" ng-click="createTeamModal()">Create Team</a></li>
+                  <li><a href="" ng-click="joinTeamModal()">Join Team</a></li>
+              </ul>
+          </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-       <!-- Login Form -->
-      <form class="navbar-form navbar-right" name="loginForm" role="login" ng-submit="attemptLogin()" ng-hide="ls.isLoggedIn || !ls.doneLoading" ng-init="setLoginForm();">
-        <div class="form-group">
-          <input type="text" class="form-control" ng-model="login.loginId" name="loginId" placeholder="Username">
-        </div>
-        <div class="form-group">
-          <input type="password" class="form-control" ng-model="login.password" name="password" placeholder="Password">
-        </div>
-        <button type="submit" class="btn btn-default hidden-devices" ng-disabled="login.working">Login <i class="fa" ng-class="login.working ? 'fa-cog fa-spin' : 'fa-sign-in'"></i></button>
-        <button type="submit" class="btn btn-default hidden-devices" ng-disabled="login.working" ui-sref="register">Register <i class="fa" ng-class="'fa-user'"></i></button>
-        <br/>
-        <label class="checkbox-inline">
-            <input type="checkbox" name="rememberMe" ng-model="login.rememberMe" ng-true-value="true" ng-false-value="false" ng-class="{ 'active': !ls.isLoggedIn }"> Remember Credentials?
-        </label>
-      </form>
+           <!-- Login Form -->
+          <form class="navbar-form navbar-right" name="loginForm" role="login" ng-submit="attemptLogin()" ng-hide="loginService.isLoggedIn || !loginService.doneLoading" ng-init="setLoginForm();">
+            <div class="form-group">
+              <input type="text" class="form-control" ng-model="login.loginId" name="loginId" placeholder="Username">
+            </div>
+            <div class="form-group">
+              <input type="password" class="form-control" ng-model="login.password" name="password" placeholder="Password">
+            </div>
+            <button type="submit" class="btn btn-default hidden-devices" ng-disabled="login.working">Login <i class="fa" ng-class="login.working ? 'fa-cog fa-spin' : 'fa-sign-in'"></i></button>
+            <button type="submit" class="btn btn-default hidden-devices" ng-disabled="login.working" ui-sref="register">Register <i class="fa" ng-class="'fa-user'"></i></button>
+            <br/>
+            <label class="checkbox-inline">
+                <input type="checkbox" name="rememberMe" ng-model="login.rememberMe" ng-true-value="true" ng-false-value="false" ng-class="{ 'active': !loginService.isLoggedIn }"> Remember Credentials?
+            </label>
+          </form>
 
-	  <!-- Spinner -->
-      <button class="btn btn-default navbar-btn navbar-right" ng-hide="ls.doneLoading">
-        <i class="fa fa-spinner fa-spin"></i>
-      </button>
-      <!-- Logout Form -->
-      <form class="navbar-form navbar-right" ng-show="ls.isLoggedIn">
-          <div class="btn-group user-dropdown" dropdown>
-              <button type="button" class="btn">{{ ls.user.loginId }}</button>
-              <button type="button" class="btn dropdown-toggle">
-                  <span class="caret"></span>
-                  <span class="sr-only">Split button!</span>
-              </button>
-              <ul class="dropdown-menu" role="menu">
-                  <li><a href="#" ui-sref="register">Add Account</a></li>
-                  <li><a href="#" ui-sref="editAccount">Edit Account</a></li>
-                  <li><a href="#" ng-click="changePWOpen()">Change Password</a></li>
-                  <li class="divider"></li>
-                  <li><a href="#" ng-click="logout()">Logout</a></li>
-              </ul>
-          </div>
-
-         <!--<span class="user-popover" popover-template="header/userPopover.tpl.html" popover-trigger="click" popover-placement="bottom" >{{ ls.user.loginId }}</span>-->
-
-        <!--<div class="form-group">
-          <label>Hello {{ ls.user.firstName }}</label>
-        </div>
-        <div class="form-group">
-          <button  type="submit" class="btn btn-default">Logout <i class="fa fa-signout"></i></button>
-        </div>-->
-      </form>
+          <!-- Spinner -->
+          <button class="btn btn-default navbar-btn navbar-right" ng-hide="loginService.doneLoading">
+            <i class="fa fa-spinner fa-spin"></i>
+          </button>
+          <!-- Logout Form -->
+          <ul class="nav navbar-nav navbar-right user-dropdown" ng-show="loginService.isLoggedIn">
+              <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown">{{ loginService.user.loginId }} <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                      <li><a href="" ui-sref="register">Add Account</a></li>
+                      <li><a href="" ui-sref="editAccount">Edit Account</a></li>
+                      <li><a href="" ng-click="changePWOpen()">Change Password</a></li>
+                      <li class="divider"></li>
+                      <li><a href="" ng-click="logout()">Logout</a></li>
+                  </ul>
+              </li>
+          </ul>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->

@@ -20,7 +20,7 @@
                     templateUrl: 'home/home.tpl.html'
                 }
             },
-            data:{ pageTitle: 'Home' },
+            data:{ pageTitle: 'AwayTeam' },
             accessLevel: accessLevels.public
         });
     }]);
@@ -28,16 +28,9 @@
     // As you add controllers to a module and they grow in size, feel free to place them in their own files.
     //  Let each module grow organically, adding appropriate organization and sub-folders as needed.
     app.controller('HomeController', ['$scope', function ($scope) {
-
         var init = function() {
             // A definitive place to put everything that needs to run when the controller starts. Avoid
             //  writing any code outside of this function that executes immediately.
-        };
-
-        $scope.someVar = 'blue';
-        $scope.someList = ['one', 'two', 'three'];
-        $scope.someFunctionUsedByTheHomePage = function () {
-            alert('Congratulations');
         };
 
         init();

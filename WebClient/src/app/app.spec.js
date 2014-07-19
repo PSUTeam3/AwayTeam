@@ -1,3 +1,4 @@
+/*
 describe('AppController', function () {
     describe('isCurrentUrl', function () {
         var AppCtrl, $location, $scope;
@@ -15,4 +16,5 @@ describe('AppController', function () {
         }));
     });
 });
-
+A
+*/

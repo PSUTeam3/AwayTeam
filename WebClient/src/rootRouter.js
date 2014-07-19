@@ -16,7 +16,7 @@ angular.module('AwayTeam.router', ['ui.router', 'templates-app'])
            */
           
           if (loginService.pendingStateChange) {
-            roleDefined.resolve();
+              return loginService.resolvePendingState($http.get('/user'));
           } else {
             roleDefined.resolve();
           }
