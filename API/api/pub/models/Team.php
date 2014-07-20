@@ -3,7 +3,7 @@
     include_once('/home/awayteam/api/pub/apiconfig.php');
     include_once('/home/awayteam/api/pub/models/TeamUtilities.php');
     include_once('/home/awayteam/api/pub/models/TeamMembers.php');
-    include_once('/home/awayteam/api/pub/models/TeamMemberUtilities.php');
+    //include_once('/home/awayteam/api/pub/models/TeamMemberUtilities.php'); does not exist... you're making errors
     
     class Team
     {

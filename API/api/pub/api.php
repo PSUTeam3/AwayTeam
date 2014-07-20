@@ -268,8 +268,9 @@
             if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }
-            
+
             $info = $this->_request;
+
             if(!isset($info['teamId'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "team id is not filled in");
                 $failure = true;
@@ -290,7 +291,7 @@
                     $jsonMsg = array('status' => 'failure', 'response' => "user couldn't be added to team");
                 }
             }          
-    
+
             $this->response($this->json($jsonMsg), 200);
 
         }
@@ -741,7 +742,7 @@
             $array1 = $this->_request;
             $results = $xFQ->FindSpot($array1);
 
-            $jsonstr = array('response' => $results);
+            $jsonstr = array('status' => "success", 'response' => $results);
             $this->response($this->json($jsonstr),200);
         }
 
