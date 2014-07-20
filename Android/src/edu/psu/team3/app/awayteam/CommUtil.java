@@ -374,7 +374,7 @@ public class CommUtil {
 	// 0 = unknown error or connection failure
 	// -1 = team does not exist
 	public static int JoinTeam(Context context, int teamID, String userName) {
-		String url = "https://api.awayteam.redshrt.com/team/jointeam";
+		String url = "https://api.awayteam.redshrt.com/teammember/jointeam";
 
 		if (!NetworkTasks.NetworkAvailable(context)) {
 			return 0;
@@ -391,7 +391,7 @@ public class CommUtil {
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
 			if (result.getString("status").equals("success")) {
-				return teamID;
+				return 1;
 			} else if (result.getString("status").equals("failure")) {
 				if (result.getString("response") == "team id does not exist") {
 					return -1;
