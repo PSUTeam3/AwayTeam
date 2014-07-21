@@ -1,5 +1,6 @@
 <?php
     include_once('/home/awayteam/api/pub/apiconfig.php');
+    include_once('/home/awayteam/api/pub/models/Team.php');
     
     class TeamMembers
     {
@@ -37,6 +38,16 @@
             }
         }
         
+        public function VerifyManagerForUser($teamId, $userId) {
+            global $db;
+            if($teamId && userId) {
+                $query = "select manager from team_member where teamId = " .myEsc($teamId) . " AND userId = " .myEsc($userId);
+                $sql = mysql_query($query,$db);
+                $data = mysql_fetch_assoc($sql);
+                return $data['manager'];
+            }
+        }
+        
         public function VerifyTeamMemberExist($teamId, $userId) {
             global $db;
             if($teamId && $userId) {
@@ -50,7 +61,7 @@
                     return true;
                 }
             }
-        }
+        }       
         
         public function GetNumberOfTeamMembersRemaining($teamId) {
             global $db;
@@ -59,7 +70,7 @@
                 $query = "select count(teamMemberId) as num from team_member where teamId = " .myEsc($teamId);
                 $sql = mysql_query($query,$db);
                 $data = mysql_fetch_assoc($sql);
-                return $data['num']                
+                return $data['num'];                
             }
         }
         
@@ -70,16 +81,6 @@
                 $sql = mysql_query($query,$db);
                 $data = mysql_fetch_assoc($sql);
                 return $data['num'];
-            }
-        }
-        
-        public function VerifyManagerForUser($teamId, $userId) {
-            global $db;
-            if($teamId && userId) {
-                $query = "select manager from team_member where teamId = " .myEsc($teamId) "AND userId = " .myEsc($userId);
-                $sql = mysql_query($query,$db);
-                $data = mysql_fetch_assoc($sql);
-                return $data['manager'];
             }
         }
         
@@ -309,23 +310,51 @@
             }
         }
         
-        public function DeleteTeamMember($teamMemberId) {
+        public function DeleteTeamMember($teamId, $userId) {
             global $db;
             
-            if($teamMemberId) {
-                $query = "delete from team_member where teamMemberId = " .myEsc($teamMemberId);
+            if($teamId && $userId) {
+                $query = "delete from team_member where teamId = " .myEsc($teamId) . " AND userId = " . myEsc($userId);
             }
             
             $sql = mysql_query($query, $db);
             return $sql;
         }
         
-        public function ConfirmRemove($teamId,$userId) {
-            global $db;
+        public function DeleteTeamMemberConfirmation($teamId,$userId) {
+            $deletionStatus = 0;
+            $team = new team;
             
-            $query = "select count(teamMemberId) as num from team_member where teamId = " .myEsc($teamId) " AND userId = " .myEsc($userId);
-            $data = mysql_fetch_assoc($sql);
-            return $data['num'];
+            if($team->IsTeamManaged($teamId) && $this->VerifyManagerForUser($teamId,$userId) 
+                    && GetNumberOfTeamManager($teamId) == 1 ){
+                $deletionStatus = 0;
+            } else if($this->GetNumberOfTeamMembersRemaining($teamId) == 1) {
+                $deletionStatus = 0;                
+            } else {
+                $result = $this->DeleteTeamMember($teamId,$userId);
+                if($result != false) {
+                    $deletionStatus = 1;
+                } else {
+                    $deletionStatus = 2;
+                }
+            }
+            return $deletionStatus;
+        }
+        
+        public function DeleteTeamMemberTeamRemove($teamId,$userId) {
+            $deletionStatus = 0;
+            $team = new team;
+            
+            $result = $this->DeleteTeamMember($teamId, $userId);
+            if($result != false) {
+                $deletionStatus = 1;              
+                $result = $team->DeleteTeam($teamId);           }
+                
+                if($result != false) {
+                    $deletionStatus=2;
+                }
+            }
+            return $deletionStatus;
         }
     }
 ?>

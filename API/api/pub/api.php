@@ -294,6 +294,72 @@
             $this->response($this->json($jsonMsg), 200);
 
         }
+        
+        private function TeamMember_LeaveTeam()  {
+            $leaveTeam = new TeamMemberController;
+            $tu = new TeamUtilities;
+            $tm = new TeamMembers;
+
+
+            $userController = new UserController;
+            $user = new User;
+
+            $info = $this->_request;
+            
+            $user = $userController->GetUserFromLoginID($info['loginId']);
+            
+            $failure = false;
+            
+            if($this->get_request_method() != "POST") {
+                $this->response('',406);
+            }
+            
+            if(!isset($info['teamId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "team id is not filled in");
+                $failure = true;
+            } else if(!isset($info['loginId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "login id is not filled in");
+                $failure = true;
+            } else if ($tu->TeamIdExists($info['teamId']) == false ) {
+                $jsonMsg = array('status' => 'failure', 'response' => "team not found");
+                $failure = true;
+            } else if($tm->VerifyTeamMemberExist($info['teamId'],$user->userId) == false) {
+                $jsonMsg = array('status' => 'failure', 'response' => "user not on team");
+                $failure = true;
+            } else if (!isset($info['confirmed'])) {
+                $jsonMsg = array('status' => 'failure', 'response'=> "is this first or second deletion attempt");
+                $failure = true;
+            }
+            
+            
+            if($failure == false) {
+                if($info['confirmed'] == "false") {
+                   
+                    $result = $leaveTeam->RemoveTeamMemberFalseConfirmation($info['teamId'],$user->userId);                    
+                   
+                    if($result == 0) {
+                        $jsonMsg = array('status' => 'failure', 'response' => "team will be deleted");                    
+                    } else if($result ==1 ){
+                        $jsonMsg = array('status' => 'failure' ,'success' => "team member successfully deleted");
+                    } else {
+                        $jsonMsg = array('status' => 'failure', 'response' => "deletion failed");
+                    }
+                    
+                } else {
+                    $result = $leaveTeam->DeleteTeamMemberTeamRemove($info['teamId'],$user->userId);
+                    
+                    if($result == 1) {
+                        $jsonMsg = array('status' => 'success', 'response' => "teamMember successfully deleted");
+                    } else if($result == 2) {
+                        $jsonMsg = array('status' => 'success', 'response' => "team member and team successfully deleted");                        
+                    } else {
+                        $jsonMsg = array('status' => 'failure', 'response' => "deletion failed");                        
+                    }                    
+                }
+            }
+            
+            $this->response($this->json($jsonMsg), 200);
+        }
 
         private function User_EmailExist()
         {   

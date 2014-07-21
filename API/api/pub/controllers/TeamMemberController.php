@@ -45,8 +45,16 @@
             return $this->ModifyTeamMemberTeamId($teamMemberId, $teamId);
         }
         
-        public function RemoveTeamMember($teamMemberId) {
-            return $this->DeleteTeamMember($teamMemberId);
+        public function RemoveTeamMember($teamId, $userId) {
+            return $this->DeleteTeamMember($teamId, $userId);
+        }
+        
+        public function RemoveTeamMemberFalseConfirmation($teamId,$userId) {
+            return $this->DeleteTeamMemberConfirmation($teamId,$userId);
+        }
+        
+        public function RemoveTeamMemberTrueConfirmation($teamId,$userId){
+            return $this->DeleteTeamMemberTeamRemove($teamId,$userId);
         }
         
         private function arrayToObject($array) {

@@ -3,8 +3,7 @@
     include_once('/home/awayteam/api/pub/apiconfig.php');
     include_once('/home/awayteam/api/pub/models/TeamUtilities.php');
     include_once('/home/awayteam/api/pub/models/TeamMembers.php');
-    include_once('/home/awayteam/api/pub/models/TeamMemberUtilities.php');
-    
+
     class Team
     {
         //class attributes
@@ -24,6 +23,20 @@
             $this->teamLocationName = "";
             $this->teamDescription = "";
             $this->teamManaged = False; 
+        }
+        
+        public function IsTeamManaged($teamId) {
+            global $db;
+            
+            $query = "select teamManaged from team where teamId = " .myEsc($teamId);
+            $sql = mysql_query($query,$db);
+            if(mysql_num_rows($sql)>0) {
+                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
+                    $teamManaged = $rlt['teamManaged'];
+                }    
+            }
+            
+            return $teamManaged;
         }
         
         public function InsertTeam($loginId) {
