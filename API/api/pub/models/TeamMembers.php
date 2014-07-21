@@ -349,7 +349,7 @@
             $result = $this->DeleteTeamMember($teamId, $userId);
             if($result != false) {
                 $deletionStatus = 1;              
-                $result = $team->DeleteTeam($teamId);           }
+                $result = $team->DeleteTeam($teamId);
                 
                 if($result != false) {
                     $deletionStatus=2;
