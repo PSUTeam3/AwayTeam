@@ -70,7 +70,7 @@
                 $query = "select count(teamMemberId) as num from team_member where teamId = " .myEsc($teamId);
                 $sql = mysql_query($query,$db);
                 $data = mysql_fetch_assoc($sql);
-                return $data['num'];                
+                return $data['num'];
             }
         }
         
@@ -83,7 +83,7 @@
                 return $data['num'];
             }
         }
-        
+
         public function InsertTeamMember() {
             global $db;
             
@@ -325,6 +325,7 @@
             $deletionStatus = 0;
             $team = new team;
             
+<<<<<<< HEAD
             if($team->IsTeamManaged($teamId) && $this->VerifyManagerForUser($teamId,$userId) 
                     && GetNumberOfTeamManager($teamId) == 1 ){
                 $deletionStatus = 0;
@@ -355,6 +356,11 @@
                 }
             }
             return $deletionStatus;
+=======
+            $query = "select count(teamMemberId) as num from team_member where teamId = " . myEsc($teamId) . " AND userId = " . myEsc($userId);
+            $data = mysql_fetch_assoc($sql);
+            return $data['num'];
+>>>>>>> origin/master
         }
     }
 ?>
