@@ -120,7 +120,6 @@ public class MembersFragment extends Fragment {
 	}
 
 	// dispatches contact command to system handler
-	@SuppressLint("NewApi")
 	private void contact(int mode, List<TeamMember> contacts) {
 		// figure out the mode of contact
 		String contactMode = getResources().getStringArray(

@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+
         <TextView
-        android:id="@+id/member_manager_tools_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Task Description"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginLeft="20dp"
-        android:textStyle="italic" />
+            android:id="@+id/task_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="90dp"
+            android:text="Task Description"
+            android:textAppearance="?android:attr/textAppearance"
+            android:textStyle="italic" />
 
 </LinearLayout>
