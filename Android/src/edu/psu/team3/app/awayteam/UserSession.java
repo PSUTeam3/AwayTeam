@@ -179,6 +179,7 @@ public final class UserSession {
 			prefs.clear();
 			prefs.commit();
 		}
+		activeTeam = null;
 	}
 
 	// Create a new team object based on JSON Object (formatted according to

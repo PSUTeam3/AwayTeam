@@ -178,14 +178,14 @@ public class MembersFragment extends Fragment {
 				for (TeamMember member : contacts) {
 					adapter.add(member.phone);
 				}
-				// builder.setNegativeButton("cancel",
-				// new DialogInterface.OnClickListener() {
-				//
-				// @Override
-				// public void onClick(DialogInterface dialog, int which) {
-				// dialog.dismiss();
-				// }
-				// });
+				 builder.setNegativeButton("cancel",
+				 new DialogInterface.OnClickListener() {
+				
+				 @Override
+				 public void onClick(DialogInterface dialog, int which) {
+				 dialog.dismiss();
+				 }
+				 });
 
 				builder.setAdapter(adapter,
 						new DialogInterface.OnClickListener() {
@@ -194,25 +194,37 @@ public class MembersFragment extends Fragment {
 							public void onClick(DialogInterface dialog,
 									int selected) {
 								phone.append(adapter.getItem(selected));
+								Intent dialIntent = new Intent(Intent.ACTION_DIAL);
+								dialIntent.setData(Uri.parse(phone.toString()));
+								dialIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+								// launch intent
+								try {
+									startActivity(dialIntent);
+								} catch (android.content.ActivityNotFoundException ex) {
+									Toast.makeText(getActivity(),
+											"There is no phone client installed.",
+											Toast.LENGTH_SHORT).show();
+								}
 							}
 						});
 				builder.show();
 
 			} else {
 				phone.append(contacts.get(0).phone);
+				// create intent
+				Intent dialIntent = new Intent(Intent.ACTION_DIAL);
+				dialIntent.setData(Uri.parse(phone.toString()));
+				dialIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				// launch intent
+				try {
+					startActivity(dialIntent);
+				} catch (android.content.ActivityNotFoundException ex) {
+					Toast.makeText(getActivity(),
+							"There is no phone client installed.",
+							Toast.LENGTH_SHORT).show();
+				}
 			}
-			// create intent
-			Intent dialIntent = new Intent(Intent.ACTION_DIAL);
-			dialIntent.setData(Uri.parse(phone.toString()));
-			dialIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			// launch intent
-			try {
-				startActivity(dialIntent);
-			} catch (android.content.ActivityNotFoundException ex) {
-				Toast.makeText(getActivity(),
-						"There is no phone client installed.",
-						Toast.LENGTH_SHORT).show();
-			}
+			
 			break;
 		default:
 			Toast.makeText(getActivity(), "Unable to find contact mode",
