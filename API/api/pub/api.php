@@ -272,6 +272,7 @@
             }
 
             $info = $this->_request;
+            $authUser = $this->AuthRequired($info);
 
             if(!isset($info['teamId'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "team id is not filled in");
@@ -303,11 +304,11 @@
             $tu = new TeamUtilities;
             $tm = new TeamMembers;
 
-
             $userController = new UserController;
             $user = new User;
 
             $info = $this->_request;
+            $authUser = $this->AuthRequired($info);
             
             $user = $userController->GetUserFromLoginID($info['loginId']);
             
