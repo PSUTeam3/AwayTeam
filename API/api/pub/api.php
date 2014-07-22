@@ -264,6 +264,10 @@
         private function TeamMember_JoinTeam() {
             $joinTeam = new TeamMemberController;
             $tu = new TeamUtilities;
+            $tm = new TeamMembers;
+            $user = new User;
+            $userController = new UserController;
+            
             $failure = false;
             $teamMemberId = -999;
             
@@ -273,6 +277,8 @@
 
             $info = $this->_request;
             $authUser = $this->AuthRequired($info);
+            
+            $user = $userController->GetUserFromLoginID($info['loginId']);
 
             if(!isset($info['teamId'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "team id is not filled in");
@@ -282,6 +288,9 @@
                 $failure = true;
             } else if($tu->TeamIdExists($info['teamId']) == false) {
                 $jsonMsg = array('status' => 'failure', 'response' => "team Id does not exist");
+                $failure = true;
+            } else if($tm->VerifyTeamMemberExist($info['teamId'], $user->userId) == true) {
+                $jsonMsg = array('status' => 'failure' ,'response' => "team member already exists");
                 $failure = true;
             }
             
