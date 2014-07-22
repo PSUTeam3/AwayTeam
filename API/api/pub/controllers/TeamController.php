@@ -30,6 +30,10 @@
             return $this->GetTeamList($loginId);
         }
         
+        public function SearchAllTeams($teamName) {
+            return $this->SearchTeams($teamName);
+        }
+        
         public function ModifyTeamName($teamId, $teamName) {            
             return $this->ModifyTeamNameModel($teamId,$teamName);
         }

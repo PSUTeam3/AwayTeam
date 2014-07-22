@@ -92,6 +92,7 @@
         private function Team_GetAllTeams() {
             $selectTeam = new TeamController;
             $teamList = array();
+            
             if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }   
@@ -106,6 +107,37 @@
             
             $this->response($this->json($jsonMsg), 200);
         }
+        
+        private function Team_SearchAllTeams() {
+            $selectTeam = new TeamController;
+            $teamList =  array();
+            $failure = false;
+            
+            if($this->get_request_method() != "POST") {
+                $this->response('',406);
+            }   
+    
+            $info = $this->_request;
+            
+            $authUser = $this->AuthRequired($info);
+            
+            if(!isset($info['teamName'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "team name not filled in");
+                $failure = true;
+            }
+            
+            if($failure == false) {            
+                $teamList = $selectTeam->SearchAllTeams($info['teamName']);
+                
+                if(!empty($teamList)) { 
+                    $jsonMsg = array('status' => 'success', 'response' => $teamList);
+                } else {
+                    $jsonMsg = array('status' => 'failure', 'response' => "no teams have string in team name");
+                }
+            }
+            $this->response($this->json($jsonMsg), 200);            
+        }
+        
         private function Team_GetTeam() 
         {
             //multiple errors in here. you have the function requiring POST, but you are looking for GET responses.
@@ -173,15 +205,16 @@
 
             if(isset($userId)) {              
                 $teamList = $getTeamList->GetTeamListForUser($userId);
+                if(!empty($teamList)) {
+                    $respArray = array('status' => "success", 'response' => $teamList);                
+                } else {
+                    $respArray = array('status' => "failure", 'response' => 'user not part of any team');
+                }
             } else {
                 $respArray = array('status' => "failure", 'response' => 'loginId required');
             }
             
-            if(!empty($teamList)) {
-                $respArray = array('status' => "success", 'response' => $teamList);                
-            } else {
-                $respArray = array('status' => "failure", 'response' => 'user not part of any team');
-            }
+           
             
             $this->response($this->json($respArray), 200);
 

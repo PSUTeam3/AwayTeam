@@ -300,6 +300,23 @@
                 //Error message
             }
         }
+        
+        public function SearchTeams($teamName) {
+            global $db;
+            
+            $query = "select * from team where teamName like '%" . myEsc($teamName) . "%'";
+            $sql = mysql_query($query, $db);
+            $teamList = array();
+            
+            if(mysql_num_rows($sql) > 0) {                
+                while($row = mysql_fetch_object($sql)) {
+                    $tTeam = $row;
+                    $teamList[] = $tTeam;                  
+                }            
+            }
+            
+            return $teamList;
+        }
 
         public function GetTeamList($userId) {
             global $db;
