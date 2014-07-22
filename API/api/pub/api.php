@@ -52,7 +52,7 @@
     
             $teamArray = $this->_request;
             
-            //$authUser = $this->AuthRequired($teamArray);
+            $authUser = $this->AuthRequired($teamArray);
 
             logIt(var_export($teamArray, true));
 
@@ -65,6 +65,9 @@
             } else if(!isset($teamArray['teamManaged'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "teamManaged is not filled in");
                 $failure = true;
+            } else if(!isset($teamArray['loginId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "loginId is not filled in");
+                $failure = true;
             }
             
             if($failure == false) {
@@ -76,14 +79,13 @@
             
             if($failure == false) {
                 $idArray = $newTeam->CreateTeam($teamArray, $teamArray['loginId']);
-            }    
-            
-            if (count($idArray) == 2) {
-                $jsonMsg = array('status' => 'success', 'response'=> $idArray);
-            } else {
-                $jsonMsg = array('status' => 'failure', 'response' => "team couldn't be created or creator couldn't be added as team member");
+                if (count($idArray) == 2) {
+                    $jsonMsg = array('status' => 'success', 'response'=> $idArray);
+                } else {
+                    $jsonMsg = array('status' => 'failure', 'response' => "team couldn't be created or creator couldn't be added as team member");
+                }
             }
-    
+            
             $this->response($this->json($jsonMsg), 200);
         }   
     
