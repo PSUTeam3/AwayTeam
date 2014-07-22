@@ -343,7 +343,7 @@
                     if($result == 0) {
                         $jsonMsg = array('status' => 'failure', 'response' => "team will be deleted");                    
                     } else if($result ==1 ){
-                        $jsonMsg = array('status' => 'failure' ,'success' => "team member successfully deleted");
+                        $jsonMsg = array('status' => 'success' ,'response' => "team member successfully deleted");
                     } else {
                         $jsonMsg = array('status' => 'failure', 'response' => "deletion failed");
                     }
