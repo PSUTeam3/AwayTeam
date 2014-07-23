@@ -32,40 +32,36 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Food"
+                android:textColor="@android:color/holo_orange_dark"
                 android:textOff="Food"
                 android:textOn="Food" />
 
             <ToggleButton
-                android:id="@+id/mapHotelLayer"
+                android:id="@+id/mapTravelLayer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hotels"
-                android:textOff="Hotels"
-                android:textOn="Hotels" />
-
-            <ToggleButton
-                android:id="@+id/mapTransLayer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Trans"
-                android:textOff="Trans"
-                android:textOn="Trans" />
+                android:text="Travel"
+                android:textColor="@android:color/holo_green_dark"
+                android:textOff="Travel"
+                android:textOn="Travel" />
 
             <ToggleButton
                 android:id="@+id/mapShopLayer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Shop"
+                android:textColor="@android:color/holo_purple"
                 android:textOff="Shop"
                 android:textOn="Shop" />
 
             <ToggleButton
-                android:id="@+id/mapShowLayer"
+                android:id="@+id/mapEventsLayer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Shows"
-                android:textOff="Shows"
-                android:textOn="Shows" />
+                android:text="Entertainment"
+                android:textColor="@android:color/holo_red_light"
+                android:textOff="Entertainment"
+                android:textOn="Entertainment" />
 
         </LinearLayout>
     </HorizontalScrollView>
