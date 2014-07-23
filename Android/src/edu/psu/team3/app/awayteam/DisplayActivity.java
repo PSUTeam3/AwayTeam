@@ -156,6 +156,11 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			refreshTeam(UserSession.getInstance(getBaseContext()).currentTeamID);
 			return true;
 		}
+		if(id==R.id.action_edit_team){
+			DialogFragment newFragment = new EditTeamDialog();
+			newFragment.show(getFragmentManager(), null);
+			return true;
+		}
 		if (id == R.id.action_create_team) {
 			DialogFragment newFragment = new CreateTeamDialog();
 			newFragment.show(getFragmentManager(), null);
@@ -227,10 +232,8 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 				case "Team Tasks":
 					return new TaskFragment();
 				case "Map":
-					return new PlaceholderFragment(); // TODO: swap to map
-														// fragment
-														// when map API
-														// installed
+					return new MapFragment();
+					//TODO: add expenses
 				}
 			}
 			return new PlaceholderFragment();
@@ -369,7 +372,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		@Override
 		protected void onPostExecute(final Integer result) {
 			mGetTeam = null;
-			UserSession s = UserSession.getInstance(getBaseContext());
 
 			switch (result) {
 			case 1: // success!
@@ -416,7 +418,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		@Override
 		protected void onPostExecute(final Integer result) {
 			mRefreshList = null;
-			UserSession s = UserSession.getInstance(getBaseContext());
 
 			switch (result) {
 			case 1: // success!

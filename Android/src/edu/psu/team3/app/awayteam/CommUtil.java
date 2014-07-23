@@ -367,6 +367,49 @@ public class CommUtil {
 		return 0;
 	}
 
+	// Edits a team
+	// INPUTS: username, team id for editing, team name, description, location
+	// name, lat and lon, managed
+	// RETURN: 1 = success, team changed
+	// 0 = unknown error or connection failure
+	// -1 = user not part of the team
+	public static int ModifyTeam(Context context, String userName, int teamID,
+			String teamName, String locationName, String description) {
+		String url = "https://api.awayteam.redshrt.com/team/modifyteam";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("userId", userName));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("teamName", teamName));
+		pairs.add(new BasicNameValuePair("teamDescription", description));
+		pairs.add(new BasicNameValuePair("teamLocationName", locationName));
+		pairs.add(new BasicNameValuePair("teamManaged", String.valueOf(true)));
+
+		JSONObject result = null;
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("status").equals("success")) {
+				return 1;
+			} else if (result.getString("status").equals("failure")) {
+				switch (result.getString("response")) {
+				case "user not part of team":
+					return -1;
+				default:
+					return 0;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
 	// Joins a team selected by the user
 	// INPUTS: team id, username
 	// RETURN: 1 = success! user added to team or added to pending for managed
@@ -568,6 +611,47 @@ public class CommUtil {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	// Get Spots
+	//input: required info for foursquare query
+	// RETURN: JSONObject that contains all info
+	public static JSONObject GetSpots(Context context, String userName,
+			String searchMethod, String searchValue, String category,
+			Integer limit, Integer radius, String query) {
+		String url = "https://api.awayteam.redshrt.com/FQ/GetSpots";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return null;
+		}
+
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", userName));
+
+		if (searchMethod.equalsIgnoreCase("ll")) {
+			pairs.add(new BasicNameValuePair("radius", radius.toString()));
+		}
+
+		if (limit != null) {
+			pairs.add(new BasicNameValuePair("limit", limit.toString()));
+		}
+
+		pairs.add(new BasicNameValuePair("category", category));
+		pairs.add(new BasicNameValuePair("searchMethod", searchMethod));
+		pairs.add(new BasicNameValuePair("searchValue", searchValue));
+
+		pairs.add(new BasicNameValuePair("query", query));
+
+		JSONObject result = null;
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 }

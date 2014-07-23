@@ -3,10 +3,71 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <fragment
-        android:id="@+id/mapview_fragment"
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        class="com.google.android.gms.maps.MapFragment" />
+        android:layout_height="match_parent" />
+
+    <HorizontalScrollView
+        android:id="@+id/horizontalScrollView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="50dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <ToggleButton
+                android:id="@+id/mapTeamLayer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Team"
+                android:textOff="Team"
+                android:textOn="Team" />
+
+            <ToggleButton
+                android:id="@+id/mapFoodLayer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Food"
+                android:textOff="Food"
+                android:textOn="Food" />
+
+            <ToggleButton
+                android:id="@+id/mapHotelLayer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hotels"
+                android:textOff="Hotels"
+                android:textOn="Hotels" />
+
+            <ToggleButton
+                android:id="@+id/mapTransLayer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trans"
+                android:textOff="Trans"
+                android:textOn="Trans" />
+
+            <ToggleButton
+                android:id="@+id/mapShopLayer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shop"
+                android:textOff="Shop"
+                android:textOn="Shop" />
+
+            <ToggleButton
+                android:id="@+id/mapShowLayer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shows"
+                android:textOff="Shows"
+                android:textOn="Shows" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
 </FrameLayout>
