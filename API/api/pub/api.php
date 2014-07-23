@@ -223,6 +223,7 @@
         private function Team_ModifyTeam() {
             $modifyTeam = new TeamController;
             $tm = new TeamMembers;
+            $xUser = new UserController;
             $failure = false;
 
             if($this->get_request_method() != "POST")
@@ -233,20 +234,20 @@
             $info = $this->_request;
             $authUser = $this->AuthRequired($info);
             
-            if(!isset($info['userId'])) {
-                $respArray = array('status' => "failure", 'response' => 'user Id is not filled in');
+            if(!isset($info['loginId'])) {
+                $respArray = array('status' => "failure", 'response' => 'login Id is not filled in');
                 $failure = true;
-            } 
-            
-            if(!isset($info['teamId'])) {
+            } else if(!isset($info['teamId'])) {
                 $respArray = array('status' => "failure", 'response' => 'teamId is not filled in');
                 $failure = true;
-            }
+            }             
             
-            if($failure == false && isset($info['userId']) && isset($info['teamId'])) {
-                if($tm->VerifyTeamMemberExist($info['teamId'], $info['userId'])) {
-                    $userId = $info['userId'];
-                    $queryResult = $modifyTeam->ModifyTeam($info,$userId);
+            $xUser = $xUser->GetUserFromLoginID($info['loginId']);            
+            $userId = $xUser->userId;
+
+            if($failure == false) {
+                if($tm->VerifyTeamMemberExist($info['teamId'], $userId)) {                    
+                    $queryResult = $modifyTeam->ModifyTeam($info['teamId'],$userId);
                     if($queryResult == true) {
                         $respArray =array('status' => "success" , 'response'=>'change successful');
                     }
