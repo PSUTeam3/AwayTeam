@@ -23,18 +23,11 @@
         }
         
         public function InsertTeamTask() {
-            global $db;
+            global $db;           
+    
+            $this->taskCompleted = 0;
             
-            if (strtolower($this->taskCompleted) == "true")
-            {
-                $this->taskCompleted = 1;
-            }
-            else
-            {
-                $this->taskCompleted = 0;
-            }
-            
-            $query = sprintf("insert into team_tasks (taskTitle, taskDescription, taskCompleted, taskTeamId) values ('%s', '%s','%s',%d)",
+            $query = sprintf("insert into team_tasks (taskTitle, taskDescription, taskCompleted, taskTeamId) values ('%s', '%s',%d,%d)",
                     myEsc($this->taskTitle),
                     myEsc($this->taskDescription),
                     myEsc($this->taskCompleted),

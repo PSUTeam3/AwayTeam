@@ -7,14 +7,14 @@
     
         public function CreateTeamTasks($teamTasksParametersArray) {
             $aTeamTask = new TeamTasks;
-            $aTeamTask = arrayToObject($eventParametersArray);
-            $teamTaskId = InsertTeamTasks();
+            $aTeamTask = $this->arrayToObject($teamTasksParametersArray);
+            $teamTaskId = $aTeamTask->InsertTeamTask();
             return $teamTaskId;
         }
         
         public function ModifyTeamTask($teamTasksParametersArray) {
-            $teamTask = new TeamTask;
-            $teamTask = arrayToObject($teamParametersArray);
+            $teamTask = new TeamTasks;
+            $teamTask = $this->arrayToObject($teamParametersArray);
             $retCode = $teamTask->ModifyTeamTask();
             return $retCode;
         }

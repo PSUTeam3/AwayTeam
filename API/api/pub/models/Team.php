@@ -192,7 +192,7 @@
                     $theTeam['members'] = $members;
 
                     //getTasks
-                    $query = sprintf("select taskTitle, taskDescription, taskCompleted from team_tasks where taskTeamId=%d", myEsc($teamId));
+                    $query = sprintf("select taskId,taskTitle, taskDescription, taskCompleted from team_tasks where taskTeamId=%d", myEsc($teamId));
                     $tasks = array();
                     $sql = mysql_query($query, $db);
                     if (mysql_num_rows($sql) > 0)

@@ -9,6 +9,7 @@
     require_once("controllers/TeamController.php");
     require_once("models/TeamUtilities.php");
     require_once("controllers/TeamMemberController.php");
+    require_once("controllers/TeamTasksController.php");
     
     require_once("externalControllers/FoursquareController.php");
     
@@ -734,6 +735,41 @@
             $jsonstr        = array('response' => $response);
             $this->response($this->json($jsonstr),200);
 
+        }
+        
+        private function TeamTasks_CreateTask() {
+            $teamTask = new TeamTasksController;
+            $failure = false;
+            
+            if($this->get_request_method() != "POST") {
+                $this->response('',406);
+            }
+            
+            $info = $this->_request;
+            $authUser = $this->AuthRequired($info);
+            
+            if(!isset($info['taskTeamId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "task team id is not filled in");
+                $failure = true;
+            } else if(!isset($info['taskTitle'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "task title is not filled in");
+                $failure = true;
+            } else if(!isset($info['taskDescription'])) {
+                $jsonMsg = array('status' => 'failure','response' => "task description is not filled in");
+                $failure = true;
+            }
+            
+            if($failure == false) {
+                $newId = $teamTask->CreateTeamTasks($info);
+                
+                if($newId >= 0) {
+                    $jsonMsg = array('status' => 'failure', 'response' => $newId);
+                } else {
+                    $jsonMsg = array('status' => 'failure', 'response' => "team task couldn't be created");
+                }            
+            }
+
+            $this->response($this->json($jsonMsg),200);
         }
 
         private function Expense_CreateExpense()
