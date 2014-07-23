@@ -262,6 +262,7 @@
         private function Team_ChangeTeamName() {
             $modifyTeamName = new TeamController;
             $tm = new TeamMembers;
+            $xUser = new UserController;
             $failure = false;
 
             if($this->get_request_method() != "POST")
@@ -272,18 +273,22 @@
             $info = $this->_request;
             $authUser = $this->AuthRequired($info);
             
-            if(!isset($info['userId'])) {
-                $respArray = array('status' => "failure", 'response' => 'user Id is not filled in');
+            if(!isset($info['loginId'])) {
+                $respArray = array('status' => "failure", 'response' => 'login Id is not filled in');
                 $failure = true;
-            } 
-            
-            if(!isset($info['teamId'])) {
+            } else if(!isset($info['teamId'])) {
                 $respArray = array('status' => "failure", 'response' => 'teamId is not filled in');
+                $failure = true;
+            } else if(!isset($info['teamName'])) {
+                $respArray = array('status' => "failure", 'response' => 'team name is not filled in');
                 $failure = true;
             }
             
-            if($failure == false && isset($info['userId']) && isset($info['teamId'])) {
-                if($tm->VerifyTeamMemberExist($info['teamId'], $info['userId'])) {
+            $xUser = $xUser->GetUserFromLoginID($info['loginId']);            
+            $userId = $xUser->userId;
+            
+            if($failure == false ) {
+                if($tm->VerifyTeamMemberExist($info['teamId'], $userId)) {
                     $queryResult = $modifyTeamName->ModifyTeamName($info['teamId'],$info['teamName']);
                     if($queryResult == true) {
                         $respArray =array('status' => "success" , 'response'=>'change successful');
