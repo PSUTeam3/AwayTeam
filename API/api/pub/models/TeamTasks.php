@@ -22,6 +22,23 @@
             $this->taskTeamId = -999;            
         }
         
+        public function VerifyTaskForTeam($taskId,$taskTeamId) {
+            global $db;
+            
+            if($taskId && $taskTeamId) {
+                $query = "select count(taskId) as num from team_tasks where taskId = " . myEsc($taskId) . " AND taskTeamId = " . myEsc($taskTeamId);
+                
+                $sql = mysql_query($query,$db);            
+                $data = mysql_fetch_assoc($sql);
+                    
+                if ($data['num'] == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+        
         public function InsertTeamTask() {
             global $db;           
     
