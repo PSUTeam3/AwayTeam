@@ -249,7 +249,6 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		}
 	}
 
-	// TODO
 	// show users with location info on map
 	private void plotTeamLocations() {
 		LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -260,6 +259,7 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 				markerOp.position(new LatLng(member.lat, member.lon));
 				markerOp.icon(BitmapDescriptorFactory
 						.fromResource(R.drawable.ic_action_person));
+				
 				Marker marker = map.addMarker(markerOp);
 				builder.include(marker.getPosition());
 				markerList.add(new Object[] { CategoryID.TEAM, marker,

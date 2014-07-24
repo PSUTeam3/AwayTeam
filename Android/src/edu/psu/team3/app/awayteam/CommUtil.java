@@ -448,6 +448,44 @@ public class CommUtil {
 		return 0;
 	}
 
+	// Attempts to remove user from the team
+	// INPUT:
+	// RETURN: 1 = success, user is removed
+	// -1 = user is the last member or manager of the team. Needs confirmation
+	// 0 = some other error occurred
+	public static int LeaveTeam(Context context, String username, int teamID,
+			boolean confirmed) {
+		String url = "https://api.awayteam.redshrt.com/teammember/leaveteam";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		pairs.add(new BasicNameValuePair("loginId", username));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("confirmed", String.valueOf(confirmed)));
+		JSONObject result = null;
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("status").equals("success")) {
+				return 1;
+			} else if (result.getString("status").equals("failure")) {
+				switch (result.getString("message")) {
+				case "team will be deleted":
+					return -1;
+				default:
+					return 0;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return 0;
+	}
+
 	// Collect the list of all teams on the system
 	// RETURN: list of all the teams formatted as: id,teamname,location,managed
 	public static List<Object[]> GetAllTeamsList(Context context) {
@@ -614,7 +652,7 @@ public class CommUtil {
 	}
 
 	// Get Spots
-	//input: required info for foursquare query
+	// input: required info for foursquare query
 	// RETURN: JSONObject that contains all info
 	public static JSONObject GetSpots(Context context, String userName,
 			String searchMethod, String searchValue, String category,

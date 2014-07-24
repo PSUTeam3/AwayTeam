@@ -2,10 +2,12 @@ package edu.psu.team3.app.awayteam;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,6 +29,8 @@ import android.widget.Toast;
 public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	private GetTeamTask mGetTeam = null;
 	private RefreshSpinnerTask mRefreshList = null;
+
+	private LeaveTeamTask mLeaveTeam = null;
 
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	Spinner spinnerView;
@@ -156,7 +160,13 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			refreshTeam(UserSession.getInstance(getBaseContext()).currentTeamID);
 			return true;
 		}
-		if(id==R.id.action_edit_team){
+		if (id == R.id.action_leave) {
+			if (mLeaveTeam == null) {
+				mLeaveTeam = new LeaveTeamTask();
+				mLeaveTeam.execute();
+			}
+		}
+		if (id == R.id.action_edit_team) {
 			DialogFragment newFragment = new EditTeamDialog();
 			newFragment.show(getFragmentManager(), null);
 			return true;
@@ -233,7 +243,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 					return new TaskFragment();
 				case "Map":
 					return new MapFragment();
-					//TODO: add expenses
+					// TODO: add expenses
 				}
 			}
 			return new PlaceholderFragment();
@@ -435,6 +445,74 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		@Override
 		protected void onCancelled() {
 			mRefreshList = null;
+		}
+
+	}
+
+	// Dispatch request to leave the team
+	// INPUT: first parameter will be the boolean value about whether this is a
+	// confirmed request
+	public class LeaveTeamTask extends AsyncTask<Object, Void, Integer> {
+
+		@Override
+		protected Integer doInBackground(Object... params) {
+			UserSession s = UserSession.getInstance(getBaseContext());
+			boolean confirmed = false;
+			if (params.length > 0) {
+				confirmed = (boolean) params[0];
+			}
+			// dispatch the collection method
+			Integer result = 0;
+			result = CommUtil.LeaveTeam(getBaseContext(), s.getUsername(),
+					s.currentTeamID, confirmed);
+			Log.v("Background", "returned from commutil.  result = " + result);
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			switch (result) {
+			case 1: // success!
+				refreshTeam(-1);
+				break;
+			case -1:
+				AlertDialog.Builder builder = new AlertDialog.Builder(
+						getBaseContext());
+				builder.setTitle("Are You Sure?");
+				builder.setMessage(
+						"If you leave this team, it will be deleted.")
+						.setPositiveButton("Yes",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int id) {
+										// TODO:FIRE ZE MISSILES!
+										mLeaveTeam = null;
+										mLeaveTeam = new LeaveTeamTask();
+										mLeaveTeam.execute(true);
+									}
+								})
+						.setNegativeButton("Cancel",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int id) {
+										// User cancelled the dialog
+									}
+								});
+				// Create the AlertDialog object and return it
+				builder.create().show();
+				break;
+			default: // some other error occured
+
+				Toast.makeText(getBaseContext(), "Unable to complete Request",
+						Toast.LENGTH_SHORT).show();
+			}
+			mLeaveTeam = null;
+		}
+
+		@Override
+		protected void onCancelled() {
+			mLeaveTeam = null;
 		}
 
 	}
