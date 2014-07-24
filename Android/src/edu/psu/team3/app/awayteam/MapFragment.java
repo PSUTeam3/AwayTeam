@@ -17,6 +17,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -91,17 +92,20 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		// Get a handle to the Map Fragment
 		map = mapView.getMap();
 
+		// get current location
 		LocationManager mgr = (LocationManager) getActivity().getSystemService(
 				Context.LOCATION_SERVICE);
 		Location lastKnownLocation = mgr
 				.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
 		currentLocation = new LatLng(lastKnownLocation.getLatitude(),
 				lastKnownLocation.getLongitude());
+		UserSession s = UserSession.getInstance(getActivity());
+		s.activeTeam.getUser(s.getUsername()).lat = currentLocation.latitude;
+		s.activeTeam.getUser(s.getUsername()).lon = currentLocation.longitude;
 
 		map.setMyLocationEnabled(true);
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
-		map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+		map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
 		map.setOnInfoWindowClickListener(this);
 
 		// setup map layer buttons
@@ -116,11 +120,14 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					plotTeamLocations();
 				} else {
 					// remove map items
-					// TODO: do this
+					removeMarkerCategory(CategoryID.TEAM);
 				}
 
 			}
 		});
+		if (teamButton.isChecked()) {
+			plotTeamLocations();
+		}
 		foodButton = (ToggleButton) getView().findViewById(R.id.mapFoodLayer);
 		foodButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -135,11 +142,17 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					}
 				} else {
 					// remove map items
-					// TODO: do this
+					removeMarkerCategory(CategoryID.FOOD);
 				}
 
 			}
 		});
+		if (foodButton.isChecked()) {
+			if (fqT == null) {
+				fqT = new FourSquareTask();
+				fqT.execute(CategoryID.FOOD, "food");
+			}
+		}
 		travelButton = (ToggleButton) getView().findViewById(
 				R.id.mapTravelLayer);
 		travelButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -150,16 +163,24 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 				if (isChecked) {
 					// show map items
 					if (fqT == null) {
+
 						fqT = new FourSquareTask();
 						fqT.execute(CategoryID.TRAVEL, "travTrans");
 					}
 				} else {
 					// remove map items
-					// TODO: do this
+					removeMarkerCategory(CategoryID.TRAVEL);
 				}
 
 			}
 		});
+		if (travelButton.isChecked()) {
+			if (fqT == null) {
+
+				fqT = new FourSquareTask();
+				fqT.execute(CategoryID.TRAVEL, "travTrans");
+			}
+		}
 		shopButton = (ToggleButton) getView().findViewById(R.id.mapShopLayer);
 		shopButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -174,11 +195,17 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					}
 				} else {
 					// remove map items
-					// TODO: do this
+					removeMarkerCategory(CategoryID.SHOP);
 				}
 
 			}
 		});
+		if (shopButton.isChecked()) {
+			if (fqT == null) {
+				fqT = new FourSquareTask();
+				fqT.execute(CategoryID.SHOP, "shopServ");
+			}
+		}
 		eventsButton = (ToggleButton) getView().findViewById(
 				R.id.mapEventsLayer);
 		eventsButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -194,24 +221,54 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					}
 				} else {
 					// remove map items
-					// TODO: do this
+					removeMarkerCategory(CategoryID.EVENT);
 				}
 
 			}
 		});
-
-		// TODO: redisplay all markers in the list (if it still exists)
+		if (eventsButton.isChecked()) {
+			if (fqT == null) {
+				fqT = new FourSquareTask();
+				fqT.execute(CategoryID.EVENT, "artsEnt");
+			}
+		}
 
 	}
 
 	// removes all markers of this category from the list and the map display
-	private void removeMarkerCategory(int category) {
-
+	// uses recursion to prevent overrun resulting from deleting resources being
+	// traversed
+	private void removeMarkerCategory(CategoryID category) {
+		for (Object[] place : markerList) {
+			if (place[0].equals(category)) {
+				((Marker) place[1]).remove();
+				markerList.remove(place);
+				removeMarkerCategory(category);
+				return;
+			}
+		}
 	}
 
+	// TODO
 	// show users with location info on map
 	private void plotTeamLocations() {
-
+		LatLngBounds.Builder builder = new LatLngBounds.Builder();
+		for (TeamMember member : UserSession.getInstance(getActivity()).activeTeam.teamMembers) {
+			if (member.lat != 0 && member.lon != 0) {
+				MarkerOptions markerOp = new MarkerOptions();
+				markerOp.title(member.firstName + " " + member.lastName);
+				markerOp.position(new LatLng(member.lat, member.lon));
+				markerOp.icon(BitmapDescriptorFactory
+						.fromResource(R.drawable.ic_action_person));
+				Marker marker = map.addMarker(markerOp);
+				builder.include(marker.getPosition());
+				markerList.add(new Object[] { CategoryID.TEAM, marker,
+						member.userName });
+			}
+		}
+		CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
+				builder.build(), 50);
+		map.animateCamera(camUpdate);
 	}
 
 	// Lifecycle calls for the mapview
@@ -252,6 +309,14 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 				query = (String) params[2];
 			}
 
+			LocationManager mgr = (LocationManager) getActivity()
+					.getSystemService(Context.LOCATION_SERVICE);
+			Location lastKnownLocation = mgr
+					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+			currentLocation = new LatLng(lastKnownLocation.getLatitude(),
+					lastKnownLocation.getLongitude());
+
 			JSONObject result;
 			String ll = currentLocation.latitude + ", "
 					+ currentLocation.longitude;
@@ -266,6 +331,7 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		@Override
 		protected void onPostExecute(final JSONObject result) {
 			JSONArray resultArray = null;
+			LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
 			try {
 				resultArray = result.getJSONArray("response");
@@ -337,16 +403,12 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					MarkerOptions markerOp = new MarkerOptions();
 					markerOp.title(name);
 					String snippet = "";
-					if (placeCat != null) {
-						snippet = snippet.concat("Category: "+placeCat + "\n");
+					if (placeCat != "null" && placeCat != null) {
+						snippet = snippet.concat(placeCat);
 					}
-					if (address != null) {
-						snippet = snippet.concat("Address: "+address + "\n");
+					if (phone != "null" && phone != null) {
+						snippet = snippet.concat("  |  Phone: " + phone);
 					}
-					if (phone != null) {
-						snippet = snippet.concat("Phone"+phone);
-					}
-					markerOp.snippet(snippet);
 					markerOp.position(place);
 
 					switch (categoryID) {
@@ -370,16 +432,18 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 						break;
 
 					}
-
-					// add point to map
-					Marker marker = map.addMarker(markerOp);
-					// add marker to local list for manipulation
+					
 					String uri = null;
-					if (menu != null) {
+					if (menu != null && menu != "null") {
 						uri = menu;
-					} else if (placeUrl != null) {
+						snippet = snippet.concat("  (get menu)");
+					} else if (placeUrl != null && placeUrl != "null") {
 						uri = placeUrl;
 					}
+					markerOp.snippet(snippet);
+					// add point to map
+					Marker marker = map.addMarker(markerOp);
+					builder.include(marker.getPosition());
 					markerList.add(new Object[] { categoryID, marker, uri });
 
 				} catch (JSONException e) {
@@ -387,6 +451,10 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 				}
 
 			}
+
+			CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
+					builder.build(), 50);
+			map.animateCamera(camUpdate);
 			fqT = null;
 		}
 
@@ -399,9 +467,31 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 	// Handle clicks on Markers!
 	@Override
 	public void onInfoWindowClick(Marker marker) {
-		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(marker
-				.getSnippet()));
-		startActivity(browserIntent);
+		Object[] selected = null;
+		for (Object[] place : markerList) {
+			if (marker.equals(place[1])) {
+				selected = place;
+				Log.v("MAP", "marker found: " + ((Marker) place[1]).getTitle());
+				break;
+			}
+		}
+		if (selected != null && selected[0] != CategoryID.TEAM) {
+			// foursquare item picked, create an intent
+			Intent fsIntent = new Intent();
+			fsIntent.setData(Uri.parse((String) selected[2]));
+			fsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(fsIntent);
+		}
+		if(selected != null && selected[0] == CategoryID.TEAM){
+			//open team member detail (like a boss)
+			DialogFragment newFragment = new MemberDetailDialog();
+			Bundle args = new Bundle();
+		    args.putString("userName",(String) selected[2]);
+		    newFragment.setArguments(args);
+			newFragment.show(getFragmentManager(), null);
+
+		}
+
 	}
 
 }

@@ -9,11 +9,11 @@ public class TeamMember {
 	public String lastName = "";
 	public String email = "";
 	public String phone = "";
-	public int lat, lon = 0;
+	public double lat, lon = 0;
 	public boolean manager = false;
 
 	public TeamMember(String mUserName,String mFirstName, String mLastName, String mEmail,
-			String mPhone, int mLat, int mLon, boolean mManager) {
+			String mPhone, double mLat, double mLon, boolean mManager) {
 		userName = mUserName;
 		firstName = mFirstName;
 		lastName = mLastName;
