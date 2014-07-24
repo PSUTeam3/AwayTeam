@@ -739,6 +739,9 @@
         
         private function TeamTasks_CreateTask() {
             $teamTask = new TeamTasksController;
+            $tm = new TeamMembers;
+            $user = new User;
+            $userController = new UserController;
             $failure = false;
             
             if($this->get_request_method() != "POST") {
@@ -747,6 +750,8 @@
             
             $info = $this->_request;
             $authUser = $this->AuthRequired($info);
+            
+            $user = $userController->GetUserFromLoginID($info['loginId']);
             
             if(!isset($info['taskTeamId'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "task team id is not filled in");
@@ -757,13 +762,16 @@
             } else if(!isset($info['taskDescription'])) {
                 $jsonMsg = array('status' => 'failure','response' => "task description is not filled in");
                 $failure = true;
+            }  else if($tm->VerifyTeamMemberExist($info['taskTeamId'],$user->userId) == false) {
+                $jsonMsg = array('status' => 'failure', 'response' => "user not on team");
+                $failure = true;
             }
             
             if($failure == false) {
                 $newId = $teamTask->CreateTeamTasks($info);
                 
                 if($newId >= 0) {
-                    $jsonMsg = array('status' => 'failure', 'response' => $newId);
+                    $jsonMsg = array('status' => 'success', 'response' => $newId);
                 } else {
                     $jsonMsg = array('status' => 'failure', 'response' => "team task couldn't be created");
                 }            
