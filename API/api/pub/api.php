@@ -248,7 +248,7 @@
 
             if($failure == false) {
                 if($tm->VerifyTeamMemberExist($info['teamId'], $userId)) {                    
-                    $queryResult = $modifyTeam->ModifyTeam($info['teamId'],$userId);
+                    $queryResult = $modifyTeam->ModifyTeam($info,$userId);
                     if($queryResult == true) {
                         $respArray =array('status' => "success" , 'response'=>'change successful');
                     }
