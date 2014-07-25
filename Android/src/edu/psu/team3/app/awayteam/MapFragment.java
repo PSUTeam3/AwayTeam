@@ -125,9 +125,9 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 
 			}
 		});
-		if (teamButton.isChecked()) {
-			plotTeamLocations();
-		}
+		teamButton.setChecked(false); // Since a background task is updating
+										// team info, it may not be available.
+										// don't try to get it
 		foodButton = (ToggleButton) getView().findViewById(R.id.mapFoodLayer);
 		foodButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -252,6 +252,8 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 	// show users with location info on map
 	private void plotTeamLocations() {
 		LatLngBounds.Builder builder = new LatLngBounds.Builder();
+		boolean added = false; // dirty check to make sure we don't try to zoom
+								// on nothing
 		for (TeamMember member : UserSession.getInstance(getActivity()).activeTeam.teamMembers) {
 			if (member.lat != 0 && member.lon != 0) {
 				MarkerOptions markerOp = new MarkerOptions();
@@ -259,16 +261,19 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 				markerOp.position(new LatLng(member.lat, member.lon));
 				markerOp.icon(BitmapDescriptorFactory
 						.fromResource(R.drawable.ic_action_person));
-				
+
 				Marker marker = map.addMarker(markerOp);
 				builder.include(marker.getPosition());
 				markerList.add(new Object[] { CategoryID.TEAM, marker,
 						member.userName });
+				added = true;
 			}
 		}
-		CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
-				builder.build(), 50);
-		map.animateCamera(camUpdate);
+		if (added) {
+			CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
+					builder.build(), 50);
+			map.animateCamera(camUpdate);
+		}
 	}
 
 	// Lifecycle calls for the mapview
@@ -432,7 +437,7 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 						break;
 
 					}
-					
+
 					String uri = null;
 					if (menu != null && menu != "null") {
 						uri = menu;
@@ -482,12 +487,12 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 			fsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(fsIntent);
 		}
-		if(selected != null && selected[0] == CategoryID.TEAM){
-			//open team member detail (like a boss)
+		if (selected != null && selected[0] == CategoryID.TEAM) {
+			// open team member detail (like a boss)
 			DialogFragment newFragment = new MemberDetailDialog();
 			Bundle args = new Bundle();
-		    args.putString("userName",(String) selected[2]);
-		    newFragment.setArguments(args);
+			args.putString("userName", (String) selected[2]);
+			newFragment.setArguments(args);
 			newFragment.show(getFragmentManager(), null);
 
 		}

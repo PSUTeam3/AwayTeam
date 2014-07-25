@@ -23,6 +23,7 @@ public class Team {
 	public List<TeamMember> teamMembers = new ArrayList<TeamMember>();
 	public List<TeamEvent> teamEvents = new ArrayList<TeamEvent>();
 	public List<TeamTask> teamTasks = new ArrayList<TeamTask>();
+	public List<TeamExpense> teamExpenses = new ArrayList<TeamExpense>();
 
 	// Create a team from a JSON Object
 	// Assumes that the team is a new instance with only default values
@@ -108,6 +109,29 @@ public class Team {
 		}
 	}
 
+	// Create an expense list from a JSON Object
+	// Will clear out any old expenses first
+	public void importExpenses(JSONArray expenseArray)throws Exception  {
+		teamExpenses = new ArrayList<TeamExpense>();
+		for (int i = 0; i < expenseArray.length(); i++) {
+			try {
+				JSONObject expense = expenseArray.getJSONObject(i);
+				int expenseID = expense.getInt("expenseId");
+				String description = expense.getString("description");
+				double amount = expense.getDouble("amount");
+				TeamExpense.Category type = TeamExpense.Category.values()[expense.getInt("expType")];
+				DateFormat formatter = new SimpleDateFormat(
+						"yyyy-dd-mmm HH:mm:ss");
+				Date expDate = formatter.parse(expense.getString("expDate"));
+				teamExpenses.add(new TeamExpense(expenseID, expDate, amount, type, description));
+			} catch (Exception e) {
+				Log.e("EXPENSE", e.toString());
+				throw new Exception("Error building expense report");
+			}
+		}
+
+	}
+
 	// return a list of managers
 	public List<TeamMember> getManagers() {
 		List<TeamMember> managers = new ArrayList<TeamMember>();
@@ -128,8 +152,8 @@ public class Team {
 		}
 		return false;
 	}
-	
-	//return the team member identified by the username or null if not found
+
+	// return the team member identified by the username or null if not found
 	public TeamMember getUser(String username) {
 		for (TeamMember member : teamMembers) {
 			if (member.userName.equals(username)) {

@@ -13,6 +13,7 @@
         <item>Team Calendar</item>
         <item>Team Tasks</item>
         <item>Map</item>
+        <item>Expenses</item>
     </string-array>
     <string-array name="contact_options">
         <item>Email</item>

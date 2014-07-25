@@ -1,5 +1,6 @@
 package edu.psu.team3.app.awayteam;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -7,6 +8,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -25,6 +27,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	private GetTeamTask mGetTeam = null;
@@ -163,7 +166,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		if (id == R.id.action_leave) {
 			if (mLeaveTeam == null) {
 				mLeaveTeam = new LeaveTeamTask();
-				mLeaveTeam.execute();
+				mLeaveTeam.execute(this);
 			}
 		}
 		if (id == R.id.action_edit_team) {
@@ -243,7 +246,8 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 					return new TaskFragment();
 				case "Map":
 					return new MapFragment();
-					// TODO: add expenses
+				case "Expenses":
+					return new ExpenseFragment();
 				}
 			}
 			return new PlaceholderFragment();
@@ -374,11 +378,13 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			Integer result = 0;
 			result = CommUtil.GetTeam(getBaseContext(), (int) params[0],
 					s.getUsername());
+			Integer secondary = CommUtil.GetExpenses(getBaseContext(), s.getUsername(), (int) params[0]);
 			Log.v("Background", "returned from commutil.  result = " + result);
 
 			return result;
 		}
 
+		@SuppressLint("NewApi")
 		@Override
 		protected void onPostExecute(final Integer result) {
 			mGetTeam = null;
@@ -400,6 +406,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 						.show();
 			}
 			setRefreshActionButtonState(false);
+
 		}
 
 		@Override
@@ -450,16 +457,20 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	}
 
 	// Dispatch request to leave the team
-	// INPUT: first parameter will be the boolean value about whether this is a
+	// INPUT: first parameter will be the activity context,
+	// second will be boolean value about whether this is a
 	// confirmed request
 	public class LeaveTeamTask extends AsyncTask<Object, Void, Integer> {
+
+		Context activity = null;
 
 		@Override
 		protected Integer doInBackground(Object... params) {
 			UserSession s = UserSession.getInstance(getBaseContext());
 			boolean confirmed = false;
-			if (params.length > 0) {
-				confirmed = (boolean) params[0];
+			activity = (Context) params[0];
+			if (params.length > 1) {
+				confirmed = (boolean) params[1];
 			}
 			// dispatch the collection method
 			Integer result = 0;
@@ -477,8 +488,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 				refreshTeam(-1);
 				break;
 			case -1:
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						getBaseContext());
+				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 				builder.setTitle("Are You Sure?");
 				builder.setMessage(
 						"If you leave this team, it will be deleted.")
@@ -486,10 +496,9 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 								new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog,
 											int id) {
-										// TODO:FIRE ZE MISSILES!
 										mLeaveTeam = null;
 										mLeaveTeam = new LeaveTeamTask();
-										mLeaveTeam.execute(true);
+										mLeaveTeam.execute(activity, true);
 									}
 								})
 						.setNegativeButton("Cancel",

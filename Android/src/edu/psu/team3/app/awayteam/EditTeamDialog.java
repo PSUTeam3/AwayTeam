@@ -121,7 +121,6 @@ public class EditTeamDialog extends DialogFragment {
 			UserSession s = UserSession.getInstance(getActivity());
 
 			Integer result = 0;
-			Log.v("EDIT","Attempting to modify team "+s.currentTeamID+" with user: "+s.getUsername());
 			result = CommUtil.ModifyTeam(getActivity().getBaseContext(),
 					s.getUsername(), s.currentTeamID, mTeamName, mLocationName,
 					mDescription);
@@ -136,7 +135,7 @@ public class EditTeamDialog extends DialogFragment {
 			mEditTask = null;
 			if (result == 1) {// success!
 				Toast.makeText(getActivity().getBaseContext(),
-						"New Team Created", Toast.LENGTH_SHORT).show();
+						"Team info Modified", Toast.LENGTH_SHORT).show();
 				// callback the team id
 				((DisplayActivity) getActivity()).refreshTeam(UserSession
 						.getInstance(getActivity()).currentTeamID);

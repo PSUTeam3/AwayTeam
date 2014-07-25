@@ -104,11 +104,10 @@ public class JoinTeamDialog extends DialogFragment {
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View targetView,
 					int position, long rowID) {
-				mSelection = (Object[]) adapter
-						.getItemAtPosition(position);
+				mSelection = (Object[]) adapter.getItemAtPosition(position);
 				// make background call - this will determine if the
 				// dialog closes
-				if (mJoinTask == null && mSelection!=null) {
+				if (mJoinTask == null && mSelection != null) {
 					try {
 						mJoinTask = new JoinTask();
 						mJoinTask.execute();
@@ -116,7 +115,7 @@ public class JoinTeamDialog extends DialogFragment {
 						e.printStackTrace();
 					}
 				}
-				
+
 			}
 
 		});
@@ -184,8 +183,8 @@ public class JoinTeamDialog extends DialogFragment {
 		protected Integer doInBackground(Object... params) {
 			// dispatch the login method
 			int result = 0;
-			result = CommUtil.JoinTeam(getActivity(), (int) mSelection[0], UserSession
-					.getInstance(getActivity()).getUsername());
+			result = CommUtil.JoinTeam(getActivity(), (int) mSelection[0],
+					UserSession.getInstance(getActivity()).getUsername());
 
 			return result;
 		}
@@ -196,7 +195,7 @@ public class JoinTeamDialog extends DialogFragment {
 			mProgressView.setVisibility(View.GONE);
 
 			if (result == 1) {
-				//Successfully joined team or was added to pending members
+				// Successfully joined team or was added to pending members
 				// Take action based on whether the team is managed
 				if ((boolean) mSelection[3]) {
 					Toast.makeText(
@@ -213,6 +212,14 @@ public class JoinTeamDialog extends DialogFragment {
 				}
 				getDialog().dismiss();
 
+			} else if (result == -2) {
+				// user is already a member - navigate them there!
+				Toast.makeText(getActivity().getBaseContext(),
+						"You are already on this team!", Toast.LENGTH_SHORT)
+						.show();
+				((DisplayActivity) getActivity())
+						.refreshTeam((int) JoinTeamDialog.mSelection[0]);
+				getDialog().dismiss();
 			} else {// some error occured
 				Toast.makeText(getActivity().getBaseContext(),
 						"Unable to Join Team", Toast.LENGTH_SHORT).show();

@@ -383,7 +383,7 @@ public class CommUtil {
 
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
-		pairs.add(new BasicNameValuePair("userId", userName));
+		pairs.add(new BasicNameValuePair("loginId", userName));
 		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
 		pairs.add(new BasicNameValuePair("teamName", teamName));
 		pairs.add(new BasicNameValuePair("teamDescription", description));
@@ -416,6 +416,7 @@ public class CommUtil {
 	// teams
 	// 0 = unknown error or connection failure
 	// -1 = team does not exist
+	// -2 = already a member of the team
 	public static int JoinTeam(Context context, int teamID, String userName) {
 		String url = "https://api.awayteam.redshrt.com/teammember/jointeam";
 
@@ -436,9 +437,12 @@ public class CommUtil {
 			if (result.getString("status").equals("success")) {
 				return 1;
 			} else if (result.getString("status").equals("failure")) {
-				if (result.getString("response") == "team id does not exist") {
+				switch (result.getString("response")) {
+				case "team id does not exist":
 					return -1;
-				} else {
+				case "team member already exists":
+					return -2;
+				default:
 					return 0;
 				}
 			}
@@ -461,7 +465,8 @@ public class CommUtil {
 			return 0;
 		}
 
-		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
 		pairs.add(new BasicNameValuePair("loginId", username));
 		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
 		pairs.add(new BasicNameValuePair("confirmed", String.valueOf(confirmed)));
@@ -472,7 +477,7 @@ public class CommUtil {
 			if (result.getString("status").equals("success")) {
 				return 1;
 			} else if (result.getString("status").equals("failure")) {
-				switch (result.getString("message")) {
+				switch (result.getString("response")) {
 				case "team will be deleted":
 					return -1;
 				default:
@@ -690,6 +695,39 @@ public class CommUtil {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	// Get expenses for the user
+	// returns the success of the operation 1= success 0=error
+	public static int GetExpenses(Context context, String userName, int teamID) {
+		String url = "https://api.awayteam.redshrt.com/expense/getexpense";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("userId", userName));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getJSONArray("response").length()>0) {
+				// collect data and pass array to UserSession
+				UserSession.getInstance(context).activeTeam
+						.importExpenses(result.getJSONArray("response"));
+				return 1;
+			} else if (result.getString("status").equals("failure")) {
+				// only error is no teams available
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+
 	}
 
 }
