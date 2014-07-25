@@ -19,12 +19,12 @@
             return $retCode;
         }
         
-        public function ChangeTeamTaskToComplete($taskId) {
-            return $this->MarkTeamTaskComplete($taskId);
+        public function ChangeTeamTaskToComplete($taskId, $taskComplete) {
+            return $this->MarkTeamTaskComplete($taskId, $taskComplete);
         }
         
         public function RemoveTeamTask($taskId) {
-            return $this->DeleteTeamTask();
+            return $this->DeleteTeamTask($taskId);
         }
         
         private function arrayToObject($array) {

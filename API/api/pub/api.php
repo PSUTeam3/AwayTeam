@@ -779,6 +779,61 @@
 
             $this->response($this->json($jsonMsg),200);
         }
+        
+        private function TeamTasks_UpdateTask() {
+            $teamTask = new TeamTasksController;
+            $tm = new TeamMembers;
+            $failure = false;
+            
+            if($this->get_request_method() != "POST") {
+                $this->response('',406);
+            }
+            
+            $info = $this->_request;
+            $authUser = $this->AuthRequired($info);
+            
+            if(!isset($info['taskId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "task Id is not filled in");
+                $failure = true;
+            } else if(!isset($info['taskCompleted'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "task completion is not filled in");
+                $failure = true;
+            } else if(!isset($info['taskDeletion'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "task deletion is not filled in");
+                $failure = true;
+            } else if(!isset($info['taskTeamId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "task team Id is not filled in");
+                $failure = true;
+            } else if(!isset($info['userId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "user Id is not filled in");
+                $failure = true;
+            }else if($tm->VerifyTeamMemberExist($info['taskTeamId'],$info['userId']) == false) {
+                $jsonMsg = array('status' => 'failure', 'response' => "user not on team");
+                $failure = true;
+            }
+            
+            if($failure == false) {
+                if($info['taskCompleted'] == "true") {
+                    $resultComplete = $teamTask->ChangeTeamTaskToComplete($info['taskId'],$info['taskCompleted']);                   
+                } else if($info['taskCompleted'] == "false") {
+                    $resultComplete = $teamTask->ChangeTeamTaskToComplete($info['taskId'],$info['taskCompleted']);
+                }
+                
+                if($info['taskDeletion'] == "true") {
+                    $resultDeletion = $teamTask->RemoveTeamTask($info['taskId']);
+                }
+                
+                if($resultComplete == true && $resultDeletion == true) {
+                    $jsonMsg = array('status' => 'success','response' => "task successfully mark completed or incomplete and then deleted");
+                } else if($resultComplete == true) {
+                    $jsonMsg = array('status' => 'success', 'response' => "task successfully marked complete or incomplete");
+                } else if($resultDeletion == true) {
+                    $jsonMsg = array('status' => 'success', 'response' => "task successfully deleted");
+                }
+            }
+            
+            $this->response($this->json($jsonMsg),200);
+        }
 
         private function Expense_CreateExpense()
         {   

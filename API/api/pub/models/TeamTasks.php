@@ -78,14 +78,22 @@
                     myEsc($this->taskDescription),
                     myEsc($this->taskCompleted));
                     
-            $sql = mysql_query($query, $db);	
+            $sql = mysql_query($query, $db);
                 
             return $sql;
         }
         
-        public function MarkTeamTaskComplete($taskId) {
+        public function MarkTeamTaskComplete($taskId, $taskCompleted) {
             global $db;
-            $query = "update team_tasks set taskCompleted = true where taskId = " . myEsc($this->taskId);
+            $taskCompleteFlag = false;
+            
+            if($taskCompleted == "true") {
+                $taskCompleteFlag = 1;
+            } else {
+                $taskCompleteFlag = 0;
+            }
+            
+            $query = "update team_tasks set taskCompleted = " . myEsc($taskCompleteFlag) . " where taskId = " . myEsc($taskId);
             $sql = mysql_query($query,$db);
             return $sql;
         }
