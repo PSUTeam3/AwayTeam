@@ -11,11 +11,13 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -107,6 +109,7 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
 		map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
 		map.setOnInfoWindowClickListener(this);
+		
 
 		// setup map layer buttons
 		teamButton = (ToggleButton) getView().findViewById(R.id.mapTeamLayer);
@@ -125,9 +128,21 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 
 			}
 		});
-		teamButton.setChecked(false); // Since a background task is updating
-										// team info, it may not be available.
-										// don't try to get it
+		map.setOnCameraChangeListener(new OnCameraChangeListener() {
+
+		    @Override
+		    public void onCameraChange(CameraPosition arg0) {
+		        // see if team needs to be drawn
+		    	if(teamButton.isChecked()){
+		    		plotTeamLocations();
+		    	}
+		        map.setOnCameraChangeListener(null);
+		    }
+		});
+		// TODO: keep or remove
+		// teamButton.setChecked(false); // Since a background task is updating
+		// team info, it may not be available.
+		// don't try to get it
 		foodButton = (ToggleButton) getView().findViewById(R.id.mapFoodLayer);
 		foodButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -252,8 +267,7 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 	// show users with location info on map
 	private void plotTeamLocations() {
 		LatLngBounds.Builder builder = new LatLngBounds.Builder();
-		boolean added = false; // dirty check to make sure we don't try to zoom
-								// on nothing
+
 		for (TeamMember member : UserSession.getInstance(getActivity()).activeTeam.teamMembers) {
 			if (member.lat != 0 && member.lon != 0) {
 				MarkerOptions markerOp = new MarkerOptions();
@@ -266,14 +280,14 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 				builder.include(marker.getPosition());
 				markerList.add(new Object[] { CategoryID.TEAM, marker,
 						member.userName });
-				added = true;
+
 			}
 		}
-		if (added) {
-			CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
-					builder.build(), 50);
-			map.animateCamera(camUpdate);
-		}
+
+		CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
+				builder.build(), 50);
+		map.animateCamera(camUpdate);
+
 	}
 
 	// Lifecycle calls for the mapview
