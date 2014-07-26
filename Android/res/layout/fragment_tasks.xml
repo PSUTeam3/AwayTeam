@@ -23,6 +23,10 @@
             android:layout_gravity="right|center_vertical"
             android:src="@drawable/ic_action_new"/>
         </LinearLayout>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/holo_blue_dark" />
 
     <ExpandableListView
         android:id="@+id/taskListView"

@@ -33,13 +33,17 @@
             android:src="@drawable/ic_action_new" />
     </LinearLayout>
 
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/holo_blue_dark" />
+
     <ExpandableListView
         android:id="@+id/expenseListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:choiceMode="multipleChoiceModal" >
-
     </ExpandableListView>
 
 </LinearLayout>

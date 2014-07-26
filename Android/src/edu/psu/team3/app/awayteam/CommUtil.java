@@ -1,6 +1,9 @@
 package edu.psu.team3.app.awayteam;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
@@ -714,13 +717,13 @@ public class CommUtil {
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			if (result.getJSONArray("response").length()>0) {
+			if (result.getJSONArray("response").length() > 0) {
 				// collect data and pass array to UserSession
 				UserSession.getInstance(context).activeTeam
 						.importExpenses(result.getJSONArray("response"));
 				return 1;
-			} else if (result.getString("status").equals("failure")) {
-				// only error is no teams available
+			} else {
+				// no error conditions specified
 				return 0;
 			}
 		} catch (Exception e) {
@@ -730,4 +733,42 @@ public class CommUtil {
 
 	}
 
+	// Create expenses for the user
+	// note: remember category is +1 position of item
+	// returns the success of the operation 1= success 0=error
+	public static int CreateExpense(Context context, String userName,
+			int teamID, Date date, double amount, int category,
+			String description) {
+		String url = "https://api.awayteam.redshrt.com/expense/createexpense";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("userId", userName));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("description", description));
+		pairs.add(new BasicNameValuePair("amount", Double.toString(amount)));
+		pairs.add(new BasicNameValuePair("expType", Integer.toString(category)));
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		pairs.add(new BasicNameValuePair("expDate", formatter.format(date)));
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else {
+				// everything else is fail
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+
+	}
 }

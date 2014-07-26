@@ -20,6 +20,13 @@
         <item>SMS</item>
         <item>Call</item>
     </string-array>
+    <string-array name="expense_categories">
+        <item>BREAKFAST</item>
+        <item>LUNCH</item>
+        <item>DINNER</item>
+        <item>SNACK</item>
+        <item>OTHER</item>
+    </string-array>
 
     <string name="title_activity_create_account">Create New Account</string>
     <string name="title_activity_long">Long Title to See if it will expand usable area</string>

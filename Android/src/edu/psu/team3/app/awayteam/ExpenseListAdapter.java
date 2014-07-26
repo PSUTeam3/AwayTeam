@@ -1,5 +1,6 @@
 package edu.psu.team3.app.awayteam;
 
+import java.text.DateFormat;
 import java.util.List;
 
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.TextView;
 
 public class ExpenseListAdapter extends BaseExpandableListAdapter {
 	List<TeamExpense> expenseList;
@@ -23,24 +25,33 @@ public class ExpenseListAdapter extends BaseExpandableListAdapter {
 		LayoutInflater inflater = (LayoutInflater) mContext
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View rowV = inflater.inflate(R.layout.expense_entry, parent, false);
-		//TODO: fill info
+		TextView dateView = (TextView) rowV.findViewById(R.id.expenseDate);
+		dateView.setText(DateFormat.getDateInstance(DateFormat.MEDIUM).format(
+				expenseList.get(groupPosition).date));
+		TextView catView = (TextView) rowV.findViewById(R.id.expenseCategory);
+		catView.setText(expenseList.get(groupPosition).category.toString());
+		TextView amountView = (TextView) rowV.findViewById(R.id.expenseAmount);
+		String formattedAmount = String.format("%1$,.2f", expenseList.get(groupPosition).amount);
+		amountView.setText("$"+formattedAmount);
 		return rowV;
 	}
 
 	@Override
 	public View getChildView(int groupPosition, int childPosition,
 			boolean isLastChild, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
-		return null;
+		LayoutInflater inflater = (LayoutInflater) mContext
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View rowV = inflater.inflate(R.layout.task_detail, null);
+
+		TextView descriptionText = (TextView) rowV
+				.findViewById(R.id.task_description);
+		descriptionText.setText(expenseList.get(groupPosition).description);
+		return rowV;
 	}
 
 	@Override
 	public Object getChild(int groupPosition, int childPosition) {
-		LayoutInflater inflater = (LayoutInflater) mContext
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View rowV = inflater.inflate(R.layout.task_detail, null);
-		//TODO: fill info
-		return rowV;
+		return null;
 	}
 
 	@Override

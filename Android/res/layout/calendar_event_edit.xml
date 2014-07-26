@@ -93,7 +93,7 @@
             android:background="@android:color/holo_blue_dark" />
 
         <EditText
-            android:id="@+id/editText2"
+            android:id="@+id/expenseEditAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"

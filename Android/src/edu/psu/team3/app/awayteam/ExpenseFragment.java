@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -22,9 +23,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class ExpenseFragment extends Fragment{
+public class ExpenseFragment extends Fragment {
 
 	TextView expenseTotalView;
+	TextView expenseLabel;
 	ImageButton addExpenseButton;
 	ExpandableListView expenseListView;
 	ExpenseListAdapter adapter;
@@ -36,9 +38,11 @@ public class ExpenseFragment extends Fragment{
 				false);
 		// identify UI elements
 		expenseTotalView = (TextView) rootView.findViewById(R.id.expenseText);
+		expenseLabel = (TextView) rootView.findViewById(R.id.expenseLabel);
 		addExpenseButton = (ImageButton) rootView
 				.findViewById(R.id.add_expense_button);
-		expenseListView = (ExpandableListView) rootView.findViewById(R.id.expenseListView);
+		expenseListView = (ExpandableListView) rootView
+				.findViewById(R.id.expenseListView);
 
 		return rootView;
 	}
@@ -50,23 +54,33 @@ public class ExpenseFragment extends Fragment{
 		// ensure list of events is sorted
 		UserSession s = UserSession.getInstance(getActivity());
 		Collections.sort(s.activeTeam.teamExpenses, TeamExpense.DateComparator);
+		calcExpense(s.activeTeam.teamExpenses);
 		// fill list
 		adapter = new ExpenseListAdapter(getActivity(),
 				s.activeTeam.teamExpenses);
 		// Attach the adapter to a ListView
 		expenseListView.setAdapter(adapter);
-		//Assign listener to event long clicks?
-		
+		// Assign listener to event long clicks?
 
 		// Assign actions to buttons
 		addExpenseButton.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
-				//TODO: implement
-				Toast.makeText(getActivity(), "adding expenses not enabled yet", Toast.LENGTH_SHORT).show();
+				DialogFragment newFragment = new ExpenseCreateDialog();
+				newFragment.show(getFragmentManager(), null);
 			}
 		});
 	}
-}
 
+	// update the expense total field in the window with the total of all items
+	// in the list
+	private void calcExpense(List<TeamExpense> expenses) {
+		double total = 0;
+		for (TeamExpense expense : expenses) {
+			total += expense.amount;
+		}
+		String formattedAmount = String.format("%1$,.2f", total);
+		expenseTotalView.setText("$" + formattedAmount);
+	}
+}
