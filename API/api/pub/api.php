@@ -570,6 +570,67 @@
             // expect loginId and password
             // return userIdentifier and userSecret
         }       
+        
+        private function User_ResetPassword()
+        {
+            $xUser = new UserController;
+            $failed = true;
+
+            if ($this->get_request_method() != "POST")
+            {
+                $this->response('', 406);
+            }
+
+            $info = $this->_request;
+            
+            if (isset($info['loginId']))
+            {
+                //user sent
+                $xUser   = $xUser->GetUserFromLoginID($info['loginId']);
+                if ($xUser->userId <> "-999")
+                {
+                    $newPass = $xUser->GenerateRandomPassword();
+                    $ret     = $xUser->ChangeUserPassword($newPass);
+
+                    if ($ret)
+                    {
+                        //password changed
+                        $failed = false;
+                        $message = "password reset";
+                        $email   = $xUser->SendPasswordResetEmail($newPass);
+                    }
+                    else
+                    {
+                        //password change failure
+                        $failed = true;
+                        $message = "password change failure";
+                    }
+                }
+                else
+                {
+                    //user not found
+                    $failed = true;
+                    $message = "user not found";
+                }
+            }
+            else
+            {
+                //user not sent
+                $failed = true;
+                $message = "loginId not sent";
+            }
+
+            if ($failed)
+            {    
+                $retArray = array('response' => 'failure', 'message' => $message);
+                $this->response($this->json($retArray),401);
+            }    
+            else 
+            {    
+                $retArray = array('response' => 'success', 'message' => $message);
+                $this->response($this->json($retArray),200);
+            }    
+        }
 
         private function User_ChangePassword()
         {

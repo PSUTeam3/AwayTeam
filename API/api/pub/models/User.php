@@ -390,5 +390,107 @@
 
             return $id;
         }
+
+        public function SendPasswordResetEmail($newPass)
+        {
+            $loginId        = $this->loginId;
+            $firstName      = $this->firstName;
+            $lastName       = $this->lastName;
+            $email          = $this->email;
+
+            //installed postfix with InternetSite config
+
+            $subject = "AwayTeam Password Reset";
+            $message = 
+"
+<html>
+<body>
+Hello $firstName,<br><br>
+           
+You have requested your password to be reset. See details below for your new login credentials.<br><br>
+       
+<b>Details:</b><br><br>
+<tab><tab><tab><table>
+<tr><td><b>Name</b></td><td align=\"right\">$lastName, $firstName</td></tr>
+<tr><td><b>Username</b></td><td align=\"right\">$loginId</td></tr>
+<tr><td><b>New Password</b></td><td align=\"right\">$newPass</td></tr>
+</table><br><br>
+            
+Please login to the AwayTeam application and change your password, or you can change your password online at: https://awayteam.redshrt.com.<br><br>
+
+Thank you,<br><br>
+AwayTeam Admins
+</body>
+</html>
+";
+
+            $headers   = array();
+            $headers[] = "MIME-Version: 1.0";
+            $headers[] = "Content-type: text/html; charset=iso-8859-1";
+            $headers[] = "From: AwayTeam <no-reply@awayteam.redshrt.com>";
+            $headers[] = "Reply-To: AwayTeam <no-reply@awayteam.redshrt.com>";
+            $headers[] = "Subject: {$subject}";
+            $headers[] = "X-Mailer: PHP/".phpversion();
+
+            return mail($email, $subject, $message, implode("\r\n", $headers));
+
+        }
+        
+        public function GenerateRandomPassword()
+        {
+            $charPool = 'ABCDEFGHIJKLMNPQRSTUVWXYZ23456789abcdefghijkmnopqrstuvwxyz';
+            $newPass = ""; 
+            $pwLen = 8;
+
+            $good = false;
+
+            while ($good == false)
+            {   
+                $i = 0;
+                $newPass = ""; 
+
+                for ($i = 0; $i < $pwLen; $i++)
+                {   
+                    $val = mt_rand(0, strlen($charPool) + 1); 
+                    $newPass = $newPass . $charPool[$val];
+                }   
+
+                $uppers = 0;
+                $lowers = 0;
+                $nums   = 0;
+
+                for ($i=0; $i<$pwLen; $i++)
+                {   
+                    $val = $newPass[$i];
+                    $val = ord($val);
+    
+                    if (($val >= 65) && ($val <= 90))
+                    {   
+                        $uppers++;
+                    }   
+
+                    if (($val >= 97) && ($val <= 122))
+                    {   
+                        $lowers++;
+                    }   
+
+                    if (($val >= 48) && ($val <= 57))
+                    {   
+                        $nums++;
+                    }   
+                }   
+    
+                if (($uppers >= 2) && ($lowers >= 2) && ($nums >= 2))
+                {   
+                    $good = true;
+                }   
+                else
+                {   
+                    $good = false;
+                }   
+            }
+
+            return $newPass;
+        }
     }
 ?>
