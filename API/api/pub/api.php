@@ -837,7 +837,7 @@
 
         private function Expense_CreateExpense()
         {   
-
+            $xUser    = new UserController;
             $xExpense = new ExpenseController;
     
             if ($this->get_request_method() != "POST")
@@ -845,6 +845,16 @@
                 $this->response('', 406);
             }   
             $expArray = $this->_request;
+
+            if (isset($expArray['loginId']))
+            {
+                $loginId = $expArray['loginId'];
+                $xUser = $xUser->GetUserFromLoginID($loginId);
+                unset($expArray['loginId']);
+                $expArray['userId'] = $xUser->userId;
+            }
+
+
             $authUser = $this->AuthRequired($expArray);
             $newExp = $xExpense->CreateExpense($expArray);
 
@@ -864,6 +874,7 @@
 
         private function Expense_ModifyExpense()
         {   
+            $xUser    = new UserController;
             $xExpense = new ExpenseController;
 
             if($this->get_request_method() != "POST")
@@ -873,6 +884,16 @@
 
             $array1         = $this->_request;
             $authUser       = $this->AuthRequired($array1);
+
+            if (isset($array1['loginId']))
+            {    
+                $loginId = $array1['loginId'];
+                $xUser = $xUser->GetUserFromLoginID($loginId);
+                unset($array1['loginId']);
+                $array1['userId'] = $xUser->userId;
+            }    
+
+
             $response       = $xExpense->ModifyExpense($array1);
             
             if ($response)
@@ -888,6 +909,7 @@
 
         private function Expense_DeleteExpense()
         {
+            $xUser    = new UserController;
             $xExpense = new ExpenseController;
             
             if ($this->get_request_method() != "POST")
@@ -897,6 +919,16 @@
             
             $array1                 = $this->_request;
             $authUser               = $this->AuthRequired($array1);
+
+            if (isset($array1['loginId']))
+            {    
+                $loginId = $array1['loginId'];
+                $xUser = $xUser->GetUserFromLoginID($loginId);
+                unset($array1['loginId']);
+                $array1['userId'] = $xUser->userId;
+            }    
+
+
             $xExpense->expenseId    = $array1['expenseId'];
             $response               = $xExpense->RemoveExpense();
 
@@ -913,7 +945,9 @@
 
         private function Expense_GetExpense()
         {
+            $xUser    = new UserController;
             $xExpense = new ExpenseController;
+
             if ($this->get_request_method() != "POST")
             {
                 $this->response('',406);
@@ -921,6 +955,16 @@
 
             $array1         = $this->_request;
             $authUser = $this->AuthRequired($array1);
+
+            if (isset($array1['loginId']))
+            {    
+                $loginId = $array1['loginId'];
+                $xUser = $xUser->GetUserFromLoginID($loginId);
+                unset($array1['loginId']);
+                $array1['userId'] = $xUser->userId;
+            }    
+
+
             $results        = $xExpense->GetExpense($array1);
 
             if (is_array($results))

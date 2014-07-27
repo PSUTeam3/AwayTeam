@@ -119,7 +119,7 @@
                 return $tExpense;
             }
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType, expenseId from expense where expenseId=%f and userId=%f and teamId=%f",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where expenseId=%f and userId=%f and teamId=%f",
                 myEsc($expenseId),
                 myEsc($userId),
                 myEsc($teamId));
@@ -157,7 +157,7 @@
                 return $sExpense;
             }
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType, expenseId from expense where expDate='%s' and userId=%f and teamId=%f",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where expDate='%s' and userId=%f and teamId=%f",
                 myEsc($reqDate),
                 myEsc($userId),
                 myEsc($teamId));
@@ -189,7 +189,7 @@
                 return $sExpense;
             }   
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType, expenseId from expense where expType=%f and userId=%f and teamId=%f",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where expType=%f and userId=%f and teamId=%f",
                 myEsc($reqType),
                 myEsc($userId),
                 myEsc($teamId));
@@ -222,7 +222,7 @@
                 return $sExpense;
             }
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType, expenseId from expense where userId=%f and teamId=%f group by expDate order by expType",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where userId=%f and teamId=%f order by expDate",
                 myEsc($userId),
                 myEsc($teamId));
 
