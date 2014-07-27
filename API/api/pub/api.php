@@ -797,6 +797,35 @@
             $this->response($this->json($jsonstr),200);
 
         }
+
+        private function User_UpdateLocation()
+        {
+            $xUser = new UserController;
+            
+            if ($this->get_request_method() != "POST")
+            {
+                $this->response('', 406);
+            }
+
+            $locInfo        = $this->_request;
+            $authUser       = $this->AuthRequired($locInfo);
+            $xUser          = $xUser->GetUserFromLoginID($locInfo['loginId']);
+
+            $response       = $xUser->UpdateUserLocation($locInfo['lat'], $locInfo['lng']);
+
+            $jsonstr = array();
+
+            if ($response >= 0)
+            {
+                $jsonstr = array('response' => 'success');
+            }
+            else
+            {
+                $jsonstr = array('response' => 'failure');
+            }
+
+            $this->response($this->json($jsonstr), 200);
+        }
         
         private function TeamTasks_CreateTask() {
             $teamTask = new TeamTasksController;

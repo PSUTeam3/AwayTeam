@@ -322,6 +322,33 @@
             return $retArr;
         }
 
+        public function UpdateUserLocation($lat, $lng)
+        {
+            if ($this->loginId == "")
+            {
+                return -999;
+            }
+
+            global $db;
+
+            $query = sprintf("insert into location (locUserId, locLatitude, locLongitude) values ('%s','%s','%s')", 
+                myEsc($this->userId),
+                myEsc($lat),
+                myEsc($lng));
+
+            mysql_query($query, $db);
+            $locId = mysql_insert_id();
+    
+            if ($locId >= 0)
+            {   
+                return $locId;
+            }   
+            else
+            {
+                return -999;
+            }
+        }
+
         public function InsertUser()
         {
             if ($this->loginId == "")
