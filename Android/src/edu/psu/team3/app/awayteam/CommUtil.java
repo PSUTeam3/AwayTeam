@@ -114,6 +114,44 @@ public class CommUtil {
 		return 0;
 	}
 
+	// Resets the user's password
+	// INPUT: entered username
+	// RETURN: int code based on success:
+	// 1 = success - user password was reset and an email sent to the user
+	// -1 = username not found - make sure the user entered a name
+	// 0 = some other error
+	public static int ResetPassword(Context context, String username) {
+		String url = "https://api.awayteam.redshrt.com/user/ResetPassword";
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		pairs.add(new BasicNameValuePair("loginId", username));
+		JSONObject result = null;
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("success")) {
+				// succeeded
+				return 1;
+			} else if (!result.getString("message").isEmpty()) {
+				switch (result.getString("message")) {
+				case "user not found":
+					return -1;
+				default:
+					return 0;
+				}
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return 0;
+
+	}
+
 	// Attempts to modify a user account
 	// INPUT:
 	// "loginId","email",
@@ -712,7 +750,7 @@ public class CommUtil {
 		JSONObject result = null;
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
-		pairs.add(new BasicNameValuePair("userId", userName));
+		pairs.add(new BasicNameValuePair("loginId", userName));
 		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
 
 		try {
@@ -734,7 +772,7 @@ public class CommUtil {
 	}
 
 	// Create expenses for the user
-	// note: remember category is +1 position of item
+	// note: remember category is +1 position of item from spinner input
 	// returns the success of the operation 1= success 0=error
 	public static int CreateExpense(Context context, String userName,
 			int teamID, Date date, double amount, int category,
@@ -748,13 +786,131 @@ public class CommUtil {
 		JSONObject result = null;
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
-		pairs.add(new BasicNameValuePair("userId", userName));
+		pairs.add(new BasicNameValuePair("loginId", userName));
 		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
 		pairs.add(new BasicNameValuePair("description", description));
 		pairs.add(new BasicNameValuePair("amount", Double.toString(amount)));
 		pairs.add(new BasicNameValuePair("expType", Integer.toString(category)));
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		pairs.add(new BasicNameValuePair("expDate", formatter.format(date)));
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else {
+				// everything else is fail
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+
+	}
+
+	// Edit expenses for the user
+	// note: remember category is +1 position of item from spinner input
+	// returns the success of the operation 1= success 0=error
+	public static int EditExpense(Context context, String userName, int teamID,
+			int expenseID, Date date, double amount, int category,
+			String description) {
+		String url = "https://api.awayteam.redshrt.com/expense/modifyexpense";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", userName));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("expenseId", Integer
+				.toString(expenseID)));
+		pairs.add(new BasicNameValuePair("description", description));
+		pairs.add(new BasicNameValuePair("amount", Double.toString(amount)));
+		pairs.add(new BasicNameValuePair("expType", Integer.toString(category)));
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		pairs.add(new BasicNameValuePair("expDate", formatter.format(date)));
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else {
+				// everything else is fail
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+
+	}
+
+	// Create event for the user
+	// returns the success of the operation 1= success 0=error
+	public static int CreateEvent(Context context, String userName, int teamID,
+			Date startTime, Date endTime, String title, String location,
+			String description) {
+		String url = "https://api.awayteam.redshrt.com/team/createevent";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		// TODO: implement with correct values from API
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("userId", userName));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("eventTitle", title));
+		pairs.add(new BasicNameValuePair("eventLocation", location));
+		pairs.add(new BasicNameValuePair("eventDescription", description));
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		pairs.add(new BasicNameValuePair("eventStartTime", formatter
+				.format(startTime)));
+		pairs.add(new BasicNameValuePair("eventEndTime", formatter
+				.format(endTime)));
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else {
+				// everything else is fail
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+
+	}
+
+	// Create task for the user
+	// returns the success of the operation 1= success 0=error
+	public static int CreateTask(Context context, String userName, int teamID,
+			String title, String description) {
+		String url = "https://api.awayteam.redshrt.com/team/createtask";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		// TODO: implement with correct values from API
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("userId", userName));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("taskDescription", description));
+		pairs.add(new BasicNameValuePair("taskTitle", title));
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);

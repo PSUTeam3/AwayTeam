@@ -3,23 +3,30 @@ package edu.psu.team3.app.awayteam;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import edu.psu.team3.app.awayteam.CreateTeamDialog.CreateTeamTask;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 public class ExpenseCreateDialog extends DialogFragment {
@@ -30,10 +37,10 @@ public class ExpenseCreateDialog extends DialogFragment {
 	private int category = 0;
 	private String description = null;
 
-	TextView dateView;
+	Button dateView;
 	Spinner catSpinner;
-	TextView amountView;
-	TextView descView;
+	EditText amountView;
+	EditText descView;
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -78,15 +85,42 @@ public class ExpenseCreateDialog extends DialogFragment {
 				}
 			});
 			// init UI elements
-			Date now = new Date();
-			dateView = (TextView) d.findViewById(R.id.expenseEditDate);
-			dateView.setText(DateFormat.getDateInstance(DateFormat.SHORT)
-					.format(now));
+			date = new Date();
+			dateView = (Button) d.findViewById(R.id.expenseEditDate);
+			dateView.setText(DateFormat.getDateInstance(DateFormat.MEDIUM)
+					.format(date));
 			catSpinner = (Spinner) d.findViewById(R.id.expenseEditCategory);
 			catSpinner.setSelection(4);
-			amountView = (TextView) d.findViewById(R.id.expenseEditAmount);
+			amountView = (EditText) d.findViewById(R.id.expenseEditAmount);
 			amountView.setText("0.00");
-			descView = (TextView) d.findViewById(R.id.expenseEditDescription);
+			descView = (EditText) d.findViewById(R.id.expenseEditDescription);
+			// implement picker
+			dateView.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(date);
+					DatePickerDialog dateDialog = new DatePickerDialog(
+							getActivity(),
+							new DatePickerDialog.OnDateSetListener() {
+
+								@Override
+								public void onDateSet(DatePicker view,
+										int year, int monthOfYear,
+										int dayOfMonth) {
+									Calendar cal = Calendar.getInstance();
+									cal.set(year, monthOfYear, dayOfMonth);
+									date = cal.getTime();
+									dateView.setText(DateFormat
+											.getDateInstance(DateFormat.MEDIUM)
+											.format(date));
+								}
+							}, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),
+							cal.get(Calendar.DAY_OF_MONTH));
+					dateDialog.show();
+				}
+			});
 		}
 	}
 
@@ -105,24 +139,16 @@ public class ExpenseCreateDialog extends DialogFragment {
 			focusView = amountView;
 		}
 		DateFormat formatter = new SimpleDateFormat("M/d/y");
-		try {
-			date = formatter.parse(dateView.getText().toString());
 
-			Date now = new Date();
-			if (date.compareTo(now) > 0) {
-				cancel = true;
-				dateView.setError("Expense date cannot be in the future");
-				focusView = dateView;
-			}
-		} catch (ParseException e) {
+		Date now = new Date();
+		if (date.compareTo(now) > 0) {
 			cancel = true;
-			dateView.setError("Check date format: MM/DD/YYYY");
-			focusView = dateView;
+			Toast.makeText(getActivity(),
+					"Expense date cannot be in the future", Toast.LENGTH_SHORT)
+					.show();
 		}
 
-		if (cancel) {
-			focusView.requestFocus();
-		} else if (mCreateTask == null) {
+		if (!cancel && mCreateTask == null) {
 			mCreateTask = new CreateExpenseTask();
 			mCreateTask.execute();
 		}

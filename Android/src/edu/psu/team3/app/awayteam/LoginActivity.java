@@ -29,6 +29,7 @@ public class LoginActivity extends Activity {
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
 	private UserLoginTask mAuthTask = null;
+	private PasswordResetTask mResetTask = null;
 
 	// Values for email and password and remember check at the time of the login
 	// attempt.
@@ -130,10 +131,16 @@ public class LoginActivity extends Activity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_forgot_password) {
-			// TODO:implement
-			Toast.makeText(LoginActivity.this,
-					"A Temporary Password has been sent to your Email",
-					Toast.LENGTH_LONG).show();
+			mUsername = mUsernameView.getText().toString();
+			if (mUsername.isEmpty()) {
+				Toast.makeText(LoginActivity.this,
+						"Enter your Username in the Login screen",
+						Toast.LENGTH_LONG).show();
+			} else if (mResetTask == null) {
+				mResetTask = new PasswordResetTask();
+				mResetTask.execute();
+			}
+
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -300,6 +307,47 @@ public class LoginActivity extends Activity {
 		protected void onCancelled() {
 			mAuthTask = null;
 			showProgress(false);
+		}
+	}
+
+	public class PasswordResetTask extends AsyncTask<Object, Void, Integer> {
+
+		@Override
+		protected Integer doInBackground(Object... params) {
+
+			// dispatch the login method
+			Integer result = 0;
+			result = CommUtil.ResetPassword(getBaseContext(), mUsername);
+			Log.v("Background", "returned from commutil.  result = " + result);
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mAuthTask = null;
+
+			switch (result) {
+			case 1: // success!
+				Toast.makeText(LoginActivity.this,
+						"A Temporary Password has been sent to your Email",
+						Toast.LENGTH_LONG).show();
+				break;
+			case -1: // wrong username supplied
+				Toast.makeText(
+						LoginActivity.this,
+						"Entered Username does not exist. Enter correct Username or try creating a new account.",
+						Toast.LENGTH_LONG).show();
+			default: // some other error occured
+				Toast.makeText(getBaseContext(),
+						"Unable to Reset Password. Check entered Username.",
+						Toast.LENGTH_LONG).show();
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			mAuthTask = null;
 		}
 	}
 }

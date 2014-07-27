@@ -4,20 +4,23 @@ import java.util.Comparator;
 
 public class TeamTask {
 
+	public int id = -1;
 	public String title = "title";
 	public String description = "";
 	public boolean complete = false;
 
-	public TeamTask(String nTitle, String nDescription, boolean nComplete) {
+	public TeamTask(int nID, String nTitle, String nDescription,
+			boolean nComplete) {
+		id = nID;
 		title = nTitle;
 		description = nDescription;
 		complete = nComplete;
 	}
-	
-	public TeamTask(){
-		
+
+	public TeamTask() {
+
 	}
-	
+
 	// compare tasks alphabetically based on title
 	public static Comparator<TeamTask> AlphaComparator = new Comparator<TeamTask>() {
 
@@ -27,17 +30,18 @@ public class TeamTask {
 		}
 
 	};
-	
-	//Compare completed to incomplete tasks, placing completed tasks as "greater" so stacked to the bottom
+
+	// Compare completed to incomplete tasks, placing completed tasks as
+	// "greater" so stacked to the bottom
 	public static Comparator<TeamTask> CompletedComparator = new Comparator<TeamTask>() {
 
 		@Override
 		public int compare(TeamTask a, TeamTask b) {
-			if (a.complete==b.complete){
+			if (a.complete == b.complete) {
 				return 0;
-			}else if(a.complete){
+			} else if (a.complete) {
 				return 1;
-			}else{
+			} else {
 				return -1;
 			}
 		}

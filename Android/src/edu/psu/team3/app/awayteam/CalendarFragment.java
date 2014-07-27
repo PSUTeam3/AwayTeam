@@ -93,6 +93,12 @@ public class CalendarFragment extends Fragment {
 			}
 		});
 
-		// TODO: implement add button
+		addEventButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				DialogFragment newFragment = new EventCreateDialog();
+				newFragment.show(getFragmentManager(), null);
+			}
+		});
 	}
 }

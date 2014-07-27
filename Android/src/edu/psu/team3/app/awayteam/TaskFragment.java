@@ -1,5 +1,6 @@
 package edu.psu.team3.app.awayteam;
 
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -64,6 +65,13 @@ public class TaskFragment extends Fragment {
 
 			}
 		});
-		//TODO: implement add button
+		mAddButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				DialogFragment newFragment = new TaskCreateDialog();
+				newFragment.show(getFragmentManager(), null);
+			}
+		});
 	}
 }

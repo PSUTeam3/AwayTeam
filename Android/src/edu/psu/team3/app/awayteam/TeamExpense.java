@@ -12,6 +12,10 @@ public class TeamExpense {
 		private Category(int value) {
 			this.value = value;
 		}
+
+		public int getValue() {
+			return value;
+		}
 	}
 
 	public int id = -1;
@@ -41,5 +45,6 @@ public class TeamExpense {
 		}
 
 	};
+
 
 }

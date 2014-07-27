@@ -65,11 +65,13 @@ public class Team {
 				JSONArray tasksArray = teamObject.getJSONArray("tasks");
 				for (int i = 0; i < tasksArray.length(); i++) {
 					JSONObject taskObject = tasksArray.getJSONObject(i);
+					int id = taskObject.getInt("taskId");
 					String title = taskObject.getString("taskTitle");
 					String description = taskObject
 							.getString("taskDescription");
 					boolean complete = taskObject.getBoolean("taskCompleted");
-					teamTasks.add(new TeamTask(title, description, complete));
+					teamTasks
+							.add(new TeamTask(id, title, description, complete));
 				}
 			}
 		} catch (Exception e) {
@@ -82,6 +84,9 @@ public class Team {
 				JSONArray eventsArray = teamObject.getJSONArray("events");
 				for (int i = 0; i < eventsArray.length(); i++) {
 					JSONObject eventObject = eventsArray.getJSONObject(i);
+					// TODO: add event id
+					int id = -1;
+					// int id = eventObject.getInt(")
 					String title = eventObject.getString("teamEventName");
 					String description = eventObject
 							.getString("teamEventDescription");
@@ -93,8 +98,8 @@ public class Team {
 							.getString("teamEventStartTime"));
 					Date end = formatter.parse(eventObject
 							.getString("teamEventEndTime"));
-					teamEvents.add(new TeamEvent(title, description, location,
-							start, end));
+					teamEvents.add(new TeamEvent(id, title, description,
+							location, start, end));
 				}
 			}
 		} catch (Exception e) {
@@ -111,7 +116,7 @@ public class Team {
 
 	// Create an expense list from a JSON Object
 	// Will clear out any old expenses first
-	public void importExpenses(JSONArray expenseArray)throws Exception  {
+	public void importExpenses(JSONArray expenseArray) throws Exception {
 		teamExpenses = new ArrayList<TeamExpense>();
 		for (int i = 0; i < expenseArray.length(); i++) {
 			try {
@@ -119,11 +124,13 @@ public class Team {
 				int expenseID = expense.getInt("expenseId");
 				String description = expense.getString("description");
 				double amount = expense.getDouble("amount");
-				TeamExpense.Category type = TeamExpense.Category.values()[expense.getInt("expType")];
+				TeamExpense.Category type = TeamExpense.Category.values()[expense
+						.getInt("expType")];
 				DateFormat formatter = new SimpleDateFormat(
 						"yyyy-dd-mmm HH:mm:ss");
 				Date expDate = formatter.parse(expense.getString("expDate"));
-				teamExpenses.add(new TeamExpense(expenseID, expDate, amount, type, description));
+				teamExpenses.add(new TeamExpense(expenseID, expDate, amount,
+						type, description));
 			} catch (Exception e) {
 				Log.e("EXPENSE", e.toString());
 				throw new Exception("Error building expense report");
@@ -170,6 +177,36 @@ public class Team {
 				teamTasks.remove(task);
 			}
 		}
+	}
+
+	// return an expense identified by expenseID
+	public TeamExpense getExpense(int expenseID) {
+		for (TeamExpense expense : teamExpenses) {
+			if (expense.id == expenseID) {
+				return expense;
+			}
+		}
+		return null;
+	}
+
+	// return an event identified by eventID
+	public TeamEvent getEvent(int eventID) {
+		for (TeamEvent event : teamEvents) {
+			if (event.id == eventID) {
+				return event;
+			}
+		}
+		return null;
+	}
+
+	// return task identified by taskID
+	public TeamTask getTask(int taskID) {
+		for (TeamTask task : teamTasks) {
+			if (task.id == taskID) {
+				return task;
+			}
+		}
+		return null;
 	}
 
 }
