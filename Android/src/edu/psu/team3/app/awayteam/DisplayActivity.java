@@ -40,6 +40,9 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	ViewPager mViewPager;
 	private Menu optionsMenu;
 
+	// For testing
+	public DialogFragment currentDialog = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -177,6 +180,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		if (id == R.id.action_create_team) {
 			DialogFragment newFragment = new CreateTeamDialog();
 			newFragment.show(getFragmentManager(), null);
+			currentDialog = newFragment;
 			return true;
 		}
 		if (id == R.id.action_join_team) {
@@ -335,6 +339,11 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}if(teamID==-1){
+			//temporarily show placeholder fragment
+			mSectionsPagerAdapter.notifyDataSetChanged();
+			mViewPager.invalidate();
+			setRefreshActionButtonState(false);
 		}
 	}
 
@@ -378,13 +387,14 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			Integer result = 0;
 			result = CommUtil.GetTeam(getBaseContext(), (int) params[0],
 					s.getUsername());
-			Integer secondary = CommUtil.GetExpenses(getBaseContext(), s.getUsername(), (int) params[0]);
+			Integer secondary = CommUtil.GetExpenses(getBaseContext(),
+					s.getUsername(), (int) params[0]);
 			Log.v("Background", "returned from commutil.  result = " + result);
 
 			return result;
 		}
 
-		@SuppressLint("NewApi")
+
 		@Override
 		protected void onPostExecute(final Integer result) {
 			mGetTeam = null;
@@ -399,6 +409,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 						Toast.LENGTH_SHORT).show();
 				mSectionsPagerAdapter.notifyDataSetChanged();
 				mViewPager.invalidate();
+				break;
 			default: // some other error occured
 
 				Toast.makeText(getBaseContext(),
@@ -441,6 +452,8 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 				// refresh the list
 				refreshTeamSpinner();
 				break;
+			case -1: // no teams available, refresh spinner to clear old data
+				refreshTeamSpinner();
 			default: // some other error occured
 
 				Toast.makeText(getBaseContext(),
@@ -485,6 +498,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		protected void onPostExecute(final Integer result) {
 			switch (result) {
 			case 1: // success!
+				UserSession.getInstance(getBaseContext()).activeTeam = null;
 				refreshTeam(-1);
 				break;
 			case -1:

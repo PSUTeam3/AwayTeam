@@ -571,7 +571,6 @@ public class CommUtil {
 				}
 				return teamList;
 			} else if (result.getString("status").equals("failure")) {
-				// only error is no teams available
 				return null;
 			}
 		} catch (Exception e) {
@@ -622,7 +621,7 @@ public class CommUtil {
 	}
 
 	// Collect the list of teams the user is a member of
-	// RETURN: 1 if successful, 0 if error
+	// RETURN: 1 if successful, 0 if error, -1 if there are no registered teams
 	// ACTIONS: updates the teamList in the UserSession if successful
 	public static int GetMemberTeamsList(Context context, String userName) {
 		String url = "https://api.awayteam.redshrt.com/team/getteamlist";
@@ -651,6 +650,11 @@ public class CommUtil {
 				}
 				UserSession.getInstance(context).teamList = teamList;
 				return 1;
+			} else if (result.getString("status").equals("failure")
+					&& result.getString("response").equals(
+							"user not part of any team")) {
+				UserSession.getInstance(context).teamList = new ArrayList<Object[]>();
+				return -1;
 			} else if (result.getString("status").equals("failure")) {
 				// only error is no teams available
 				return 0;

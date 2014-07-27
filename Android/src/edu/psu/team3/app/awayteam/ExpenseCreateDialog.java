@@ -133,9 +133,9 @@ public class ExpenseCreateDialog extends DialogFragment {
 		if (description == null) {
 			description = "";
 		}
-		if (amount < 0) {
+		if (amount <= 0) {
 			cancel = true;
-			amountView.setError("Check valid amount");
+			amountView.setError("Check valid amount. Must be more than 0");
 			focusView = amountView;
 		}
 		DateFormat formatter = new SimpleDateFormat("M/d/y");

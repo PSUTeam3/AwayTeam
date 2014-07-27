@@ -330,7 +330,7 @@ public class LoginActivity extends Activity {
 			switch (result) {
 			case 1: // success!
 				Toast.makeText(LoginActivity.this,
-						"A Temporary Password has been sent to your Email",
+						"A Temporary Password has been sent to your Email (Check your SPAM folder)",
 						Toast.LENGTH_LONG).show();
 				break;
 			case -1: // wrong username supplied

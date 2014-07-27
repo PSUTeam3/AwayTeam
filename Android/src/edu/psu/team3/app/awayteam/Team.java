@@ -125,7 +125,7 @@ public class Team {
 				String description = expense.getString("description");
 				double amount = expense.getDouble("amount");
 				TeamExpense.Category type = TeamExpense.Category.values()[expense
-						.getInt("expType")];
+						.getInt("expType")-1];
 				DateFormat formatter = new SimpleDateFormat(
 						"yyyy-dd-mmm HH:mm:ss");
 				Date expDate = formatter.parse(expense.getString("expDate"));
