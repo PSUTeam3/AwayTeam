@@ -159,10 +159,9 @@
                                 $members[$user]['manager'] = "true";
                             }
 
-                            unset($members[$user]['userId']); //remove userId from entry
-
                             $location = array();
                             $queryLoc = sprintf("select locLatitude, locLongitude from location where locUserId = %d order by locId desc limit 1", myEsc($members[$user]['userId']));
+                            unset($members[$user]['userId']); //remove userId from entry - had to move because needed in query
                             logIt(var_export($queryLoc, true));
                             $sqlLoc = mysql_query($queryLoc, $db);
                             if (mysql_num_rows($sqlLoc) > 0)

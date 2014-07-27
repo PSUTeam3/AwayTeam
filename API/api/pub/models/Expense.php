@@ -55,8 +55,6 @@
                 myEsc($this->userId),
                 myEsc($this->expType));
 
-            logIt($query);
-
             mysql_query($query, $db);
             $id = mysql_insert_id();
             
@@ -169,6 +167,7 @@
                 while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
                 {   
                     $sExpense = $rlt;
+                    
                     array_push($tExpense, $sExpense);
                 }   
             }
@@ -201,6 +200,7 @@
                 while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
                 {   
                     $sExpense = $rlt;
+
                     array_push($tExpense, $sExpense);
                 }
             }   
@@ -233,6 +233,7 @@
                 while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
                 {
                     $sExpense = $rlt;
+
                     array_push($tExpense, $sExpense);
                 }
             }

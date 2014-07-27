@@ -921,7 +921,7 @@
 
             $jsonMsg = array(); 
 
-            if ($newExp >= 0)
+            if ($newExp > 0)
             {   
                 $jsonMsg = array('response' => 'success', 'message'=> $newExp);
             }   
