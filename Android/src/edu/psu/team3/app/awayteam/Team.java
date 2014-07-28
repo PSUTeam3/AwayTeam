@@ -47,10 +47,16 @@ public class Team {
 				String last = memberObject.getString("lastName");
 				String email = memberObject.getString("email");
 				String phone = memberObject.getString("phone");
-				int lat = Integer.getInteger(
-						memberObject.getString("locLatitude"), 0);
-				int lon = Integer.getInteger(
-						memberObject.getString("locLongitude"), 0);
+				double lat = 0;
+				double lon = 0;
+				try {
+					lat = Double.parseDouble(memberObject
+							.getString("locLatitude"));
+					lon = Double.parseDouble(memberObject
+							.getString("locLongitude"));
+				} catch (Exception ex) {
+
+				}
 				boolean manager = memberObject.getBoolean("manager");
 				teamMembers.add(new TeamMember(user, first, last, email, phone,
 						lat, lon, manager));
@@ -125,9 +131,8 @@ public class Team {
 				String description = expense.getString("description");
 				double amount = expense.getDouble("amount");
 				TeamExpense.Category type = TeamExpense.Category.values()[expense
-						.getInt("expType")-1];
-				DateFormat formatter = new SimpleDateFormat(
-						"yyyy-MM-dd");
+						.getInt("expType") - 1];
+				DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 				Date expDate = formatter.parse(expense.getString("expDate"));
 				teamExpenses.add(new TeamExpense(expenseID, expDate, amount,
 						type, description));

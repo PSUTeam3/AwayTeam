@@ -286,7 +286,7 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		}
 
 		CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
-				builder.build(), 50);
+				builder.build(), 250);
 		map.animateCamera(camUpdate);
 
 	}
@@ -473,7 +473,7 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 			}
 
 			CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
-					builder.build(), 50);
+					builder.build(), 200);
 			map.animateCamera(camUpdate);
 			fqT = null;
 		}
@@ -491,7 +491,6 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		for (Object[] place : markerList) {
 			if (marker.equals(place[1])) {
 				selected = place;
-				Log.v("MAP", "marker found: " + ((Marker) place[1]).getTitle());
 				break;
 			}
 		}
