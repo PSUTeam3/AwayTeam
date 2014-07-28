@@ -104,7 +104,8 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		UserSession s = UserSession.getInstance(getActivity());
 		s.activeTeam.getUser(s.getUsername()).lat = currentLocation.latitude;
 		s.activeTeam.getUser(s.getUsername()).lon = currentLocation.longitude;
-
+				
+		//initialize map to user location
 		map.setMyLocationEnabled(true);
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
 		map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);

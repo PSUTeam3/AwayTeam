@@ -1,5 +1,7 @@
 package edu.psu.team3.app.awayteam;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -11,6 +13,8 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
@@ -33,11 +37,13 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	private GetTeamTask mGetTeam = null;
 	private RefreshSpinnerTask mRefreshList = null;
 	private LeaveTeamTask mLeaveTeam = null;
+	public UpdateLocationTask mLocation = null;
 
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	Spinner spinnerView;
 	ViewPager mViewPager;
 	private Menu optionsMenu;
+	Location lastKnownLocation;
 
 	// For testing
 	public DialogFragment currentDialog = null;
@@ -338,11 +344,22 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}if(teamID==-1){
-			//temporarily show placeholder fragment
+		}
+		if (teamID == -1) {
+			// temporarily show placeholder fragment
 			mSectionsPagerAdapter.notifyDataSetChanged();
 			mViewPager.invalidate();
 			setRefreshActionButtonState(false);
+		}
+
+		// This seems like a good place to get the user location
+		// get current location
+		if (mLocation == null) {
+			LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+			lastKnownLocation = mgr
+					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			mLocation = new UpdateLocationTask();
+			mLocation.execute();
 		}
 	}
 
@@ -392,7 +409,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 			return result;
 		}
-
 
 		@Override
 		protected void onPostExecute(final Integer result) {
@@ -535,6 +551,34 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		@Override
 		protected void onCancelled() {
 			mLeaveTeam = null;
+		}
+	}
+
+	// Update user's location
+	public class UpdateLocationTask extends AsyncTask<Object, Void, Integer> {
+
+		@Override
+		protected Integer doInBackground(Object... params) {
+			UserSession s = UserSession.getInstance(getBaseContext());
+			Integer result = 0;
+			result = CommUtil.UpdateUserLocation(getBaseContext(),
+					s.getUsername(), lastKnownLocation.getLatitude(),
+					lastKnownLocation.getLongitude());
+
+			Log.v("Background", "returned from commutil.  result = " + result);
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mLocation = null;
+			// we're done here!
+		}
+
+		@Override
+		protected void onCancelled() {
+			mLocation = null;
 		}
 
 	}
