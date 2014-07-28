@@ -101,7 +101,7 @@
             android:textAppearance="?android:attr/textAppearance" />
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/expenseDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"

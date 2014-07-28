@@ -113,13 +113,13 @@ public class TaskCreateDialog extends DialogFragment {
 			mCreateTask = null;
 			if (result == 1) {// success!
 				Toast.makeText(getActivity().getBaseContext(),
-						"New Expense Created", Toast.LENGTH_SHORT).show();
+						"New Task Created", Toast.LENGTH_SHORT).show();
 				// callback the team id
 				((DisplayActivity) getActivity()).refreshTeam(result);
 				getDialog().dismiss();
 			} else {// some error occured
 				Toast.makeText(getActivity().getBaseContext(),
-						"Unable to Create Expense", Toast.LENGTH_SHORT).show();
+						"Unable to Create Task", Toast.LENGTH_SHORT).show();
 			}
 
 		}

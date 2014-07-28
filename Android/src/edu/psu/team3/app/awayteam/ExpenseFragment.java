@@ -1,26 +1,33 @@
 package edu.psu.team3.app.awayteam;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import edu.psu.team3.app.awayteam.ExpenseEditDialog.EditExpenseTask;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,12 +35,15 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class ExpenseFragment extends Fragment {
+	private DeleteExpenseTask mDeleteTask = null;
 
 	TextView expenseTotalView;
 	TextView expenseLabel;
 	ImageButton addExpenseButton;
-	ExpandableListView expenseListView;
+	ListView expenseListView;
 	ExpenseListAdapter adapter;
+
+	boolean delete = false;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,7 +55,7 @@ public class ExpenseFragment extends Fragment {
 		expenseLabel = (TextView) rootView.findViewById(R.id.expenseLabel);
 		addExpenseButton = (ImageButton) rootView
 				.findViewById(R.id.add_expense_button);
-		expenseListView = (ExpandableListView) rootView
+		expenseListView = (ListView) rootView
 				.findViewById(R.id.expenseListView);
 
 		return rootView;
@@ -65,40 +75,118 @@ public class ExpenseFragment extends Fragment {
 		// Attach the adapter to a ListView
 		expenseListView.setAdapter(adapter);
 		// Assign listener to event long clicks
-		//TODO: implement
-//		expenseListView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
-//			
-//			@Override
-//			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-//				// TODO Auto-generated method stub
-//				return false;
-//			}
-//			
-//			@Override
-//			public void onDestroyActionMode(ActionMode mode) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//			
-//			@Override
-//			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-//				// TODO Auto-generated method stub
-//				return false;
-//			}
-//			
-//			@Override
-//			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-//				// TODO Auto-generated method stub
-//				return false;
-//			}
-//			
-//			@Override
-//			public void onItemCheckedStateChanged(ActionMode mode, int position,
-//					long id, boolean checked) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//		});
+		// expenseListView.setOnGroupClickListener(new OnGroupClickListener() {
+		//
+		// @Override
+		// public boolean onGroupClick(ExpandableListView parent, View v,
+		// int groupPosition, long id) {
+		// if (selectionMode
+		// && !expenseListView.isItemChecked(groupPosition)) {
+		// expenseListView.setItemChecked(groupPosition, true);
+		// selectedExpenses.add((TeamExpense) adapter
+		// .getGroup(groupPosition));
+		// return true;
+		// } else if (selectionMode
+		// && expenseListView.isItemChecked(groupPosition)) {
+		// expenseListView.setItemChecked(groupPosition, false);
+		// selectedExpenses.remove((TeamExpense) adapter
+		// .getGroup(groupPosition));
+		// return true;
+		// }
+		// return false;
+		// }
+		// });
+
+		expenseListView
+				.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+					Menu selectMenu;
+
+					@Override
+					public boolean onPrepareActionMode(ActionMode mode,
+							Menu menu) {
+						return false;
+					}
+
+					@Override
+					public void onDestroyActionMode(ActionMode mode) {
+						if (!delete) {
+							adapter.clearSelection();
+						}
+						// otherwise, hold on to the selection so the background
+						// task can use it
+					}
+
+					@Override
+					public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+						MenuInflater inflater = getActivity().getMenuInflater();
+						inflater.inflate(R.menu.multi_select, menu);
+						selectMenu = menu;
+						delete = false;
+						return true;
+					}
+
+					@Override
+					public boolean onActionItemClicked(ActionMode mode,
+							MenuItem item) {
+						switch (item.getItemId()) {
+						case R.id.action_selected_delete:
+							delete = true;
+							mDeleteTask = new DeleteExpenseTask();
+							mDeleteTask.execute();
+							mode.finish();
+							break;
+						case R.id.action_selected_edit:
+							// create dialog and pass id
+							DialogFragment newFragment = new ExpenseEditDialog();
+							Bundle bundle = new Bundle();
+							bundle.putInt("expenseID", adapter.getSelection()
+									.get(0).id);
+							newFragment.setArguments(bundle);
+							newFragment.show(getFragmentManager(), null);
+							mode.finish();
+							break;
+						}
+						return true;
+					}
+
+					@Override
+					public void onItemCheckedStateChanged(ActionMode mode,
+							int position, long id, boolean checked) {
+
+						// update selected list
+						if (checked) {
+							adapter.addSelection(position);
+						} else {
+							adapter.removeSelection(position);
+						}
+
+						final int checkedCount = expenseListView
+								.getCheckedItemCount();
+						switch (checkedCount) {
+						case 0:
+							mode.setSubtitle(null);
+							break;
+						case 1:
+							selectMenu.setGroupVisible(R.id.menu_group_edit,
+									true);
+							break;
+						default:
+							selectMenu.setGroupVisible(R.id.menu_group_edit,
+									false);
+							break;
+						}
+
+						// TODO replace this
+						// calculate for subtotal
+						double subtotal = 0;
+						for (TeamExpense expense : adapter.getSelection()) {
+							subtotal += expense.amount;
+						}
+						String formattedAmount = String.format("%1$,.2f",
+								subtotal);
+						mode.setTitle("Subtotal: $" + formattedAmount);
+					}
+				});
 
 		// Assign actions to buttons
 		addExpenseButton.setOnClickListener(new OnClickListener() {
@@ -120,5 +208,49 @@ public class ExpenseFragment extends Fragment {
 		}
 		String formattedAmount = String.format("%1$,.2f", total);
 		expenseTotalView.setText("$" + formattedAmount);
+	}
+
+	public class DeleteExpenseTask extends AsyncTask<Object, Void, Integer> {
+		@Override
+		protected Integer doInBackground(Object... params) {
+			UserSession s = UserSession.getInstance(getActivity());
+			Integer result = 0;
+			for (TeamExpense expense : adapter.getSelection()) {
+				result = CommUtil.DeleteExpense(getActivity(), s.getUsername(),
+						s.currentTeamID, expense.id);
+				Log.v("Background", "returned from commutil.  result = "
+						+ result);
+			}
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mDeleteTask = null;
+			if (result == 1) {// success!
+				if (adapter.getSelection().size() == 1) {
+					Toast.makeText(getActivity().getBaseContext(),
+							"Expense Deleted", Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(
+							getActivity().getBaseContext(),
+							adapter.getSelection().size() + " Expenses Deleted",
+							Toast.LENGTH_SHORT).show();
+				}
+				adapter.clearSelection();
+				((DisplayActivity) getActivity()).refreshTeam(UserSession
+						.getInstance(getActivity()).currentTeamID);
+			} else {// some error occured
+				Toast.makeText(getActivity().getBaseContext(),
+						"Unable to Delete Expense", Toast.LENGTH_SHORT).show();
+			}
+
+		}
+
+		@Override
+		protected void onCancelled() {
+			mDeleteTask = null;
+		}
 	}
 }

@@ -127,7 +127,7 @@ public class Team {
 				TeamExpense.Category type = TeamExpense.Category.values()[expense
 						.getInt("expType")-1];
 				DateFormat formatter = new SimpleDateFormat(
-						"yyyy-dd-mmm HH:mm:ss");
+						"yyyy-MM-dd");
 				Date expDate = formatter.parse(expense.getString("expDate"));
 				teamExpenses.add(new TeamExpense(expenseID, expDate, amount,
 						type, description));

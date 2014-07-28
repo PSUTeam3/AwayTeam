@@ -32,7 +32,6 @@ import android.widget.ToggleButton;
 public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	private GetTeamTask mGetTeam = null;
 	private RefreshSpinnerTask mRefreshList = null;
-
 	private LeaveTeamTask mLeaveTeam = null;
 
 	SectionsPagerAdapter mSectionsPagerAdapter;

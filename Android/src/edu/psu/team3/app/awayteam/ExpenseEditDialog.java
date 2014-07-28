@@ -29,8 +29,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-public class ExpenseCreateDialog extends DialogFragment {
-	private CreateExpenseTask mCreateTask = null;
+public class ExpenseEditDialog extends DialogFragment {
+	private EditExpenseTask mEditTask = null;
 
 	private Date date;
 	private double amount = 0;
@@ -42,16 +42,23 @@ public class ExpenseCreateDialog extends DialogFragment {
 	EditText amountView;
 	EditText descView;
 
+	TeamExpense expense = null;
+
+	// requires "expenseID" for expense to be edited
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		// get the passed expenseID
+		Bundle args = getArguments();
+		expense = UserSession.getInstance(getActivity()).activeTeam
+				.getExpense(args.getInt("expenseID"));
 		// inflate custom view
 		LayoutInflater inflater = getActivity().getLayoutInflater();
-		builder.setTitle("Create New Expense");
-		builder.setIcon(getResources().getDrawable(R.drawable.ic_action_new));
+		builder.setTitle("Edit Expense");
+		builder.setIcon(getResources().getDrawable(R.drawable.ic_action_edit));
 		builder.setView(inflater.inflate(R.layout.dialog_expense_edit, null))
 				// Add action buttons
-				.setPositiveButton("Create",
+				.setPositiveButton("Apply",
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
@@ -60,7 +67,7 @@ public class ExpenseCreateDialog extends DialogFragment {
 				.setNegativeButton("Cancel",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								ExpenseCreateDialog.this.getDialog().cancel();
+								ExpenseEditDialog.this.getDialog().cancel();
 							}
 						});
 
@@ -81,19 +88,21 @@ public class ExpenseCreateDialog extends DialogFragment {
 			positiveButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					attemptCreateExpense();
+					attemptEditExpense();
 				}
 			});
 			// init UI elements
-			date = new Date();
+			date = expense.date;
 			dateView = (Button) d.findViewById(R.id.expenseEditDate);
 			dateView.setText(DateFormat.getDateInstance(DateFormat.MEDIUM)
 					.format(date));
 			catSpinner = (Spinner) d.findViewById(R.id.expenseEditCategory);
-			catSpinner.setSelection(4);
+			catSpinner.setSelection(expense.category.getValue() - 1);
 			amountView = (EditText) d.findViewById(R.id.expenseEditAmount);
-			amountView.setText("0.00");
+			String formattedAmount = String.format("%1$,.2f", expense.amount);
+			amountView.setText(formattedAmount);
 			descView = (EditText) d.findViewById(R.id.expenseEditDescription);
+			descView.setText(expense.description);
 			// implement picker
 			dateView.setOnClickListener(new OnClickListener() {
 
@@ -124,9 +133,8 @@ public class ExpenseCreateDialog extends DialogFragment {
 		}
 	}
 
-	private void attemptCreateExpense() {
+	private void attemptEditExpense() {
 		boolean cancel = false;
-		View focusView = null;
 		amount = Double.parseDouble(amountView.getText().toString());
 		description = descView.getText().toString();
 		category = catSpinner.getSelectedItemPosition() + 1;
@@ -136,7 +144,6 @@ public class ExpenseCreateDialog extends DialogFragment {
 		if (amount <= 0) {
 			cancel = true;
 			amountView.setError("Check valid amount. Must be more than 0");
-			focusView = amountView;
 		}
 		DateFormat formatter = new SimpleDateFormat("M/d/y");
 
@@ -148,21 +155,22 @@ public class ExpenseCreateDialog extends DialogFragment {
 					.show();
 		}
 
-		if (!cancel && mCreateTask == null) {
-			mCreateTask = new CreateExpenseTask();
-			mCreateTask.execute();
+		if (!cancel && mEditTask == null) {
+			mEditTask = new EditExpenseTask();
+			mEditTask.execute();
 		}
 
 	}
 
-	public class CreateExpenseTask extends AsyncTask<Object, Void, Integer> {
+	public class EditExpenseTask extends AsyncTask<Object, Void, Integer> {
 
 		@Override
 		protected Integer doInBackground(Object... params) {
 			UserSession s = UserSession.getInstance(getActivity());
 			Integer result = 0;
-			result = CommUtil.CreateExpense(getActivity(), s.getUsername(),
-					s.currentTeamID, date, amount, category, description);
+			result = CommUtil.EditExpense(getActivity(), s.getUsername(),
+					s.currentTeamID, expense.id, date, amount, category,
+					description);
 
 			Log.v("Background", "returned from commutil.  result = " + result);
 
@@ -171,10 +179,10 @@ public class ExpenseCreateDialog extends DialogFragment {
 
 		@Override
 		protected void onPostExecute(final Integer result) {
-			mCreateTask = null;
+			mEditTask = null;
 			if (result == 1) {// success!
 				Toast.makeText(getActivity().getBaseContext(),
-						"New Expense Created", Toast.LENGTH_SHORT).show();
+						"Expense Updated", Toast.LENGTH_SHORT).show();
 				// callback the team id
 				((DisplayActivity) getActivity()).refreshTeam(UserSession
 						.getInstance(getActivity()).currentTeamID);
@@ -188,7 +196,7 @@ public class ExpenseCreateDialog extends DialogFragment {
 
 		@Override
 		protected void onCancelled() {
-			mCreateTask = null;
+			mEditTask = null;
 		}
 	}
 

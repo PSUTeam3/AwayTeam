@@ -854,6 +854,38 @@ public class CommUtil {
 		return 0;
 
 	}
+	
+	//Delete Expense
+	public static int DeleteExpense(Context context, String userName, int teamID,
+			int expenseID){
+		String url = "https://api.awayteam.redshrt.com/expense/deleteexpense";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", userName));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("expenseId", Integer
+				.toString(expenseID)));
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else {
+				// everything else is fail
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+		
+	}
 
 	// Create event for the user
 	// returns the success of the operation 1= success 0=error
