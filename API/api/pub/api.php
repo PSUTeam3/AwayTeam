@@ -873,6 +873,8 @@
         private function TeamTasks_UpdateTask() {
             $teamTask = new TeamTasksController;
             $tm = new TeamMembers;
+            $use = new User;
+            $userController = new UserController;
             $failure = false;
             
             if($this->get_request_method() != "POST") {
@@ -881,6 +883,8 @@
             
             $info = $this->_request;
             $authUser = $this->AuthRequired($info);
+            
+            $user = $userController->GetUserFromLoginID($info['loginId']);
             
             if(!isset($info['taskId'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "task Id is not filled in");
@@ -894,10 +898,10 @@
             } else if(!isset($info['taskTeamId'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "task team Id is not filled in");
                 $failure = true;
-            } else if(!isset($info['userId'])) {
-                $jsonMsg = array('status' => 'failure', 'response' => "user Id is not filled in");
+            } else if(!isset($info['loginId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "login Id is not filled in");
                 $failure = true;
-            }else if($tm->VerifyTeamMemberExist($info['taskTeamId'],$info['userId']) == false) {
+            }else if($tm->VerifyTeamMemberExist($info['taskTeamId'],$user->userId) == false) {
                 $jsonMsg = array('status' => 'failure', 'response' => "user not on team");
                 $failure = true;
             }
