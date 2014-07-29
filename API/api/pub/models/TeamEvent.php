@@ -7,7 +7,7 @@
         public $teamEventId;
         public $teamEventName;
         public $teamEventDescription; 
-        public $teamEventLocationName;
+        public $teamEventLocationString;
         public $teamEventStartTime;
         public $teamEventEndTime;
         public $teamEventTeamId;
@@ -20,24 +20,29 @@
             $this->teamEventId = -999;
             $this->teamEventName = "";
             $this->teamEventDescription = "";
-            $this->teamEventLocationName = -999;            
+            $this->teamEventLocationString = "";
             $this->teamEventStartTime = '2013-12-31';
             $this->teamEventEndTime = '2013-12-31';
+            $this->teamEventTeamId = -999;
         }
         
         public function InsertEvent() {
             global $db;
-            $query = sprintf("insert into event(eventName, eventDescription, eventLocationId) values ('%s','%s','%s')",
-                    myEsc(strtolower($this->teamEventName)),
+            $query = sprintf("insert into event(teamEventName,teamEventDescription,teamEventLocationString,teamEventStartTime,teamEventEndTime,teamEventTeamId) 
+                                values('%s','%s','%s','%s','%s',%d)",
+                    myEsc(strtolower($this->teamEventName)),                    
                     myEsc($this->teamEventDescription),
-                    myEsc($this->teamEventLocationName));
+                    myEsc($this->teamEventLocationName),
+                    myEsc($this->teamEventStartTime),
+                    myEsc($this->teamEventEndTime),
+                    myEsc($this->teamEventTeamId));
             
             mysql_query($query, $db);
             
             $id = mysql_insert_id();
             
             if($id >= 0) {
-                $this->taskId = $id;
+                $this->teamEventId = $id;
             }
             
             return $id;
@@ -97,12 +102,15 @@
         
         public function ModifyEvent() {
             global $db;
-            $query = sprintf("update event set eventName='%s', eventDescription='%s',eventLocationId=%d where eventId = " . myEsc($this->eventId),
-                    myEsc($this->eventName),
-                    myEsc($this->eventDescription),
-                    myEsc($this->eventLocationId));
+            $query = sprintf("update event set teamEventName='%s', teamEventDescription='%s',teamEventLocationString='%s', teamEventStartTime='%s',teamEventEndTime='%s'
+                                where teamEventId = " . myEsc($this->teamEventId),
+                    myEsc($this->teamEventName),
+                    myEsc($this->teamEventDescription),
+                    myEsc($this->teamEventLocationString),
+                    myEsc($this->teamEventStartTime),
+                    myEsc($this->teamEventEndTime));
             
-            $sql = mysql_query($query, $db);	
+            $sql = mysql_query($query, $db);
                 
             return $sql;                  
         }
@@ -125,7 +133,7 @@
         public function DeleteEvent($eventId) {
             global $db;
             if($eventId) {
-                $query = "delete from event where eventId = " . myEsc($eventId);
+                $query = "delete from team_event where teamEventId = " . myEsc($eventId);
                 $sql = mysql_query($query, $db);
                 return $sql;
             }

@@ -223,7 +223,7 @@
                     $theTeam['tasks'] = $tasks;
 
                     //getTeams
-                    $query = sprintf("select teamEventName, teamEventDescription, teamEventLocationString, teamEventStartTime, teamEventEndTime from team_event where teamEventTeamId=%d", myEsc($teamId));                  
+                    $query = sprintf("select teamEventId,teamEventName, teamEventDescription, teamEventLocationString, teamEventStartTime, teamEventEndTime from team_event where teamEventTeamId=%d", myEsc($teamId));                  
                     logIt($query);
                     $events = array();
                     $sql = mysql_query($query, $db);

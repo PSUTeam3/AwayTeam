@@ -20,15 +20,18 @@
             return $this->SelectEventFromEventId($teamEventId);
         }
         
-        public function GetEventFromEventName($teamEventId, $teamEventName) {
+        public function GetEventFromEventName($teamEventName) {
             return $this->SelectEventFromEventName($teamEventName);
         }
         
-        public function ModifyEvent() {
-            return $this->ModifyEvent();
+        public function ModifyEvent($teamEventParametersArray) {
+            $anEvent = new Event;
+            $anEvent = arrayToObject($eventParametersArray);
+            $retCode = $anEvent->ModifyEvent();
+            return $retCode;
         }
         
-        public function ModifyEventName($newTeamEventName) {
+        public function ModifyEventName($teamEventId, $newTeamEventName) {
             return $this->ModifyEventName($newTeamEventName);
         }
         
