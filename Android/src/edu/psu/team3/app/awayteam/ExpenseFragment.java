@@ -1,38 +1,26 @@
 package edu.psu.team3.app.awayteam;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
-import edu.psu.team3.app.awayteam.ExpenseEditDialog.EditExpenseTask;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class ExpenseFragment extends Fragment {
 	private DeleteExpenseTask mDeleteTask = null;
@@ -176,7 +164,6 @@ public class ExpenseFragment extends Fragment {
 							break;
 						}
 
-						// TODO replace this
 						// calculate for subtotal
 						double subtotal = 0;
 						for (TeamExpense expense : adapter.getSelection()) {
@@ -210,6 +197,7 @@ public class ExpenseFragment extends Fragment {
 		expenseTotalView.setText("$" + formattedAmount);
 	}
 
+	//background task to delete the selected expenses
 	public class DeleteExpenseTask extends AsyncTask<Object, Void, Integer> {
 		@Override
 		protected Integer doInBackground(Object... params) {
@@ -228,6 +216,7 @@ public class ExpenseFragment extends Fragment {
 		@Override
 		protected void onPostExecute(final Integer result) {
 			mDeleteTask = null;
+			delete = false;
 			if (result == 1) {// success!
 				if (adapter.getSelection().size() == 1) {
 					Toast.makeText(getActivity().getBaseContext(),

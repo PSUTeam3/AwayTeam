@@ -310,7 +310,8 @@ public class EventCreateDialog extends DialogFragment {
 				Toast.makeText(getActivity().getBaseContext(),
 						"New Event Created", Toast.LENGTH_SHORT).show();
 				// callback the team id
-				((DisplayActivity) getActivity()).refreshTeam(result);
+				((DisplayActivity) getActivity()).refreshTeam(UserSession
+						.getInstance(getActivity()).currentTeamID);
 				getDialog().dismiss();
 			} else {// some error occured
 				Toast.makeText(getActivity().getBaseContext(),

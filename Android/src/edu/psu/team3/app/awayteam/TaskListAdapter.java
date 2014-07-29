@@ -1,9 +1,11 @@
 package edu.psu.team3.app.awayteam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,99 +14,104 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class TaskListAdapter extends BaseExpandableListAdapter {
+public class TaskListAdapter extends ArrayAdapter<TeamTask> {
+	CheckTask mCheckTask = null;
+
 	List<TeamTask> taskList;
+	List<TeamTask> selectedList = new ArrayList<TeamTask>();
+
 	private Context mContext;
 
 	public TaskListAdapter(Context context, List<TeamTask> objects) {
+		super(context, R.layout.task_entry, objects);
 		taskList = objects;
 		mContext = context;
 	}
 
 	@Override
-	public View getGroupView(int groupPosition, boolean isExpanded,
-			View convertView, ViewGroup parent) {
+	public View getView(int position, View convertView, ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater) mContext
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View rowV = inflater.inflate(R.layout.task_entry, parent, false);
 		CheckBox taskCheckBox = (CheckBox) rowV
 				.findViewById(R.id.task_checkbox);
-		taskCheckBox.setText(taskList.get(groupPosition).title);
-		taskCheckBox.setChecked(taskList.get(groupPosition).complete);
+		taskCheckBox.setText(taskList.get(position).title);
+		taskCheckBox.setChecked(taskList.get(position).complete);
+		final int positionHolder = position;
 		taskCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView,
 					boolean isChecked) {
-				// TODO: Update user session when task is checked
+				
 				// Dispatch a message to the server to update the task item
+				if (mCheckTask == null) {
+					mCheckTask = new CheckTask();
+					mCheckTask.execute(positionHolder, isChecked);
+					taskList.get(positionHolder).complete = isChecked;
+				}
 			}
 		});
-		
+		((TextView) rowV.findViewById(R.id.task_description)).setText(taskList
+				.get(position).description);
+
 		return rowV;
 	}
 
-	@Override
-	public View getChildView(int groupPosition, int childPosition,
-			boolean isLastChild, View convertView, ViewGroup parent) {
-		
-		LayoutInflater inflater = (LayoutInflater) mContext
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View rowV = inflater.inflate(R.layout.task_detail, null);
-
-		TextView descriptionText = (TextView) rowV
-				.findViewById(R.id.task_description);
-		descriptionText.setText(taskList.get(groupPosition).description);
-		return rowV;
+	public void addSelection(int position) {
+		selectedList.add(taskList.get(position));
 	}
 
-	@Override
-	public void onGroupExpanded(int groupPosition) {
-		super.onGroupExpanded(groupPosition);
+	public void removeSelection(int postion) {
+		selectedList.remove(taskList.get(postion));
 	}
 
-	@Override
-	public Object getChild(int groupPosition, int childPosition) {
-		return null;
+	public void clearSelection() {
+		selectedList = new ArrayList<TeamTask>();
 	}
 
-	@Override
-	public long getChildId(int groupPosition, int childPosition) {
-		return 0;
+	public List<TeamTask> getSelection() {
+		return selectedList;
 	}
 
-	@Override
-	public int getChildrenCount(int groupPosition) {
-		return 1;
-	}
+	// background task to update status of checkboxes
+	public class CheckTask extends AsyncTask<Object, Void, Integer> {
+		@Override
+		protected Integer doInBackground(Object... params) {
+			int position = (int) params[0];
+			boolean checked = (boolean) params[1];
+			UserSession s = UserSession.getInstance(getContext()
+					.getApplicationContext());
+			Integer result = 0;
+			result = CommUtil.UpdateTask(getContext().getApplicationContext(),
+					s.getUsername(), s.currentTeamID,
+					taskList.get(position).id, checked, false);
+			Log.v("Background", "returned from commutil.  result = " + result);
 
-	@Override
-	public Object getGroup(int groupPosition) {
-		return null;
-	}
+			return result;
+		}
 
-	@Override
-	public int getGroupCount() {
-		// This one is important!
-		return taskList.size();
-	}
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mCheckTask = null;
+			if (result == 1) {// success!
+				Toast.makeText(getContext().getApplicationContext(),
+						"Action synched to server", Toast.LENGTH_SHORT).show();
+			} else {// some error occured
+				Toast.makeText(getContext().getApplicationContext(),
+						"Unable to Update Task", Toast.LENGTH_SHORT).show();
+			}
 
-	@Override
-	public long getGroupId(int groupPosition) {
-		return 0;
-	}
+		}
 
-	@Override
-	public boolean hasStableIds() {
-		return false;
-	}
-
-	@Override
-	public boolean isChildSelectable(int groupPosition, int childPosition) {
-		return false;
+		@Override
+		protected void onCancelled() {
+			mCheckTask = null;
+		}
 	}
 }

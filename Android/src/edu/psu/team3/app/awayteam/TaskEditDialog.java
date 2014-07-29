@@ -16,8 +16,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class TaskCreateDialog extends DialogFragment {
-	private CreateTask mCreateTask = null;
+public class TaskEditDialog extends DialogFragment {
+	private EditTask mEditTask = null;
+
+	TeamTask task;
 
 	String title;
 	String description;
@@ -25,16 +27,21 @@ public class TaskCreateDialog extends DialogFragment {
 	EditText titleView;
 	EditText descView;
 
+	// requires "taskID" for expense to be edited
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		// get passed taskID
+		Bundle args = getArguments();
+		task = UserSession.getInstance(getActivity()).activeTeam.getTask(args
+				.getInt("taskID"));
 		// inflate custom view
 		LayoutInflater inflater = getActivity().getLayoutInflater();
-		builder.setTitle("Create New Task");
-		builder.setIcon(getResources().getDrawable(R.drawable.ic_action_new));
+		builder.setTitle("Edit Task");
+		builder.setIcon(getResources().getDrawable(R.drawable.ic_action_edit));
 		builder.setView(inflater.inflate(R.layout.dialog_task_edit, null))
 				// Add action buttons
-				.setPositiveButton("Create",
+				.setPositiveButton("Apply",
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
@@ -43,7 +50,7 @@ public class TaskCreateDialog extends DialogFragment {
 				.setNegativeButton("Cancel",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								TaskCreateDialog.this.getDialog().cancel();
+								TaskEditDialog.this.getDialog().cancel();
 							}
 						});
 
@@ -63,17 +70,19 @@ public class TaskCreateDialog extends DialogFragment {
 			positiveButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					attemptCreateTask();
+					attemptEditTask();
 				}
 			});
 			// init UI elements
 			titleView = (EditText) d.findViewById(R.id.taskedit_title);
+			titleView.setText(task.title);
 			descView = (EditText) d.findViewById(R.id.taskedit_description);
+			descView.setText(task.description);
 
 		}
 	}
 
-	private void attemptCreateTask() {
+	private void attemptEditTask() {
 		boolean cancel = false;
 		View focusView = null;
 		title = titleView.getText().toString();
@@ -88,20 +97,20 @@ public class TaskCreateDialog extends DialogFragment {
 			titleView.requestFocus();
 		}
 
-		if (!cancel && mCreateTask == null) {
-			mCreateTask = new CreateTask();
-			mCreateTask.execute();
+		if (!cancel && mEditTask == null) {
+			mEditTask = new EditTask();
+			mEditTask.execute();
 		}
 	}
 
-	public class CreateTask extends AsyncTask<Object, Void, Integer> {
+	public class EditTask extends AsyncTask<Object, Void, Integer> {
 
 		@Override
 		protected Integer doInBackground(Object... params) {
 			UserSession s = UserSession.getInstance(getActivity());
 			Integer result = 0;
-			result = CommUtil.CreateTask(getActivity(), s.getUsername(),
-					s.currentTeamID, title, description);
+			result = CommUtil.ModifyTask(getActivity(), s.getUsername(),
+					s.currentTeamID, task.id, title, description);
 
 			Log.v("Background", "returned from commutil.  result = " + result);
 
@@ -110,24 +119,24 @@ public class TaskCreateDialog extends DialogFragment {
 
 		@Override
 		protected void onPostExecute(final Integer result) {
-			mCreateTask = null;
+			mEditTask = null;
 			if (result == 1) {// success!
-				Toast.makeText(getActivity().getBaseContext(),
-						"New Task Created", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity().getBaseContext(), "Task Updated",
+						Toast.LENGTH_SHORT).show();
 				// callback the team id
 				((DisplayActivity) getActivity()).refreshTeam(UserSession
 						.getInstance(getActivity()).currentTeamID);
 				getDialog().dismiss();
 			} else {// some error occured
 				Toast.makeText(getActivity().getBaseContext(),
-						"Unable to Create Task", Toast.LENGTH_SHORT).show();
+						"Unable to Update Task", Toast.LENGTH_SHORT).show();
 			}
 
 		}
 
 		@Override
 		protected void onCancelled() {
-			mCreateTask = null;
+			mEditTask = null;
 		}
 	}
 }

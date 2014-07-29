@@ -30,6 +30,22 @@ public class TeamTask {
 		}
 
 	};
+	
+	// compare tasks based on id
+	public static Comparator<TeamTask> IdComparator = new Comparator<TeamTask>() {
+
+		@Override
+		public int compare(TeamTask a, TeamTask b) {
+			if (a.id == b.id) {
+				return 0;
+			} else if (a.id>b.id) {
+				return 1;
+			} else {
+				return -1;
+			}
+		}
+
+	};
 
 	// Compare completed to incomplete tasks, placing completed tasks as
 	// "greater" so stacked to the bottom

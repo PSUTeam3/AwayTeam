@@ -367,8 +367,8 @@ public class CommUtil {
 
 	// Update the user's current location
 	// returns the success of the operation 1= success 0=error
-	public static int UpdateUserLocation(Context context, String userName, double lat,
-			double lon) {
+	public static int UpdateUserLocation(Context context, String userName,
+			double lat, double lon) {
 		String url = "https://api.awayteam.redshrt.com/user/UpdateLocation";
 
 		if (!NetworkTasks.NetworkAvailable(context)) {
@@ -379,8 +379,8 @@ public class CommUtil {
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
 		pairs.add(new BasicNameValuePair("loginId", userName));
-		pairs.add(new BasicNameValuePair("lat",Double.toString(lat)));
-		pairs.add(new BasicNameValuePair("lng",Double.toString(lon)));
+		pairs.add(new BasicNameValuePair("lat", Double.toString(lat)));
+		pairs.add(new BasicNameValuePair("lng", Double.toString(lon)));
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
@@ -966,24 +966,23 @@ public class CommUtil {
 	// returns the success of the operation 1= success 0=error
 	public static int CreateTask(Context context, String userName, int teamID,
 			String title, String description) {
-		String url = "https://api.awayteam.redshrt.com/team/createtask";
+		String url = "https://api.awayteam.redshrt.com/teamtasks/createtask";
 
 		if (!NetworkTasks.NetworkAvailable(context)) {
 			return 0;
 		}
 
-		// TODO: implement with correct values from API
 		JSONObject result = null;
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
-		pairs.add(new BasicNameValuePair("userId", userName));
-		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("loginId", userName));
+		pairs.add(new BasicNameValuePair("taskTeamId", Integer.toString(teamID)));
 		pairs.add(new BasicNameValuePair("taskDescription", description));
 		pairs.add(new BasicNameValuePair("taskTitle", title));
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			if (result.getString("response").equals("success")) {
+			if (result.getString("status").equals("success")) {
 				// success, report the good news!
 				return 1;
 			} else {
@@ -995,6 +994,76 @@ public class CommUtil {
 		}
 		return 0;
 
+	}
+
+	// Updates the state of the task, either checking it or deleting it
+	// returns success of case 1= yay! 0 = booo!
+	public static int UpdateTask(Context context, String userName, int teamID,
+			int taskID, boolean checked, boolean deleted) {
+		String url = "https://api.awayteam.redshrt.com/teamtasks/updatetask";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+		// TODO: debug with API
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("userId", userName));
+		pairs.add(new BasicNameValuePair("taskTeamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("taskId", Integer.toString(taskID)));
+		pairs.add(new BasicNameValuePair("taskCompleted", String
+				.valueOf(checked)));
+		pairs.add(new BasicNameValuePair("taskDeletion", String
+				.valueOf(deleted)));
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("status").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else {
+				// everything else is fail
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	// Update the text values of a task
+	public static int ModifyTask(Context context, String userName, int teamID,
+			int taskID, String title, String description) {
+		String url = "https://api.awayteam.redshrt.com/teamtasks/modifytask";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		// TODO: check against API
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", userName));
+		pairs.add(new BasicNameValuePair("taskTeamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("taskId", Integer.toString(taskID)));
+		pairs.add(new BasicNameValuePair("taskDescription", description));
+		pairs.add(new BasicNameValuePair("taskTitle", title));
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("status").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else {
+				// everything else is fail
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 }

@@ -1,24 +1,41 @@
 package edu.psu.team3.app.awayteam;
 
+import edu.psu.team3.app.awayteam.ExpenseFragment.DeleteExpenseTask;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class TaskFragment extends Fragment {
+	private DeleteTask mDeleteTask = null;
 
-	Button mExpandButton;
+	Button mSortButton;
 	ImageButton mAddButton;
-	ExpandableListView mTaskListView;
+	ListView mTaskListView;
 	TaskListAdapter adapter;
-	boolean expand = true;
+	boolean sort = false;
+	boolean delete = false;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -27,11 +44,9 @@ public class TaskFragment extends Fragment {
 				false);
 
 		// register UI
-		mExpandButton = (Button) rootView
-				.findViewById(R.id.expand_toggle_button);
+		mSortButton = (Button) rootView.findViewById(R.id.sort_toggle_button);
 		mAddButton = (ImageButton) rootView.findViewById(R.id.add_task_button);
-		mTaskListView = (ExpandableListView) rootView
-				.findViewById(R.id.taskListView);
+		mTaskListView = (ListView) rootView.findViewById(R.id.taskListView);
 
 		return rootView;
 	}
@@ -43,35 +58,152 @@ public class TaskFragment extends Fragment {
 		// Fill in listview
 		adapter = new TaskListAdapter(getActivity(),
 				UserSession.getInstance(getActivity()).activeTeam.teamTasks);
-		// Attach the adapter to a ListView
-		mTaskListView.setAdapter(adapter);
 
-		// Assign tasks to buttons
-		mExpandButton.setOnClickListener(new OnClickListener() {
+		mSortButton.setOnClickListener(new OnClickListener() {
+
 			@Override
 			public void onClick(View v) {
-				if (expand) {
-					for (int i = 0; i < adapter.getGroupCount(); i++) {
-						mTaskListView.expandGroup(i);
-					}
-					mExpandButton.setText("Collapse All");
+				if (!sort) {
+					adapter.sort(TeamTask.CompletedComparator);
+					mSortButton.setText(" Sort Oldest First");
 				} else {
-					for (int i = 0; i < adapter.getGroupCount(); i++) {
-						mTaskListView.collapseGroup(i);
-					}
-					mExpandButton.setText("Expand All");
+					adapter.sort(TeamTask.IdComparator);
+					mSortButton.setText(" Sort Incomplete First");
 				}
-				expand = !expand;
-
+				sort = !sort;
 			}
 		});
 		mAddButton.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				DialogFragment newFragment = new TaskCreateDialog();
 				newFragment.show(getFragmentManager(), null);
 			}
 		});
+		// Attach the adapter to a ListView
+		mTaskListView.setAdapter(adapter);
+		// handle multiple selections
+		mTaskListView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+
+			Menu selectMenu;
+
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+				return false;
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode) {
+				if (!delete) {
+					adapter.clearSelection();
+				}
+				// otherwise, hold on to the selection so the background
+				// task can use it
+			}
+
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+				MenuInflater inflater = getActivity().getMenuInflater();
+				inflater.inflate(R.menu.multi_select, menu);
+				selectMenu = menu;
+				delete = false;
+				return true;
+			}
+
+			@Override
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+				switch (item.getItemId()) {
+				case R.id.action_selected_delete:
+					delete = true;
+					mDeleteTask = new DeleteTask();
+					mDeleteTask.execute();
+					mode.finish();
+					break;
+				case R.id.action_selected_edit:
+					// create dialog and pass id
+					DialogFragment newFragment = new TaskEditDialog();
+					Bundle bundle = new Bundle();
+					bundle.putInt("taskID", adapter.getSelection().get(0).id);
+					newFragment.setArguments(bundle);
+					newFragment.show(getFragmentManager(), null);
+					mode.finish();
+					break;
+				}
+				return true;
+			}
+
+			@Override
+			public void onItemCheckedStateChanged(ActionMode mode,
+					int position, long id, boolean checked) {
+				// update selected list
+				if (checked) {
+					adapter.addSelection(position);
+				} else {
+					adapter.removeSelection(position);
+				}
+
+				final int checkedCount = mTaskListView.getCheckedItemCount();
+				switch (checkedCount) {
+				case 0:
+					mode.setSubtitle(null);
+					break;
+				case 1:
+					selectMenu.setGroupVisible(R.id.menu_group_edit, true);
+					mode.setTitle("1 Task Selected");
+					break;
+				default:
+					selectMenu.setGroupVisible(R.id.menu_group_edit, false);
+					mode.setTitle(checkedCount + " Tasks Selected");
+					break;
+				}
+
+			}
+		});
+	}
+
+	// background task to delete the selected tasks
+	public class DeleteTask extends AsyncTask<Object, Void, Integer> {
+		@Override
+		protected Integer doInBackground(Object... params) {
+			UserSession s = UserSession.getInstance(getActivity());
+			Integer result = 0;
+			for (TeamTask task : adapter.getSelection()) {
+				result = CommUtil.UpdateTask(getActivity(), s.getUsername(),
+						s.currentTeamID, task.id, task.complete, true);
+				Log.v("Background", "returned from commutil.  result = "
+						+ result);
+			}
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mDeleteTask = null;
+			delete = false;
+			if (result == 1) {// success!
+				if (adapter.getSelection().size() == 1) {
+					Toast.makeText(getActivity().getBaseContext(),
+							"Task Deleted", Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(getActivity().getBaseContext(),
+							adapter.getSelection().size() + " Tasks Deleted",
+							Toast.LENGTH_SHORT).show();
+				}
+				adapter.clearSelection();
+				((DisplayActivity) getActivity()).refreshTeam(UserSession
+						.getInstance(getActivity()).currentTeamID);
+			} else {// some error occured
+				Toast.makeText(getActivity().getBaseContext(),
+						"Unable to Delete Task", Toast.LENGTH_SHORT).show();
+			}
+
+		}
+
+		@Override
+		protected void onCancelled() {
+			mDeleteTask = null;
+		}
 	}
 }
