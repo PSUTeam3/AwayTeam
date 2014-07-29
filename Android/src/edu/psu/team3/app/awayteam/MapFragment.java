@@ -44,6 +44,11 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class MapFragment extends Fragment implements OnInfoWindowClickListener {
+	private FourSquareTask fqT = null;
+	private FourSquareTask foodTask = null;
+	private FourSquareTask travelTask = null;
+	private FourSquareTask shopTask = null;
+	private FourSquareTask eventTask = null;
 
 	public enum CategoryID {
 		TEAM, FOOD, TRAVEL, SHOP, EVENT
@@ -52,7 +57,6 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 	private LatLng currentLocation;
 	private MapView mapView;
 	private GoogleMap map;
-	private FourSquareTask fqT;
 
 	// UI Buttons
 	ToggleButton teamButton;
@@ -104,13 +108,12 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		UserSession s = UserSession.getInstance(getActivity());
 		s.activeTeam.getUser(s.getUsername()).lat = currentLocation.latitude;
 		s.activeTeam.getUser(s.getUsername()).lon = currentLocation.longitude;
-				
-		//initialize map to user location
+
+		// initialize map to user location
 		map.setMyLocationEnabled(true);
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
 		map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
 		map.setOnInfoWindowClickListener(this);
-		
 
 		// setup map layer buttons
 		teamButton = (ToggleButton) getView().findViewById(R.id.mapTeamLayer);
@@ -131,14 +134,14 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		});
 		map.setOnCameraChangeListener(new OnCameraChangeListener() {
 
-		    @Override
-		    public void onCameraChange(CameraPosition arg0) {
-		        // see if team needs to be drawn
-		    	if(teamButton.isChecked()){
-		    		plotTeamLocations();
-		    	}
-		        map.setOnCameraChangeListener(null);
-		    }
+			@Override
+			public void onCameraChange(CameraPosition arg0) {
+				// see if team needs to be drawn
+				if (teamButton.isChecked()) {
+					plotTeamLocations();
+				}
+				map.setOnCameraChangeListener(null);
+			}
 		});
 		// TODO: keep or remove
 		// teamButton.setChecked(false); // Since a background task is updating
@@ -152,9 +155,12 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					boolean isChecked) {
 				if (isChecked) {
 					// show map items
-					if (fqT == null) {
-						fqT = new FourSquareTask();
-						fqT.execute(CategoryID.FOOD, "food");
+					if (foodTask == null) {
+						foodTask = new FourSquareTask();
+						foodTask.execute(CategoryID.FOOD, "food");
+						buttonView.setEnabled(false);
+					} else {
+						buttonView.setChecked(false);
 					}
 				} else {
 					// remove map items
@@ -164,9 +170,12 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 			}
 		});
 		if (foodButton.isChecked()) {
-			if (fqT == null) {
-				fqT = new FourSquareTask();
-				fqT.execute(CategoryID.FOOD, "food");
+			if (foodTask == null) {
+				foodTask = new FourSquareTask();
+				foodTask.execute(CategoryID.FOOD, "food");
+				foodButton.setEnabled(false);
+			} else {
+				foodButton.setChecked(false);
 			}
 		}
 		travelButton = (ToggleButton) getView().findViewById(
@@ -178,10 +187,12 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					boolean isChecked) {
 				if (isChecked) {
 					// show map items
-					if (fqT == null) {
-
-						fqT = new FourSquareTask();
-						fqT.execute(CategoryID.TRAVEL, "travTrans");
+					if (travelTask == null) {
+						travelTask = new FourSquareTask();
+						travelTask.execute(CategoryID.TRAVEL, "travTrans");
+						buttonView.setEnabled(false);
+					} else {
+						buttonView.setChecked(false);
 					}
 				} else {
 					// remove map items
@@ -191,10 +202,13 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 			}
 		});
 		if (travelButton.isChecked()) {
-			if (fqT == null) {
+			if (travelTask == null) {
 
-				fqT = new FourSquareTask();
-				fqT.execute(CategoryID.TRAVEL, "travTrans");
+				travelTask = new FourSquareTask();
+				travelTask.execute(CategoryID.TRAVEL, "travTrans");
+				travelButton.setEnabled(false);
+			} else {
+				travelButton.setChecked(false);
 			}
 		}
 		shopButton = (ToggleButton) getView().findViewById(R.id.mapShopLayer);
@@ -205,9 +219,12 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					boolean isChecked) {
 				if (isChecked) {
 					// show map items
-					if (fqT == null) {
-						fqT = new FourSquareTask();
-						fqT.execute(CategoryID.SHOP, "shopServ");
+					if (shopTask == null) {
+						shopTask = new FourSquareTask();
+						shopTask.execute(CategoryID.SHOP, "shopServ");
+						buttonView.setEnabled(false);
+					} else {
+						buttonView.setChecked(false);
 					}
 				} else {
 					// remove map items
@@ -217,9 +234,12 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 			}
 		});
 		if (shopButton.isChecked()) {
-			if (fqT == null) {
-				fqT = new FourSquareTask();
-				fqT.execute(CategoryID.SHOP, "shopServ");
+			if (shopTask == null) {
+				shopTask = new FourSquareTask();
+				shopTask.execute(CategoryID.SHOP, "shopServ");
+				shopButton.setEnabled(false);
+			} else {
+				shopButton.setChecked(false);
 			}
 		}
 		eventsButton = (ToggleButton) getView().findViewById(
@@ -231,9 +251,12 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					boolean isChecked) {
 				if (isChecked) {
 					// show map items
-					if (fqT == null) {
-						fqT = new FourSquareTask();
-						fqT.execute(CategoryID.EVENT, "artsEnt");
+					if (eventTask == null) {
+						eventTask = new FourSquareTask();
+						eventTask.execute(CategoryID.EVENT, "artsEnt");
+						buttonView.setEnabled(false);
+					} else {
+						buttonView.setChecked(false);
 					}
 				} else {
 					// remove map items
@@ -243,9 +266,12 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 			}
 		});
 		if (eventsButton.isChecked()) {
-			if (fqT == null) {
-				fqT = new FourSquareTask();
-				fqT.execute(CategoryID.EVENT, "artsEnt");
+			if (eventTask == null) {
+				eventTask = new FourSquareTask();
+				eventTask.execute(CategoryID.EVENT, "artsEnt");
+				eventsButton.setEnabled(false);
+			} else {
+				eventsButton.setChecked(false);
 			}
 		}
 
@@ -286,7 +312,7 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		}
 
 		CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
-				builder.build(), 250);
+				builder.build(), 150);
 		map.animateCamera(camUpdate);
 
 	}
@@ -435,20 +461,29 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					case FOOD:
 						markerOp.icon(BitmapDescriptorFactory
 								.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+						foodTask = null;
+						foodButton.setEnabled(true);
 						break;
 					case TRAVEL:
 						markerOp.icon(BitmapDescriptorFactory
 								.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+						travelTask = null;
+						travelButton.setEnabled(true);
 						break;
 					case SHOP:
 						markerOp.icon(BitmapDescriptorFactory
 								.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+						shopTask = null;
+						shopButton.setEnabled(true);
 						break;
 					case EVENT:
 						markerOp.icon(BitmapDescriptorFactory
 								.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+						eventTask = null;
+						eventsButton.setEnabled(true);
 					default:
 						markerOp.icon(BitmapDescriptorFactory.defaultMarker());
+						fqT = null;
 						break;
 
 					}
@@ -473,9 +508,9 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 			}
 
 			CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
-					builder.build(), 200);
+					builder.build(), 150);
 			map.animateCamera(camUpdate);
-			fqT = null;
+			
 		}
 
 		@Override
