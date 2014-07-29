@@ -928,6 +928,55 @@
             
             $this->response($this->json($jsonMsg),200);
         }
+        
+        private function TeamTasks_EditTask() {
+            $teamTask = new TeamTasksController;
+            $tm = new TeamMembers;
+            $use = new User;
+            $userController = new UserController;
+            $failure = false;
+            
+           if($this->get_request_method() != "POST") {
+                $this->response('',406);
+            }
+            
+            $info = $this->_request;
+            $authUser = $this->AuthRequired($info);
+            
+            $user = $userController->GetUserFromLoginID($info['loginId']);
+            
+            if(!isset($info['taskId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "task Id is not filled in");
+                $failure = true;
+            } else if(!isset($info['taskTitle'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "task title is not filled in");
+                $failure = true;
+            } else if(!isset($info['taskDescription'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "task description is not filled in");
+                $failure = true;
+            } else if(!isset($info['taskTeamId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "task team Id is not filled in");
+                $failure = true;
+            } else if(!isset($info['loginId'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "login Id is not filled in");
+                $failure = true;
+            } else if($tm->VerifyTeamMemberExist($info['taskTeamId'],$user->userId) == false) {
+                $jsonMsg = array('status' => 'failure', 'response' => "user not on team");
+                $failure = true;
+            }
+            
+            if($failure == false) {
+                $result = $teamTask->ModifyTeamTask($info);
+                
+                if($result == true) {
+                    $jsonMsg = array('status' => 'success' , 'response' => "change completed successfully");
+                } else {
+                    $jsonMsg = array('status' => 'failure' , 'response' => "change couldn't be completed");
+                }
+            }
+            
+            $this->response($this->json($jsonMsg),200);
+        }
 
         private function Expense_CreateExpense()
         {   

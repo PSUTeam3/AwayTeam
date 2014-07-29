@@ -62,21 +62,12 @@
         }
         
         public function ModifyTeamTask() {
-            global $db;
+            global $db;  
             
-            if (strtolower($this->taskCompleted) == "true")
-            {
-                $this->taskCompleted = 1;
-            }
-            else
-            {
-                $this->taskCompleted = 0;
-            }
-            
-            $query = sprintf("update team_tasks set taskTitle='%s', taskDescription ='s', taskCompleted=%d, where taskId = %d",
+            $query = sprintf("update team_tasks set taskTitle='%s', taskDescription ='%s' where taskId = %d",
                     myEsc($this->taskTitle),
                     myEsc($this->taskDescription),
-                    myEsc($this->taskCompleted));
+                    myEsc($this->taskId));
                     
             $sql = mysql_query($query, $db);
                 

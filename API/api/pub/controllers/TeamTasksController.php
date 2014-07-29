@@ -14,7 +14,7 @@
         
         public function ModifyTeamTask($teamTasksParametersArray) {
             $teamTask = new TeamTasks;
-            $teamTask = $this->arrayToObject($teamParametersArray);
+            $teamTask = $this->arrayToObject($teamTasksParametersArray);
             $retCode = $teamTask->ModifyTeamTask();
             return $retCode;
         }
