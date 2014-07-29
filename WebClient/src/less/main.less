@@ -12,6 +12,7 @@
 
 
 //BOOTSTRAP
+
 @import '../../vendor/bootstrap/less/mixins.less';
 @import '../../vendor/bootstrap/less/utilities.less';
 @import '../../vendor/bootstrap/less/scaffolding.less';
@@ -31,7 +32,10 @@
 @import '../../vendor/bootstrap/less/close.less';
 @import '../../vendor/bootstrap/less/input-groups.less';
 @import '../../vendor/bootstrap/less/labels.less';
+@import '../../vendor/bootstrap/less/glyphicons.less';
+
 @import '../../vendor/ng-grid/ng-grid.less';
+
 
 
 
@@ -62,16 +66,25 @@
  * TODO: In a later version of this boilerplate, I'd like to automate this.
  */
 
-@import '../app/header/header.less';
 @import '../app/editAccount/editAccount.less';
+@import '../app/header/header.less';
 @import '../app/home/home.less';
 @import '../app/register/register.less';
+@import '../app/sidebar/sidebar.less';
 @import '../app/team/team.less';
+
 
 
 /**
  * GLOBAL STYLING
  */
+
+* {
+  margin: 0;
+}
+html, body {
+  height: 100%;
+}
 
 body {
   padding-top: 60px;
@@ -82,8 +95,33 @@ body {
   }
 }
 
-.awayTeamMain{
+@media(max-width:768px) {
+  body {
+    padding-top: 150px;
+  }
 }
+
+h1 {
+  text-shadow: 2px 2px 2px #ccc;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Lobster', Georgia, Times, serif;
+}
+p, div {
+  font-family: 'Droid Sans', Helvetica, Arial, sans-serif;
+}
+
+.wrapper {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin: 0 auto -4em;
+}
+.footer, .push {
+  height: 4em;
+}
+
 
 .container {
   -webkit-backface-visibility: hidden;
@@ -124,13 +162,6 @@ body {
   transition-timing-function: ease;
 }
 
-h1 {
-  text-shadow: 2px 2px 2px #ccc;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Lobster', Georgia, Times, serif;
-}
-p, div {
-  font-family: 'Droid Sans', Helvetica, Arial, sans-serif;
+.footer, .push {
+  height: 155px; /* .push must be the same height as .footer */
 }

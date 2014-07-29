@@ -77,6 +77,7 @@ module.exports = function(grunt) {
          */
         vendor_files: {
             js: [
+                'vendor/jquery/dist/jquery.js',
                 'vendor/angular/angular.js',
                 'vendor/angular-resource/angular-resource.js',
                 'vendor/angular-bootstrap-jbruni/ui-bootstrap-tpls.min.js',
@@ -85,8 +86,7 @@ module.exports = function(grunt) {
                 'vendor/angular-ui-utils/modules/route/route.js',
                 'vendor/angular-sanitize/angular-sanitize.js',
                 'vendor/angular-growl-notifications/dist/growl-notifications.js',
-                'vendor/jquery/dist/jquery.js',
-                'vendor/ng-grid/ng-grid-2.0.11.min.js'
+                'vendor/ng-grid/ng-grid-2.0.11.debug.js'
             ],
             css: [
             ],

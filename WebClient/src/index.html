@@ -8,6 +8,9 @@
     <link href='http://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Droid+Sans|Lobster' rel='stylesheet' type='text/css'>
 
+    <!-- ICON -->
+    <link href="assets/logos/favicon.ico" rel="shortcut icon" />
+
     <!-- compiled CSS --><% styles.forEach( function ( file ) { %>
     <link rel="stylesheet" type="text/css" href="<%= file %>" /><% }); %>
 
@@ -16,16 +19,24 @@
     <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha256.js"></script>
 </head>
 <body class="awayTeamMain">
-    <header ng-include="'header/header.tpl.html'"></header>
 
-    <div growl-notifications></div>
+    <header id="header" ng-include="'header/header.tpl.html'"></header>
 
-    <div class="container" ui-view="main" ng-hide="doingResolve"></div>
-    <div class="jumbotron loading-jumbo" ng-show="doingResolve">
-        <h1><i class="fa fa-refresh fa-2x fa-spin"></i> Loading</h1>
+    <div class="wrapper">
+        <div growl-notifications align="center" style="width:60%; margin:0 auto;"></div>
+
+        <div class="container" ui-view="main" ng-hide="doingResolve"></div>
+        <div class="jumbotron loading-jumbo" ng-show="doingResolve">
+            <h1><i class="fa fa-refresh fa-2x fa-spin"></i> Loading</h1>
+        </div>
+        <div class="push"></div>
     </div>
-    <footer class="container">
-        (c) <%= date %> <%= author %>
-    </footer>
+
+    <div class="footer">
+        <footer class="container">
+            (c) <%= date %> <%= author %>
+        </footer>
+    </div>
+
 </body>
 </html>

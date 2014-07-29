@@ -41,9 +41,9 @@
 
     app.controller('AppController', ['$scope', '$state', '$stateParams',
         function ($scope, $state, $stateParams) {
-             // Expose $state and $stateParams to the <body> tag
-              $scope.$state = $state;
-              $scope.$stateParams = $stateParams;
+            // Expose $state and $stateParams to the <body> tag
+            $scope.$state = $state;
+            $scope.$stateParams = $stateParams;
     }]);
 
     app.factory('identityInjector', ['$q', '$injector', function($q, $injector){
@@ -64,22 +64,31 @@
     }]);
 
 }(angular.module("AwayTeam", [
+    'AwayTeam.agenda',
     'AwayTeam.header',
     'AwayTeam.home',
     'AwayTeam.editAccount',
     'AwayTeam.error',
+    'AwayTeam.expenses',
+    'AwayTeam.members',
     'AwayTeam.register',
     'AwayTeam.router',
+    'AwayTeam.resizable',
+    'AwayTeam.sidebar',
     'AwayTeam.team',
     'AwayTeam.validators',
+    'eventService',
+    'expenseService',
     'growlNotifications',
     'loginService',
+    'memberService',
     'ngGrid',
     'ngSanitize',
     'teamService',
     'templates-app',
     'templates-common',
     'ui.bootstrap',
+    'ui.bootstrap.collapse',
     'ui.router.state',
     'ui.router'
 ])));

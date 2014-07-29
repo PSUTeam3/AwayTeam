@@ -1,0 +1,7 @@
+<div class="jumbotron main-jumbo">
+    <h1>{{teamService.selectedTeam.teamName}}</h1>
+    <p>{{teamService.selectedTeam.teamDescription}}</p>
+    <i>{{teamService.selectedTeam.teamLocationName}}</i>
+    <hr/>
+    <i class="fa fa-edit editButton" ng-hide="teamService.selectedTeam.teamId == null" ng-click="modifyTeamModal()"></i>
+</div>
