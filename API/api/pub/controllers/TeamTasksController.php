@@ -12,7 +12,7 @@
             return $teamTaskId;
         }
         
-        public function ModifyTeamTask($teamTasksParametersArray) {
+        public function ModifyTeamTaskModel($teamTasksParametersArray) {
             $teamTask = new TeamTasks;
             $teamTask = $this->arrayToObject($teamTasksParametersArray);
             $retCode = $teamTask->ModifyTeamTask();

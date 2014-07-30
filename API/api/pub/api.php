@@ -11,6 +11,7 @@
     require_once("controllers/TeamMemberController.php");
     require_once("controllers/TeamTasksController.php");
     require_once("controllers/ManagerController.php");
+    require_once("controllers/TeamEventController.php");
     
     require_once("externalControllers/FoursquareController.php");
     
@@ -1095,7 +1096,7 @@
             }
             
             if($failure == false) {
-                $result = $teamTask->ModifyTeamTask($info);
+                $result = $teamTask->ModifyTeamTaskModel($info);
                 
                 if($result == true) {
                     $jsonMsg = array('status' => 'success' , 'response' => "change completed successfully");
@@ -1106,6 +1107,52 @@
             
             $this->response($this->json($jsonMsg),200);
         }
+        /*
+        private function TeamEvent_CreateEvent() {
+            $teamEventController = new TeamEventController;
+            $aTeamEvent = new TeamEvent;
+            $user = new User;
+            $userController = new UserController;
+            $failure = false;
+            
+            if($this->get_request_method() != "POST") {
+                $this->response('',406);
+            }
+            
+            $info = $this->_request;
+            $authUser = $this->AuthRequired($info);
+            
+            if(!isset($info['teamId'])) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "team Id is not filled in");
+                $failure = true;
+            } else if(!isset($info['loginId'])) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "login Id is not filled in");
+                $failure = true;
+            } else if(!isset($info['eventTitle'])) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "event title is not filled in");
+                $failure = true;
+            } else if(!isset($info['eventLocationString'])) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "event location is not filled in");
+                $failure = true;
+            } else if (!isset($info['eventStartTime'])) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "event start time is not filled in");
+                $failure = true;
+            } else if(!isset($info['eventEndTIme'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "event end time is not filled in");
+                $failure = true;
+            } else if (!isset($info['eventDescription'])) {
+                $jsonMsg = array('status' => 'failure' ,'response' => "event description is not filled in");
+                $failure = true;
+            }
+            
+            if($aTeamEvent->ValidateDateTime($info['eventStartTime']) == true) {
+                $jsonMsg =  array('status' => 'success', 'response' => "eventStartTime valid");
+            } else {
+                $jsonMsg = array('status' => 'failure' , 'response' => "eventStartTime invalid");
+            }
+            
+            $this->response($this->json($jsonMsg),200);
+        }*/
 
         private function Expense_CreateExpense()
         {   
