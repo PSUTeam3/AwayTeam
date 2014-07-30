@@ -90,9 +90,7 @@ public class Team {
 				JSONArray eventsArray = teamObject.getJSONArray("events");
 				for (int i = 0; i < eventsArray.length(); i++) {
 					JSONObject eventObject = eventsArray.getJSONObject(i);
-					// TODO: add event id
-					int id = -1;
-					// int id = eventObject.getInt(")
+					int id = eventObject.getInt("teamEventId");
 					String title = eventObject.getString("teamEventName");
 					String description = eventObject
 							.getString("teamEventDescription");

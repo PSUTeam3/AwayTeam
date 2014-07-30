@@ -698,6 +698,90 @@ public class CommUtil {
 		return 0;
 	}
 
+	// Collect the list of all pending users for given team
+	// RETURN: list of all the teams formatted as: id,firstname,lastname,email
+	public static List<Object[]> GetPendingMembers(Context context,
+			String username, int teamID) {
+		String url = "https://api.awayteam.redshrt.com/Manager/PendingUsers";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return null;
+		}
+
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", username));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+
+		JSONObject result = null;
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("success")) {
+				// collect data and pass array to display list
+				List<Object[]> pendingList = new ArrayList<Object[]>();
+				JSONArray response = result.getJSONArray("message");
+				for (int i = 0; i < response.length(); i++) {
+					String user = response.getJSONObject(i)
+							.getString("loginId");
+					String first = "";
+					first = response.getJSONObject(i).getString("firstName");
+					String last = "";
+					last = response.getJSONObject(i).getString("lastName");
+					String email = response.getJSONObject(i).getString("email");
+					pendingList.add(new Object[] { user, first, last, email });
+				}
+				return pendingList;
+			} else if (result.getString("response").equals("failure")) {
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	// Provides Manager Actions
+	// Input: actions include "approve"/"remove"/"promote"/"demote"
+	// target user is the user being modified
+	// Result: 1 = success
+	// 0 = failure
+	// -1 = unauthorized
+	public static int ManagerAction(Context context, String userName,
+			int teamID, String targetUserName, String action) {
+		String url = "https://api.awayteam.redshrt.com/Manager/TakeAction";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", userName));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("subjectLoginId", targetUserName));
+		pairs.add(new BasicNameValuePair("action", action));
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else if (result.getString("message").equals(
+					"requesting user is not a manager")) {
+				// everything else is fail
+				return -1;
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+
+	}
+
 	// Get all the information about a user
 	// INPUTS: username
 	// RETURN: a list of strings in order:
@@ -1009,7 +1093,7 @@ public class CommUtil {
 		JSONObject result = null;
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
-		pairs.add(new BasicNameValuePair("userId", userName));
+		pairs.add(new BasicNameValuePair("loginId", userName));
 		pairs.add(new BasicNameValuePair("taskTeamId", Integer.toString(teamID)));
 		pairs.add(new BasicNameValuePair("taskId", Integer.toString(taskID)));
 		pairs.add(new BasicNameValuePair("taskCompleted", String
@@ -1035,7 +1119,7 @@ public class CommUtil {
 	// Update the text values of a task
 	public static int ModifyTask(Context context, String userName, int teamID,
 			int taskID, String title, String description) {
-		String url = "https://api.awayteam.redshrt.com/teamtasks/modifytask";
+		String url = "https://api.awayteam.redshrt.com/teamtasks/edittask";
 
 		if (!NetworkTasks.NetworkAvailable(context)) {
 			return 0;

@@ -510,7 +510,7 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 			CameraUpdate camUpdate = CameraUpdateFactory.newLatLngBounds(
 					builder.build(), 150);
 			map.animateCamera(camUpdate);
-			
+
 		}
 
 		@Override
@@ -531,10 +531,16 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		}
 		if (selected != null && selected[0] != CategoryID.TEAM) {
 			// foursquare item picked, create an intent
-			Intent fsIntent = new Intent();
-			fsIntent.setData(Uri.parse((String) selected[2]));
-			fsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(fsIntent);
+			if (selected[2] != null) {
+				Intent fsIntent = new Intent();
+				fsIntent.setData(Uri.parse((String) selected[2]));
+				fsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(fsIntent);
+			} else {
+				Toast.makeText(getActivity(),
+						"No Additional Info for this location",
+						Toast.LENGTH_SHORT).show();
+			}
 		}
 		if (selected != null && selected[0] == CategoryID.TEAM) {
 			// open team member detail (like a boss)

@@ -100,8 +100,7 @@ public class TaskListAdapter extends ArrayAdapter<TeamTask> {
 		protected void onPostExecute(final Integer result) {
 			mCheckTask = null;
 			if (result == 1) {// success!
-				Toast.makeText(getContext().getApplicationContext(),
-						"Action synched to server", Toast.LENGTH_SHORT).show();
+				Log.v("TASK","Check action synced to server");
 			} else {// some error occured
 				Toast.makeText(getContext().getApplicationContext(),
 						"Unable to Update Task", Toast.LENGTH_SHORT).show();
