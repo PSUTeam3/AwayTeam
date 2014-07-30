@@ -21,15 +21,15 @@
             $this->teamEventName = "";
             $this->teamEventDescription = "";
             $this->teamEventLocationString = "";
-            $this->teamEventStartTime = '2013-12-31 0:0:0';
-            $this->teamEventEndTime = '2013-12-31 0:0:0';
+            $this->teamEventStartTime = '2013-12-31 0:0';
+            $this->teamEventEndTime = '2013-12-31 0:0';
             $this->teamEventTeamId = -999;
         }
         
         public function ValidateDateTime($dateTimeString) {
-            $aDateTime = DateTime::createFromFormat('Y-n-j H:i:s',$dateTimeString);
+            $aDateTime = DateTime::createFromFormat('Y-n-j H:i',$dateTimeString);
             $validationResult = false;
-            if($aDateTime && $aDateTime->format('Y-n-j H:i:s') == $dateTimeString) {
+            if($aDateTime && $aDateTime->format('Y-n-j H:i') == $dateTimeString) {
                 $validationResult = true;
             } else {
                 $validationResult = false;
