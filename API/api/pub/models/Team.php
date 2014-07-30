@@ -351,7 +351,7 @@
             $query = sprintf("update team set teamName='%s', teamLocationName='%s', teamDescription='%s', teamManaged=%d where teamId = " . myEsc($this->teamId),
                 myEsc($this->teamName),
                 myEsc($this->teamLocationName),
-                myEsc(strtolower($this->teamDescription)),
+                myEsc($this->teamDescription),
                 myEsc($this->teamManaged));
                                         
             $sql = mysql_query($query, $db);
