@@ -348,11 +348,13 @@
             
             $result = $this->DeleteTeamMember($teamId, $userId);
             if($result != false) {
-                $deletionStatus = 1;              
-                $result = $team->DeleteTeam($teamId);
-                
-                if($result != false) {
-                    $deletionStatus=2;
+                $deletionStatus = 1;
+                if($this->GetNumberOfTeamMembersRemaining($teamId) == 0 || $this->GetNumberOfTeamManager($teamId) == 0) {
+                    $result = $team->DeleteTeam($teamId);
+                    
+                    if($result != false) {
+                        $deletionStatus=2;
+                    }
                 }
             }
             return $deletionStatus;
