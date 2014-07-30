@@ -1132,7 +1132,7 @@
                 $jsonMsg = array('status' => 'failure' , 'response' => "login Id is not filled in");
                 $failure = true;
             } else if(!isset($info['teamEventName'])) {
-                $jsonMsg = array('status' => 'failure' , 'response' => "event title is not filled in");
+                $jsonMsg = array('status' => 'failure' , 'response' => "event name is not filled in");
                 $failure = true;
             } else if(!isset($info['teamEventLocationString'])) {
                 $jsonMsg = array('status' => 'failure' , 'response' => "event location is not filled in");
@@ -1152,10 +1152,10 @@
             }
             
             if($aTeamEvent->ValidateDateTime($info['teamEventStartTime']) == false) {
-                $jsonMsg = array('status' => 'failure' , 'response' => "eventStartTime invalid");
+                $jsonMsg = array('status' => 'failure' , 'response' => "event start time invalid");
                 $failure = true;
             } else if($aTeamEvent->ValidateDateTime($info['teamEventEndTime']) == false) {
-                $jsonMsg = array('status' => 'failure' ,'response' => "eventEndTime invalid");
+                $jsonMsg = array('status' => 'failure' ,'response' => "event end time invalid");
                 $failure=true;
             }
             
