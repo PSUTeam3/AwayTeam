@@ -31,7 +31,7 @@
             $pendingUsers = array();
 
             $query = "select user.loginId as loginId, user.firstName as firstName, user.lastName as lastName, user.email as email from user,team_member " . 
-                        "where user.userId = team_member.userId and team_member.teamId=" . myEsc($teamId);
+                        "where user.userId = team_member.userId and team_member.teamId=" . myEsc($teamId) . " and pendingApproval=1";
 
             $sql = mysql_query($query, $db);
     
