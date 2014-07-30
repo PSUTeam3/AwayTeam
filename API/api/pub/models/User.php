@@ -418,6 +418,23 @@
             return $id;
         }
 
+        public function EmailUser($customMessage, $customSubject)
+        {
+            $message = $customMessage;
+            $subject = $customSubject;
+            $email   = $this->email;
+
+            $headers   = array();
+            $headers[] = "MIME-Version: 1.0";
+            $headers[] = "Content-type: text/html; charset=iso-8859-1";
+            $headers[] = "From: AwayTeam <no-reply@awayteam.redshrt.com>";
+            $headers[] = "Reply-To: AwayTeam <no-reply@awayteam.redshrt.com>";
+            $headers[] = "Subject: {$subject}";
+            $headers[] = "X-Mailer: PHP/".phpversion();
+
+            return mail($email, $subject, $message, implode("\r\n", $headers));
+        }
+
         public function SendPasswordResetEmail($newPass)
         {
             $loginId        = $this->loginId;

@@ -918,6 +918,16 @@
                 if ($ret)
                 {
                     $failure = false;
+                    //email notify user
+                    if ($action == "approve")
+                    {
+                        $emailmsg = "Hi " .  $info['subjectLoginId'] . ", <br><br> Your membership status for a team has been recently approved. <br><br>" .
+                        "Thanks,<br>AwayTeam Admins";
+                        $subject = "AwayTeam - Team Membership Approved";
+
+                        //should still be subject User
+                        $xUser->EmailUser($emailmsg, $subject);
+                    }
                 }
                 else
                 {
