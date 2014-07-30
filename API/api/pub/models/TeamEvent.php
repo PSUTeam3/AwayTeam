@@ -1,7 +1,7 @@
 <?php
     include_once('/home/awayteam/api/pub/apiconfig.php');
     
-    class Event 
+    class TeamEvent 
     {
         //Attributes
         public $teamEventId;
@@ -21,18 +21,30 @@
             $this->teamEventName = "";
             $this->teamEventDescription = "";
             $this->teamEventLocationString = "";
-            $this->teamEventStartTime = '2013-12-31';
-            $this->teamEventEndTime = '2013-12-31';
+            $this->teamEventStartTime = '2013-12-31 0:0:0';
+            $this->teamEventEndTime = '2013-12-31 0:0:0';
             $this->teamEventTeamId = -999;
+        }
+        
+        public function ValidateDateTime($dateTimeString) {
+            $aDateTime = DateTime::createFromFormat('Y-n-j H:i:s',$dateTimeString);
+            $validationResult = false;
+            if($aDateTime && $aDateTime->format('Y-n-j H:i:s') == $dateTimeString) {
+                $validationResult = true;
+            } else {
+                $validationResult = false;
+            }
+            
+            return $validationResult;
         }
         
         public function InsertEvent() {
             global $db;
-            $query = sprintf("insert into event(teamEventName,teamEventDescription,teamEventLocationString,teamEventStartTime,teamEventEndTime,teamEventTeamId) 
+            $query = sprintf("insert into team_event(teamEventName,teamEventDescription,teamEventLocationString,teamEventStartTime,teamEventEndTime,teamEventTeamId) 
                                 values('%s','%s','%s','%s','%s',%d)",
                     myEsc(strtolower($this->teamEventName)),                    
                     myEsc($this->teamEventDescription),
-                    myEsc($this->teamEventLocationName),
+                    myEsc($this->teamEventLocationString),
                     myEsc($this->teamEventStartTime),
                     myEsc($this->teamEventEndTime),
                     myEsc($this->teamEventTeamId));
@@ -41,7 +53,7 @@
             
             $id = mysql_insert_id();
             
-            if($id >= 0) {
+            if($id > 0) {
                 $this->teamEventId = $id;
             }
             

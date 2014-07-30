@@ -3,11 +3,11 @@
     require_once('/home/awayteam/api/pub/models/TeamEvent.php');
     require_once('/home/awayteam/api/pub/apiconfig.php');
     
-    class EventController extends Event
+    class TeamEventController extends TeamEvent
     {
-        public function CreateEvent($eventParametersArray) {
-            $anEvent = new Event;
-            $anEvent = arrayToObject($eventParametersArray);
+        public function CreateTeamEvent($teamEventParametersArray) {
+            $anEvent = new TeamEvent;
+            $anEvent = $this->arrayToObject($teamEventParametersArray);
             $anEventId = $anEvent->InsertEvent();
             return $anEventId;
         }
@@ -24,9 +24,9 @@
             return $this->SelectEventFromEventName($teamEventName);
         }
         
-        public function ModifyEvent($teamEventParametersArray) {
-            $anEvent = new Event;
-            $anEvent = arrayToObject($eventParametersArray);
+        public function ModifyEventModel($teamEventParametersArray) {
+            $anEvent = new TeamEvent;
+            $anEvent = $this->arrayToObject($teamEventParametersArray);
             $retCode = $anEvent->ModifyEvent();
             return $retCode;
         }
