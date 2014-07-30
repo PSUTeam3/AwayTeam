@@ -10,6 +10,7 @@
     require_once("models/TeamUtilities.php");
     require_once("controllers/TeamMemberController.php");
     require_once("controllers/TeamTasksController.php");
+    require_once("controllers/ManagerController.php");
     
     require_once("externalControllers/FoursquareController.php");
     
@@ -825,6 +826,124 @@
             }
 
             $this->response($this->json($jsonstr), 200);
+        }
+
+        private function Manager_PendingUsers()
+        {
+            $xUser = new UserController;
+            $xMan  = new ManagerController;
+
+            if ($this->get_request_method() != "POST")
+            {
+                $this->response('', 406);
+            }
+
+            $pendingUsers   = array();
+            $failure        = true;
+            $info           = $this->_request;
+
+            $authUser       = $this->AuthRequired($info);
+
+            $xUser          = $xUser->GetUserFromLoginID($info['loginId']);
+            $teamId         = $info['teamId'];
+            $manUserId      = $xUser->userId;
+
+            //check for Manager
+            if ($xMan->IsManager($teamId, $manUserId) == true)
+            {
+                //is a manager
+                $failure = false;
+                $pendingUsers = $xMan->GetTeamPendingUsers($teamId);
+            }
+            else
+            {
+                //not a manager
+                $failure = true;
+                $message = "requesting user is not a manager";
+                $pendingUsers = null;
+            }
+
+            $jsonstr = array();
+
+            if ($failure)
+            {
+                $jsonstr = array('response' => 'failure', 'message' => $message);
+                $this->response($this->json($jsonstr), 401);
+            }
+            else
+            {
+                $jsonstr = array('response' => 'success', 'message' => $pendingUsers);
+                $this->response($this->json($jsonstr), 200);
+            }
+
+             
+        }
+
+        private function Manager_TakeAction()
+        {
+            $xUser = new UserController;
+            $xMan  = new ManagerController;
+
+            if ($this->get_request_method() != "POST")
+            {
+                $this->response('', 406);
+            }    
+
+            $failure        = true;
+            $info           = $this->_request;
+
+            $authUser       = $this->AuthRequired($info);
+
+            //get info about manager
+            $xUser          = $xUser->GetUserFromLoginID($info['loginId']);
+            $manUserId      = $xUser->userId;
+
+            //get info about subject user
+            $xUser          = new UserController;
+            $xUser          = $xUser->GetUserFromLoginID($info['subjectLoginId']);
+            $subUserId     = $xUser->userId;
+
+            //team assignment
+            $teamId         = $info['teamId'];
+
+            //action
+            $action         = $info['action'];
+
+            //check for Manager
+            if ($xMan->IsManager($teamId, $manUserId) == true)
+            {    
+                //is a manager
+                $ret = $xMan->TakeAction($teamId, $subUserId, $action);
+
+                if ($ret)
+                {
+                    $failure = false;
+                }
+                else
+                {
+                    $message = "$action action failed.";
+                    $failure = true;
+                }
+            }    
+            else 
+            {    
+                //not a manager
+                $failure = true;
+                $message = "requesting user is not a manager";
+            }    
+
+            $jsonstr = array();
+
+            if ($failure)
+            {
+                $jsonstr = array('response' => 'failure', 'message' => $message);
+                $this->response($this->json($jsonstr), 401);
+            }
+            else
+            {
+                $jsonstr = array('response' => 'success');
+                $this->response($this->json($jsonstr), 200);
+            }    
         }
         
         private function TeamTasks_CreateTask() {
