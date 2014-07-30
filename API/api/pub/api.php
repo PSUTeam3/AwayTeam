@@ -1061,11 +1061,11 @@
         private function TeamTasks_EditTask() {
             $teamTask = new TeamTasksController;
             $tm = new TeamMembers;
-            $use = new User;
+            $user = new User;
             $userController = new UserController;
             $failure = false;
             
-           if($this->get_request_method() != "POST") {
+            if($this->get_request_method() != "POST") {
                 $this->response('',406);
             }
             
