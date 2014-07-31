@@ -229,7 +229,7 @@
                 if(data.status === "success"){
                     $modalInstance.close();
                     $scope.joinTeamWorking = false;
-                    growlNotifications.add('Successfully joined ' + $scope.selectedTeam[0].teamId, 'success');
+                    growlNotifications.add('Request sent to join ' + $scope.selectedTeam[0].teamName, 'success');
                     teamService.loadUserTeams(loginService.user.loginId);
                 }
                 else{

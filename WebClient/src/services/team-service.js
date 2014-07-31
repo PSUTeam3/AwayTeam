@@ -57,6 +57,7 @@ angular.module('teamService', [])
                                     for(var j = 0; j < wrappedService.userTeams.length; j++){
                                         if(data.response[i].teamId === wrappedService.userTeams[j].teamId){
                                             data.response.splice(i,1);
+                                            i--;
                                             break;
                                         }
                                     }
@@ -105,6 +106,7 @@ angular.module('teamService', [])
                                     for(var j = 0; j < wrappedService.userTeams.length; j++){
                                         if(wrappedService.allTeams[i].teamId === wrappedService.userTeams[j].teamId){
                                             wrappedService.allTeams.splice(i,1);
+                                            i--;
                                             break;
                                         }
                                     }
