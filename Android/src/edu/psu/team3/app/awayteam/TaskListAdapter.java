@@ -40,7 +40,6 @@ public class TaskListAdapter extends ArrayAdapter<TeamTask> {
 		View rowV = inflater.inflate(R.layout.task_entry, parent, false);
 		CheckBox taskCheckBox = (CheckBox) rowV
 				.findViewById(R.id.task_checkbox);
-		taskCheckBox.setText(taskList.get(position).title);
 		taskCheckBox.setChecked(taskList.get(position).complete);
 		final int positionHolder = position;
 		taskCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -48,7 +47,7 @@ public class TaskListAdapter extends ArrayAdapter<TeamTask> {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView,
 					boolean isChecked) {
-				
+
 				// Dispatch a message to the server to update the task item
 				if (mCheckTask == null) {
 					mCheckTask = new CheckTask();
@@ -57,6 +56,8 @@ public class TaskListAdapter extends ArrayAdapter<TeamTask> {
 				}
 			}
 		});
+		((TextView) rowV.findViewById(R.id.task_title)).setText(taskList
+				.get(position).title);
 		((TextView) rowV.findViewById(R.id.task_description)).setText(taskList
 				.get(position).description);
 
@@ -100,7 +101,7 @@ public class TaskListAdapter extends ArrayAdapter<TeamTask> {
 		protected void onPostExecute(final Integer result) {
 			mCheckTask = null;
 			if (result == 1) {// success!
-				Log.v("TASK","Check action synced to server");
+				Log.v("TASK", "Check action synced to server");
 			} else {// some error occured
 				Toast.makeText(getContext().getApplicationContext(),
 						"Unable to Update Task", Toast.LENGTH_SHORT).show();

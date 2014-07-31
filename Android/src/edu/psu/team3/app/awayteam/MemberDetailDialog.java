@@ -1,11 +1,13 @@
 package edu.psu.team3.app.awayteam;
 
+import edu.psu.team3.app.awayteam.OverviewFragment.ActionTask;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MemberDetailDialog extends DialogFragment {
+	private ActionTask mAction = null;
 
 	// UI elements
 	TextView nameView;
@@ -158,7 +161,9 @@ public class MemberDetailDialog extends DialogFragment {
 			}
 		});
 		// show the manager tools if the user is a manager
-		if (UserSession.getInstance(getActivity()).activeTeam.userManager) {
+		if (UserSession.getInstance(getActivity()).activeTeam.userManager
+				&& !UserSession.getInstance(getActivity()).getUsername()
+						.equals(member.userName)) {
 			managerToolsView.setVisibility(View.VISIBLE);
 			managerRemoveButton.setVisibility(View.VISIBLE);
 
@@ -166,7 +171,11 @@ public class MemberDetailDialog extends DialogFragment {
 
 				@Override
 				public void onClick(View v) {
-					// TODO: add function to remove member
+					// remove member
+					if (mAction == null) {
+						mAction = new ActionTask();
+						mAction.execute(member.userName, "remove");
+					}
 
 				}
 			});
@@ -178,13 +187,50 @@ public class MemberDetailDialog extends DialogFragment {
 
 					@Override
 					public void onClick(View v) {
-						// TODO: add function to assign member as a manager
-
+						// assign member as a manager
+						if (mAction == null) {
+							mAction = new ActionTask();
+							mAction.execute(member.userName, "promote");
+						}
 					}
 				});
 			}
 
 		}
+	}
 
+	// background task to take action on a pending user
+	// requires parameters: target username, action
+	// "approve"/"remove"/"promote"/"demote"
+	public class ActionTask extends AsyncTask<Object, Void, Integer> {
+		@Override
+		protected Integer doInBackground(Object... params) {
+			UserSession s = UserSession.getInstance(getActivity());
+			String targetUserName = (String) params[0];
+			String action = (String) params[1];
+			Integer result = 0;
+			result = CommUtil.ManagerAction(getActivity(), s.getUsername(),
+					s.currentTeamID, targetUserName, action);
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mAction = null;
+			if (result == 1) {// success!
+				((DisplayActivity) getActivity()).refreshTeam(UserSession
+						.getInstance(getActivity()).currentTeamID);
+				getDialog().dismiss();
+			} else {// some error occured
+				Toast.makeText(getActivity().getBaseContext(),
+						"Unable to Complete Action", Toast.LENGTH_SHORT).show();
+			}
+
+		}
+
+		@Override
+		protected void onCancelled() {
+			mAction = null;
+		}
 	}
 }

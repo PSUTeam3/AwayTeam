@@ -369,6 +369,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 				R.layout.team_spinner_item, UserSession.getInstance(
 						getBaseContext()).getTeamListNames());
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		
 		spinnerView.setAdapter(adapter);
 		// set the spinner to the correct location
 		UserSession s = UserSession.getInstance(this);

@@ -97,7 +97,7 @@ public class Team {
 					String location = eventObject
 							.getString("teamEventLocationString");
 					DateFormat formatter = new SimpleDateFormat(
-							"yyyy-dd-mmm HH:mm:ss");
+							"yyyy-MM-dd HH:mm:ss");
 					Date start = formatter.parse(eventObject
 							.getString("teamEventStartTime"));
 					Date end = formatter.parse(eventObject

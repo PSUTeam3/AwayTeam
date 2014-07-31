@@ -429,7 +429,7 @@ public class CommUtil {
 				return result.getJSONObject("response").getInt("teamId");
 			} else if (result.getString("status").equals("failure")) {
 				switch (result.getString("response")) {
-				case "Team Name Already Used":
+				case "team name is already used":
 					return -1;
 				default:
 					return 0;
@@ -679,7 +679,11 @@ public class CommUtil {
 					int id = response.getJSONObject(i).getInt("teamId");
 					String name = response.getJSONObject(i).getString(
 							"teamName");
-					teamList.add(new Object[] { id, name });
+					boolean pending = response.getJSONObject(i).getBoolean(
+							"pendingApproval");
+					if (!pending) {
+						teamList.add(new Object[] { id, name, pending });
+					}
 				}
 				UserSession.getInstance(context).teamList = teamList;
 				return 1;
@@ -736,7 +740,7 @@ public class CommUtil {
 				return null;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Log.e("GetPending", e.toString());
 		}
 		return null;
 	}
@@ -1009,30 +1013,31 @@ public class CommUtil {
 	public static int CreateEvent(Context context, String userName, int teamID,
 			Date startTime, Date endTime, String title, String location,
 			String description) {
-		String url = "https://api.awayteam.redshrt.com/team/createevent";
+		String url = "https://api.awayteam.redshrt.com/teamevent/createevent";
 
 		if (!NetworkTasks.NetworkAvailable(context)) {
 			return 0;
 		}
 
-		// TODO: implement with correct values from API
 		JSONObject result = null;
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
-		pairs.add(new BasicNameValuePair("userId", userName));
-		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
-		pairs.add(new BasicNameValuePair("eventTitle", title));
-		pairs.add(new BasicNameValuePair("eventLocation", location));
-		pairs.add(new BasicNameValuePair("eventDescription", description));
-		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		pairs.add(new BasicNameValuePair("eventStartTime", formatter
+		pairs.add(new BasicNameValuePair("loginId", userName));
+		pairs.add(new BasicNameValuePair("teamEventTeamId", Integer
+				.toString(teamID)));
+		pairs.add(new BasicNameValuePair("teamEventName", title));
+		pairs.add(new BasicNameValuePair("teamEventLocationString", location));
+		pairs.add(new BasicNameValuePair("teamEventDescription", description));
+		DateFormat formatter = new SimpleDateFormat("yyyy-M-d HH:mm");
+		pairs.add(new BasicNameValuePair("teamEventStartTime", formatter
 				.format(startTime)));
-		pairs.add(new BasicNameValuePair("eventEndTime", formatter
+		Log.v("EventComm", "start: " + formatter.format(startTime));
+		pairs.add(new BasicNameValuePair("teamEventEndTime", formatter
 				.format(endTime)));
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);
-			if (result.getString("response").equals("success")) {
+			if (result.getString("status").equals("success")) {
 				// success, report the good news!
 				return 1;
 			} else {

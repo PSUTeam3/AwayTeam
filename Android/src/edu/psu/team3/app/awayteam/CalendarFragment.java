@@ -82,10 +82,11 @@ public class CalendarFragment extends Fragment {
 					cal.set(Calendar.MINUTE, 0);
 					cal.set(Calendar.SECOND, 0);
 					Date today = cal.getTime();
-					Log.v("Calendar","Comparing events to time: "+DateFormat.getDateTimeInstance(DateFormat.SHORT,
-							DateFormat.SHORT).format(today));
 					if(!adapter.getItem(i).startTime.before(today)){
-						eventsListView.setSelectionFromTop(i, 0);
+						//eventsListView.setSelection(i);
+						//eventsListView.smoothScrollToPosition(i); //also works, but not any better
+						//eventsListView.setSelectionFromTop(i, 0); //works, but not as nice as I want
+						
 						return;
 					}
 				}

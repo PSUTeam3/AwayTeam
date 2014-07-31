@@ -34,10 +34,10 @@ public class CalendarListAdapter extends ArrayAdapter<TeamEvent> {
 			TextView date = (TextView) rowV.findViewById(R.id.time_text);
 
 			title.setText(eventList.get(position).title);
-			date.setText(DateFormat.getDateTimeInstance(DateFormat.SHORT,
+			date.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
 					DateFormat.SHORT).format(eventList.get(position).startTime)
 					+" - "+
-					DateFormat.getDateTimeInstance(DateFormat.SHORT,
+					DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
 							DateFormat.SHORT).format(eventList.get(position).endTime));
 		}
 		return rowV;
