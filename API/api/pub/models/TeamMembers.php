@@ -327,7 +327,7 @@
             
 
             if($team->IsTeamManaged($teamId) && $this->VerifyManagerForUser($teamId,$userId) 
-                    && GetNumberOfTeamManager($teamId) == 1 ){
+                    && $this->GetNumberOfTeamManager($teamId) == 1 ){
                 $deletionStatus = 0;
             } else if($this->GetNumberOfTeamMembersRemaining($teamId) == 1) {
                 $deletionStatus = 0;                
