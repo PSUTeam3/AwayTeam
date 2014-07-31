@@ -30,9 +30,9 @@
            global $db;
             $pendingUsers = array();
 
-            $query = "select user.loginId as loginId, user.firstName as firstName, user.lastName as lastName, user.email as email, team_member.teamId as teamId from user,team_member" .
-                     " where user.userId = team_member.userId and pendingApproval=1 and team_member.teamId IN (select team_member.teamId from team_member where manager=1" . 
-                     " and userId=" . myEsc($manUserId) .  ")";
+            $query = "select user.loginId as loginId, user.firstName as firstName, user.lastName as lastName, user.email as email, team_member.teamId as teamId, team.teamName as teamName" .
+                     " from user,team_member,team where user.userId = team_member.userId and team.teamId = team_member.teamId and pendingApproval=1 and team_member.teamId" . 
+                     " IN (select team_member.teamId from team_member where manager=1 and userId=" . myEsc($manUserId) .  ")";
 
             $sql = mysql_query($query, $db);
                 
