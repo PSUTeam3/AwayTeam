@@ -51,7 +51,7 @@
         public function VerifyTeamMemberExist($teamId, $userId) {
             global $db;
             if($teamId && $userId) {
-                $query = "select count(teamMemberId) as num from team_member where teamId = " . myEsc($teamId) . " and userId = " . myEsc($userId);
+                $query = "select count(teamMemberId) as num from team_member where teamId = " . myEsc($teamId) . " and userId = " . myEsc($userId) . " and pendingApproval=0";
                 $sql = mysql_query($query, $db);
                 $data = mysql_fetch_assoc($sql);
                 

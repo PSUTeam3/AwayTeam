@@ -168,17 +168,40 @@
                 }                
             }
 
-            if(($x1['teamId'] == -999) or ($x1['teamName'] == "")) 
+            $message = "";
+            if ($x1 == -998)
             {
+                //added functionality
+                //if this happens, then the user either does not belong to the team
+                //OR
+                //the user is pendingApproval <--- this is the likely case
+
+                //break team not found if then
+                $x1 = null;
+                $x1 = array();                
+                $x1['teamId'] = -998;
+                $x1['teamName'] = "xxx";
+            }
+
+            if(($x1['teamId'] == -999) or ($x1['teamName'] == "")) 
+            {   
+                //might be N/a
                 $failure=true;
-            } else 
+                $message = "team not found";
+            }
+            elseif(($x1['teamId'] == -998) or ($x1['teamName'] == "xxx")) 
+            {
+                $failure = true;
+                $message = "team not found or membership still pendingApproval";
+            }
+            else 
             {
                 $failure=false;
             }
 
             if($failure == true) 
             {
-                $respArray = array('status' => 'failure', 'response' => "team not found");
+                $respArray = array('status' => 'failure', 'response' => $message);
             } else 
             {
                 //$newTeam = get_object_vars($aTeam);

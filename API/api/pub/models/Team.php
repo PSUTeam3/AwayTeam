@@ -246,8 +246,11 @@
                     return $theTeam;
 
                 }                
-            } else {
+            } 
+            else 
+            {
                 logIt("team member doesn't exist");
+                return -998;
                 //What do we want to do with empty id field?
                 //Error message
             }
@@ -320,7 +323,8 @@
         public function GetTeamList($userId) {
             global $db;
             $teamInfoResult = array();
-            $query = "select teamId from team_member where userId = " . myEsc($userId);
+            //adding pendingApproval for Webclient
+            $query = "select teamId,pendingApproval from team_member where userId = " . myEsc($userId);
             $getTeamIdsSql = mysql_query($query, $db);
             if(mysql_num_rows($getTeamIdsSql) > 0) {
                 $getTeamIdResult = array(); 
@@ -328,7 +332,19 @@
                     $query = "select teamId,teamName from team where teamId = " . myEsc($getTeamIdResult['teamId']);
                     $getTeamObjectsSql = mysql_query($query, $db);
                     while($getTeamInfoResult = mysql_fetch_object($getTeamObjectsSql)) {                    
+
+                        //added pendingApproval for WebClient
+                        if ($getTeamIdResult['pendingApproval'] == 0)
+                        {
+                            $getTeamInfoResult->pendingApproval = false;
+                        }
+                        else
+                        {
+                            $getTeamInfoResult->pendingApproval = true;
+                        }
+                        
                         $aTeam = $getTeamInfoResult;
+
                         $teamInfoResult[] = $aTeam;                                            
                     }                    
                 }              
