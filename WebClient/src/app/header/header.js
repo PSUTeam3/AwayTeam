@@ -16,12 +16,14 @@
 
     // As you add controllers to a module and they grow in size, feel free to place them in their own files.
     //  Let each module grow organically, adding appropriate organization and sub-folders as needed.
-    app.controller('HeaderController', ['$scope', '$http', '$timeout', '$modal', '$log', 'loginService', 'teamService', 'growlNotifications', function ($scope, $http, $timeout, $modal, $log, loginService, teamService, growlNotifications) {
+    app.controller('HeaderController', ['$scope', '$http', '$timeout', '$modal', '$log', 'loginService', 'teamService', 'managerService', 'growlNotifications', function ($scope, $http, $timeout, $modal, $log, loginService, teamService, managerService, growlNotifications) {
         /*********************** AUTHENTICATION FUNCTIONS *****************/
             // loginService exposed and a new Object containing login user/pwd
         $scope.loginService = loginService;
         $scope.teamService = teamService;
+        $scope.managerService = managerService;
         $scope.userTeams = [];
+        $scope.pendingUsers = [];
         $scope.navbarCollapsed = true;
 
 
@@ -72,6 +74,13 @@
             });
         };
 
+        $scope.resetPWOpen = function () {
+            var modalInstance = $modal.open({
+                templateUrl: 'changePassword/resetPassword.tpl.html',
+                controller: 'ResetPasswordModalCtrl'
+            });
+        };
+
         $scope.$watch(function () {
                 return teamService.userTeams;
             },
@@ -79,21 +88,61 @@
                $scope.userTeams = teamService.userTeams;
             }, true);
 
+        $scope.$watch(function () {
+                return managerService.pendingUsers;
+            },
+            function(newVal, oldVal) {
+                $scope.pendingUsers = managerService.pendingUsers;
+            }, true);
+
 
         var getUsersTeams = function(){
             if($scope.loginService.isLoggedIn){
                 var userTeamPromise = $scope.teamService.loadUserTeams($scope.login.loginId);
-                /*userTeamPromise.success(function(data){
-                    if(data.status === "success"){
-                        $scope.userTeams = data.response;
-                    }
-                });
-                userTeamPromise.error(function () { //TODO handle userTeam errors
-                });*/
-
                 $scope.teamService.loadAllTeams();
+                $scope.loadPendingUsers();
             }
         };
+
+        $scope.loadPendingUsers = function(){
+            if($scope.login.loginId != null){
+                var pendingUserPromise = $scope.managerService.getPendingUsers($scope.login.loginId);
+            }
+            else{
+                $scope.managerService.pendingUsers = [];
+            }
+        };
+
+        $scope.managerAction = function(teamId, action, subjectId){
+            if($scope.login.loginId != null) {
+                var takeActionPromise = $scope.managerService.takeAction($scope.login.loginId, teamId, action, subjectId);
+                takeActionPromise.success(function(){
+                    if(action === "approve"){
+                        growlNotifications.add('Successfully approved '+subjectId +'!', 'success');
+                        $scope.loadPendingUsers();
+                    }else{
+                        growlNotifications.add('Successfully denied '+subjectId +'!', 'success');
+                        $scope.loadPendingUsers();
+                    }
+
+                });
+                takeActionPromise.error(function(){
+                    growlNotifications.add('Failed to take action on user'+subjectId +'!', 'danger');
+                });
+            }
+        };
+
+        // Function to replicate setInterval using $timeout service.
+        $scope.intervalFunction = function(){
+            $timeout(function() {
+                $scope.loadPendingUsers();
+            }, 600000);
+        };
+
+        //start loading pending users periodically
+
+        $scope.intervalFunction();
+
 
     }]);
 
@@ -122,6 +171,36 @@
             changePasswordPromise.error(function () {
                 growlNotifications.add('Failed to Change Password!', 'danger');
                 $scope.changePasswordWorking = false; //TODO present error message to the user
+            });
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+    }]);
+
+    app.controller('ResetPasswordModalCtrl', ['$scope', '$modalInstance', '$http', '$timeout',  'loginService', 'growlNotifications',  function ($scope, $modalInstance, $http, $timeout, loginService, growlNotifications) {
+        $scope.resetPassword = {};
+        $scope.resetPasswordWorking = false;
+
+        $scope.ok = function () {
+            var postData = $scope.resetPassword;
+            $scope.resetPasswordWorking = true;
+            var resetPasswordPromise = $http({
+                url: "https://api.awayteam.redshrt.com/user/ResetPassword",
+                method: "POST",
+                data: postData
+            });
+            resetPasswordPromise.success(function(password, status, headers, config) {
+                if (password.response === "success") {
+                    $scope.resetPasswordWorking = false;
+                    growlNotifications.add('Successfully Reset Password! Check your provided email for new password.', 'success');
+                    $modalInstance.close();
+                }
+            });
+            resetPasswordPromise.error(function () {
+                growlNotifications.add('Failed to Reset Password!', 'danger');
+                $scope.resetPasswordWorking = false; //TODO present error message to the user
             });
         };
 

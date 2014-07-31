@@ -31,8 +31,11 @@
         $scope.teamService = teamService;
         $scope.loginService = loginService;
 
-        $scope.selectTeam = function(teamId){
-            teamService.getTeam(teamId, $scope.login.loginId);
+        $scope.selectTeam = function(teamId, pendingApproval){
+            if(!pendingApproval){
+                teamService.getTeam(teamId, $scope.login.loginId);
+                $state.go('team');
+            }
         };
 
         $scope.teamInit = function(){
@@ -168,7 +171,11 @@
                 $scope.teamNotSelected();
             },
             selectedItems: $scope.selectedTeam,
-            filterOptions: $scope.filterOptions
+            filterOptions: $scope.filterOptions,
+            sortInfo: {
+                fields: ['teamName'],
+                directions: ['asc']
+            }
         };
 
         $scope.$watch(function () {

@@ -52,6 +52,16 @@ angular.module('teamService', [])
 
                     promise.success(function (data) {
                         if (data.status === "success") {
+                            if(wrappedService.userTeams != null && wrappedService.userTeams.length > 0 ){
+                                for(var i = 0; i < data.response.length; i++) {
+                                    for(var j = 0; j < wrappedService.userTeams.length; j++){
+                                        if(data.response[i].teamId === wrappedService.userTeams[j].teamId){
+                                            data.response.splice(i,1);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                             wrappedService.allTeams = data.response;
                         }
                     });
@@ -90,6 +100,18 @@ angular.module('teamService', [])
                     promise.success(function (data){
                         if(data.status === "success"){
                             wrappedService.userTeams = data.response;
+                            if(wrappedService.allTeams != null && wrappedService.userTeams.length > 0 ){
+                                for(var i = 0; i < wrappedService.allTeams.length; i++) {
+                                    for(var j = 0; j < wrappedService.userTeams.length; j++){
+                                        if(wrappedService.allTeams[i].teamId === wrappedService.userTeams[j].teamId){
+                                            wrappedService.allTeams.splice(i,1);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }else{
+                            wrappedService.userTeams = {};
                         }
                     });
                     promise.error(function(){
