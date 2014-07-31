@@ -24,6 +24,33 @@
                 return true;
             }   
         }          
+        
+        public function GetPendingUsersAllTeams($manUserId)
+        {
+           global $db;
+            $pendingUsers = array();
+
+            $query = "select user.loginId as loginId, user.firstName as firstName, user.lastName as lastName, user.email as email, team_member.teamId as teamId from user,team_member" .
+                     " where user.userId = team_member.userId and pendingApproval=1 and team_member.teamId IN (select team_member.teamId from team_member where manager=1" . 
+                     " and userId=" . myEsc($manUserId) .  ")";
+
+            $sql = mysql_query($query, $db);
+                
+            if (mysql_num_rows($sql) > 0)
+            {   
+                while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
+                {   
+                    $pendingUsers[] = $rlt;
+                }   
+            }   
+            else
+            {   
+                $pendingUsers = null;
+            }   
+
+            return $pendingUsers;
+
+        }
 
         public function GetPendingUsers($teamId) 
         {

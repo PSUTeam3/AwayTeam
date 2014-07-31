@@ -869,38 +869,46 @@
             $authUser       = $this->AuthRequired($info);
 
             $xUser          = $xUser->GetUserFromLoginID($info['loginId']);
-            $teamId         = $info['teamId'];
             $manUserId      = $xUser->userId;
 
-            //check for Manager
-            if ($xMan->IsManager($teamId, $manUserId) == true)
-            {
-                //is a manager
-                $failure = false;
-                $pendingUsers = $xMan->GetTeamPendingUsers($teamId);
+            if (isset($info['teamId']))
+            {  
+                $teamId         = $info['teamId'];
+
+                //check for Manager
+                if ($xMan->IsManager($teamId, $manUserId) == true)
+                {  
+                    //is a manager
+                    $failure = false;
+                    $pendingUsers = $xMan->GetTeamPendingUsers($teamId);
+                }
+                else
+                {  
+                    //not a manager
+                    $failure = true;
+                    $message = "requesting user is not a manager";
+                    $pendingUsers = null;
+                }
             }
             else
-            {
-                //not a manager
-                $failure = true;
-                $message = "requesting user is not a manager";
-                $pendingUsers = null;
+            {  
+                //assume you want to know about all teams you're a manager for.
+                $failure = false;
+                $pendingUsers = $xMan->GetTeamPendingUsersAllTeams($manUserId);
             }
 
             $jsonstr = array();
 
             if ($failure)
-            {
+            {  
                 $jsonstr = array('response' => 'failure', 'message' => $message);
                 $this->response($this->json($jsonstr), 401);
             }
             else
-            {
+            {  
                 $jsonstr = array('response' => 'success', 'message' => $pendingUsers);
                 $this->response($this->json($jsonstr), 200);
             }
-
-             
         }
 
         private function Manager_TakeAction()

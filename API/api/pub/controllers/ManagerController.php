@@ -9,6 +9,11 @@
         {
             return $this->GetPendingUsers($teamId);
         }
+
+        public function GetTeamPendingUsersAllTeams($manUserId)
+        {
+            return $this->GetPendingUsersAllTeams($manUserId);
+        }
         
         public function TakeAction($teamId, $userId, $action) 
         {
