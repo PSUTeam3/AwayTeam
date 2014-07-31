@@ -114,7 +114,7 @@
         
         public function ModifyEvent() {
             global $db;
-            $query = sprintf("update event set teamEventName='%s', teamEventDescription='%s',teamEventLocationString='%s', teamEventStartTime='%s',teamEventEndTime='%s'
+            $query = sprintf("update team_event set teamEventName='%s', teamEventDescription='%s',teamEventLocationString='%s', teamEventStartTime='%s',teamEventEndTime='%s'
                                 where teamEventId = " . myEsc($this->teamEventId),
                     myEsc($this->teamEventName),
                     myEsc($this->teamEventDescription),

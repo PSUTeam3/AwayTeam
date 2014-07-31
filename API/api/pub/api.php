@@ -1194,6 +1194,74 @@
             
             $this->response($this->json($jsonMsg),200);
         }
+        
+        private function TeamEvent_EditEvent() {
+           $teamEventController = new TeamEventController;
+            $aTeamEvent = new TeamEvent;
+            $tm = new TeamMembers;
+            $user = new User;
+            $userController = new UserController;
+            $failure = false;
+            
+            if($this->get_request_method() != "POST") {
+                $this->response('',406);
+            }
+            
+            $info = $this->_request;
+            $authUser = $this->AuthRequired($info);
+            
+            $user = $userController->GetUserFromLoginID($info['loginId']); 
+            
+            if(!isset($info['teamEventTeamId'])) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "team Id is not filled in");
+                $failure = true;
+            } else if(!isset($info['loginId'])) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "login Id is not filled in");
+                $failure = true;
+            } else if (!isset($info['teamEventId'])) {
+                $jsonMsg = array('status' => 'failure' ,'response' => "team event Id is not filled in");
+                $failure = true;
+            }else if(!isset($info['teamEventName'])) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "event name is not filled in");
+                $failure = true;
+            } else if(!isset($info['teamEventLocationString'])) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "event location is not filled in");
+                $failure = true;
+            } else if (!isset($info['teamEventStartTime'])) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "event start time is not filled in");
+                $failure = true;
+            } else if(!isset($info['teamEventEndTime'])) {
+                $jsonMsg = array('status' => 'failure', 'response' => "event end time is not filled in");
+                $failure = true;
+            } else if (!isset($info['teamEventDescription'])) {
+                $jsonMsg = array('status' => 'failure' ,'response' => "event description is not filled in");
+                $failure = true;
+            } else if($tm->VerifyTeamMemberExist($info['teamEventTeamId'],$user->userId) == false) {
+                $jsonMsg = array('status' => 'failure', 'response' => "user not on team");
+                $failure = true;
+            }
+            
+            if($aTeamEvent->ValidateDateTime($info['teamEventStartTime']) == false) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "event start time invalid");
+                $failure = true;
+            } else if($aTeamEvent->ValidateDateTime($info['teamEventEndTime']) == false) {
+                $jsonMsg = array('status' => 'failure' ,'response' => "event end time invalid");
+                $failure=true;
+            }
+            
+            if($failure == false) {
+                $retCode = $teamEventController->ModifyEventModel($info);
+                
+                if($retCode == true) {
+                    $jsonMsg = array('status' => 'success' ,'response' => "change was successful");
+                } else {
+                    $jsonMsg = array('status' => 'failure' , 'response' => "change was unsuccessful");
+                }
+            }
+            
+            $this->response($this->json($jsonMsg),200);
+            
+        }
 
         private function Expense_CreateExpense()
         {   
