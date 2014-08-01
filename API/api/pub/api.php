@@ -1248,6 +1248,9 @@
             } else if($aTeamEvent->ValidateDateTime($info['teamEventEndTime']) == false) {
                 $jsonMsg = array('status' => 'failure' ,'response' => "event end time invalid");
                 $failure=true;
+            } else if($aTeamEvent->VerifyTeamEventTeamId($info['teamEventTeamId'],$info['teamEventId']) == false) {
+                $jsonMsg = array('status' => 'failure' , 'response' => "team event does not belong to the team");
+                $failure = true;
             }
             
             if($failure == false) {

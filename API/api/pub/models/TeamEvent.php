@@ -38,6 +38,20 @@
             return $validationResult;
         }
         
+        public function VerifyTeamEventTeamId($teamEventTeamId, $teamEventId) {
+            global $db;
+            
+            $query = "select count(teamEventId) as num from team_event where teamEventId = " . myEsc($teamEventId) . " AND teamEventTeamId = " . myEsc($teamEventTeamId);
+            $sql = mysql_query($query,$db);
+            $data = mysql_fetch_assoc($sql);
+            
+            if($data['num'] == 0) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        
         public function InsertEvent() {
             global $db;
             $query = sprintf("insert into team_event(teamEventName,teamEventDescription,teamEventLocationString,teamEventStartTime,teamEventEndTime,teamEventTeamId) 
