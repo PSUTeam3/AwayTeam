@@ -681,9 +681,9 @@ public class CommUtil {
 							"teamName");
 					boolean pending = response.getJSONObject(i).getBoolean(
 							"pendingApproval");
-					if (!pending) {
+					//if (!pending) {
 						teamList.add(new Object[] { id, name, pending });
-					}
+					//}
 				}
 				UserSession.getInstance(context).teamList = teamList;
 				return 1;
@@ -1034,6 +1034,87 @@ public class CommUtil {
 		Log.v("EventComm", "start: " + formatter.format(startTime));
 		pairs.add(new BasicNameValuePair("teamEventEndTime", formatter
 				.format(endTime)));
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("status").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else {
+				// everything else is fail
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+
+	}
+
+	// Edit event for the user
+	// returns the success of the operation 1= success 0=error
+	public static int EditEvent(Context context, String userName, int teamID,
+			int eventID, Date startTime, Date endTime, String title,
+			String location, String description) {
+		String url = "https://api.awayteam.redshrt.com/teamevent/editevent";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", userName));
+		pairs.add(new BasicNameValuePair("teamEventTeamId", Integer
+				.toString(teamID)));
+		pairs.add(new BasicNameValuePair("teamEventId", Integer
+				.toString(teamID)));
+		pairs.add(new BasicNameValuePair("teamEventName", title));
+		pairs.add(new BasicNameValuePair("teamEventLocationString", location));
+		pairs.add(new BasicNameValuePair("teamEventDescription", description));
+		DateFormat formatter = new SimpleDateFormat("yyyy-M-d HH:mm");
+		pairs.add(new BasicNameValuePair("teamEventStartTime", formatter
+				.format(startTime)));
+		Log.v("EventComm", "start: " + formatter.format(startTime));
+		pairs.add(new BasicNameValuePair("teamEventEndTime", formatter
+				.format(endTime)));
+
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("status").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else {
+				// everything else is fail
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+
+	}
+
+	// Delete an event from a team
+	// returns the success of the operation 1= success 0=error
+	public static int DeleteEvent(Context context, String userName, int teamID,
+			int eventID) {
+		String url = "https://api.awayteam.redshrt.com/teamevent/deleteevent";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", userName));
+		pairs.add(new BasicNameValuePair("teamEventTeamId", Integer
+				.toString(teamID)));
+		pairs.add(new BasicNameValuePair("teamEventId", Integer
+				.toString(teamID)));
+		
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);

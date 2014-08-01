@@ -365,11 +365,13 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 	private void refreshTeamSpinner() {
 		// reload the spinner data
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				R.layout.team_spinner_item, UserSession.getInstance(
-						getBaseContext()).getTeamListNames());
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		
+		// ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+		// R.layout.team_spinner_item, UserSession.getInstance(
+		// getBaseContext()).getTeamListNames());
+		// adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		TeamMemberListAdapter adapter = new TeamMemberListAdapter(this,
+				R.layout.team_spinner_item,
+				UserSession.getInstance(this).teamList);
 		spinnerView.setAdapter(adapter);
 		// set the spinner to the correct location
 		UserSession s = UserSession.getInstance(this);

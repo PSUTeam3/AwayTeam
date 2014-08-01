@@ -381,8 +381,9 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 
 			try {
 				resultArray = result.getJSONArray("response");
-			} catch (JSONException e1) {
-				e1.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+				return;
 			}
 			for (int i = 0; i < resultArray.length(); i++) {
 

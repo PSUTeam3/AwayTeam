@@ -1,6 +1,8 @@
 package edu.psu.team3.app.awayteam;
 
 import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
@@ -34,11 +36,35 @@ public class CalendarListAdapter extends ArrayAdapter<TeamEvent> {
 			TextView date = (TextView) rowV.findViewById(R.id.time_text);
 
 			title.setText(eventList.get(position).title);
-			date.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-					DateFormat.SHORT).format(eventList.get(position).startTime)
-					+" - "+
-					DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-							DateFormat.SHORT).format(eventList.get(position).endTime));
+			Calendar start = Calendar.getInstance();
+			start.setTime(eventList.get(position).startTime);
+			Calendar end = Calendar.getInstance();
+			end.setTime(eventList.get(position).endTime);
+
+			if (start.get(Calendar.DAY_OF_YEAR) == end
+					.get(Calendar.DAY_OF_YEAR)
+					&& start.get(Calendar.YEAR) == end.get(Calendar.YEAR)) {
+				date.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
+						DateFormat.SHORT).format(
+						eventList.get(position).startTime)
+						+ " - "
+						+ DateFormat.getTimeInstance(DateFormat.SHORT).format(
+								eventList.get(position).endTime));
+			} else {
+				date.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
+						DateFormat.SHORT).format(
+						eventList.get(position).startTime)
+						+ " - "
+						+ DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
+								DateFormat.SHORT).format(
+								eventList.get(position).endTime));
+			}
+			// grey out background if the event is before now
+			if (eventList.get(position).endTime.before(new Date())) {
+				rowV.findViewById(R.id.calendarEntryBack).setBackgroundColor(
+						this.getContext().getResources()
+								.getColor(android.R.color.darker_gray));
+			}
 		}
 		return rowV;
 

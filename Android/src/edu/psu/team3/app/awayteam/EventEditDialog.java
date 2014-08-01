@@ -27,8 +27,8 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import edu.psu.team3.app.awayteam.ExpenseCreateDialog.CreateExpenseTask;
 
-public class EventCreateDialog extends DialogFragment {
-	private CreateEventTask mCreateTask = null;
+public class EventEditDialog extends DialogFragment {
+	private EditEventTask mEditTask = null;
 
 	private Date startTime;
 	private Date endTime;
@@ -46,17 +46,21 @@ public class EventCreateDialog extends DialogFragment {
 	EditText locationView;
 	EditText descView;
 
+	TeamEvent event = null;
+
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		Bundle args = getArguments();
+		event = UserSession.getInstance(getActivity()).activeTeam.getEvent(args
+				.getInt("id"));
 		// inflate custom view
 		LayoutInflater inflater = getActivity().getLayoutInflater();
-		builder.setTitle("Create New Event");
-		builder.setIcon(getResources().getDrawable(
-				R.drawable.ic_action_new_event));
+		builder.setTitle("Edit Event");
+		builder.setIcon(getResources().getDrawable(R.drawable.ic_action_event));
 		builder.setView(inflater.inflate(R.layout.dialog_event_edit, null))
 				// Add action buttons
-				.setPositiveButton("Create",
+				.setPositiveButton("Apply",
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
@@ -65,7 +69,7 @@ public class EventCreateDialog extends DialogFragment {
 				.setNegativeButton("Cancel",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								EventCreateDialog.this.getDialog().cancel();
+								EventEditDialog.this.getDialog().cancel();
 							}
 						});
 
@@ -86,15 +90,12 @@ public class EventCreateDialog extends DialogFragment {
 			positiveButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					attemptCreateEvent();
+					attemptEditEvent();
 				}
 			});
 			// init times
-			Calendar cal = Calendar.getInstance();
-			cal.set(Calendar.MINUTE, 0);
-			startTime = cal.getTime();
-			cal.add(Calendar.HOUR, 1);
-			endTime = cal.getTime();
+			startTime = event.startTime;
+			endTime = event.endTime;
 			// init UI elements
 			// set up each button with a picker dialog and handler logic
 			startDateView = (Button) d.findViewById(R.id.eventedit_start_date);
@@ -252,12 +253,15 @@ public class EventCreateDialog extends DialogFragment {
 			});
 
 			titleView = (EditText) d.findViewById(R.id.eventedit_title);
+			titleView.setText(event.title);
 			locationView = (EditText) d.findViewById(R.id.eventedit_location);
+			locationView.setText(event.location);
 			descView = (EditText) d.findViewById(R.id.eventedit_description);
+			descView.setText(event.description);
 		}
 	}
 
-	private void attemptCreateEvent() {
+	private void attemptEditEvent() {
 		boolean cancel = false;
 		View focusView = null;
 
@@ -282,22 +286,22 @@ public class EventCreateDialog extends DialogFragment {
 			if (focusView != null) {
 				focusView.requestFocus();
 			}
-		} else if (mCreateTask == null) {
-			mCreateTask = new CreateEventTask();
-			mCreateTask.execute();
+		} else if (mEditTask == null) {
+			mEditTask = new EditEventTask();
+			mEditTask.execute();
 		}
 
 	}
 
-	public class CreateEventTask extends AsyncTask<Object, Void, Integer> {
+	public class EditEventTask extends AsyncTask<Object, Void, Integer> {
 
 		@Override
 		protected Integer doInBackground(Object... params) {
 			UserSession s = UserSession.getInstance(getActivity());
 			Integer result = 0;
-			result = CommUtil.CreateEvent(getActivity(), s.getUsername(),
-					s.currentTeamID, startTime, endTime, title, location,
-					description);
+			result = CommUtil.EditEvent(getActivity(), s.getUsername(),
+					s.currentTeamID, event.id, startTime, endTime, title,
+					location, description);
 
 			Log.v("Background", "returned from commutil.  result = " + result);
 
@@ -306,24 +310,24 @@ public class EventCreateDialog extends DialogFragment {
 
 		@Override
 		protected void onPostExecute(final Integer result) {
-			mCreateTask = null;
+			mEditTask = null;
 			if (result == 1) {// success!
 				Toast.makeText(getActivity().getBaseContext(),
-						"New Event Created", Toast.LENGTH_SHORT).show();
+						"Event Updated", Toast.LENGTH_SHORT).show();
 				// callback the team id
 				((DisplayActivity) getActivity()).refreshTeam(UserSession
 						.getInstance(getActivity()).currentTeamID);
 				getDialog().dismiss();
 			} else {// some error occured
 				Toast.makeText(getActivity().getBaseContext(),
-						"Unable to Create Event", Toast.LENGTH_SHORT).show();
+						"Unable to Update Event", Toast.LENGTH_SHORT).show();
 			}
 
 		}
 
 		@Override
 		protected void onCancelled() {
-			mCreateTask = null;
+			mEditTask = null;
 		}
 	}
 }

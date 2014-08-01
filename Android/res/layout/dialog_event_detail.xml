@@ -28,7 +28,7 @@
                 android:id="@+id/calendar_edit_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
+                android:layout_gravity="right"
                 android:drawableLeft="@drawable/ic_action_edit"
                 android:text="Edit" />
 
@@ -44,9 +44,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
             android:text="start time"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@android:color/darker_gray" />
+
         <TextView
             android:id="@+id/calendar_end_time_text"
             android:layout_width="wrap_content"

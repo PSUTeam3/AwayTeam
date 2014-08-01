@@ -54,43 +54,32 @@ public class CalendarFragment extends Fragment {
 				s.activeTeam.teamEvents);
 		// Attach the adapter to a ListView
 		eventsListView.setAdapter(adapter);
-		//Assign listener to event clicks
+
+		// position view so today is in sight
+		ScrollToToday(false);
+		// Assign listener to event clicks
 		eventsListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View targetView,
 					int position, long rowID) {
-				
-				//Create dialog to show details
+
+				// Create dialog to show details
 				DialogFragment newFragment = new EventDetailDialog();
 				Bundle args = new Bundle();
-			    args.putInt("position",position);
-			    newFragment.setArguments(args);
+				args.putInt("position", position);
+				newFragment.setArguments(args);
 				newFragment.show(getFragmentManager(), null);
 			}
 		});
 
 		// Assign actions to buttons
 		todayButton.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				// find the first entry that is today or later
-				for(int i = 0; i<adapter.getCount();i++){
-					Calendar cal = Calendar.getInstance();
-					cal.set(Calendar.HOUR_OF_DAY, 0);
-					cal.set(Calendar.MINUTE, 0);
-					cal.set(Calendar.SECOND, 0);
-					Date today = cal.getTime();
-					if(!adapter.getItem(i).startTime.before(today)){
-						//eventsListView.setSelection(i);
-						//eventsListView.smoothScrollToPosition(i); //also works, but not any better
-						//eventsListView.setSelectionFromTop(i, 0); //works, but not as nice as I want
-						
-						return;
-					}
-				}
-				Toast.makeText(getActivity(), "No Events found after Today", Toast.LENGTH_SHORT).show();
+				ScrollToToday(true);
 			}
 		});
 
@@ -101,5 +90,32 @@ public class CalendarFragment extends Fragment {
 				newFragment.show(getFragmentManager(), null);
 			}
 		});
+	}
+
+	private void ScrollToToday(boolean loud) {
+		for (int i = 0; i < adapter.getCount(); i++) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			Date today = cal.getTime();
+			if (!adapter.getItem(i).startTime.before(today)) {
+
+				
+				if (loud) {
+					eventsListView.setSelection(i);
+					eventsListView.smoothScrollToPosition(i);
+					
+				}else{
+					eventsListView.setSelectionFromTop(i, 0);
+				}
+
+				return;
+			}
+		}
+		if (loud) {
+			Toast.makeText(getActivity(), "No Events found after Today",
+					Toast.LENGTH_SHORT).show();
+		}
 	}
 }
