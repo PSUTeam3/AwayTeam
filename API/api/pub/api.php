@@ -1180,9 +1180,7 @@
             } else if($tm->VerifyTeamMemberExist($info['teamEventTeamId'],$user->userId) == false) {
                 $jsonMsg = array('status' => 'failure', 'response' => "user not on team");
                 $failure = true;
-            }
-            
-            if($aTeamEvent->ValidateDateTime($info['teamEventStartTime']) == false) {
+            } else if($aTeamEvent->ValidateDateTime($info['teamEventStartTime']) == false) {
                 $jsonMsg = array('status' => 'failure' , 'response' => "event start time invalid");
                 $failure = true;
             } else if($aTeamEvent->ValidateDateTime($info['teamEventEndTime']) == false) {
@@ -1247,9 +1245,7 @@
             } else if($tm->VerifyTeamMemberExist($info['teamEventTeamId'],$user->userId) == false) {
                 $jsonMsg = array('status' => 'failure', 'response' => "user not on team");
                 $failure = true;
-            }
-            
-            if($aTeamEvent->ValidateDateTime($info['teamEventStartTime']) == false) {
+            } else if($aTeamEvent->ValidateDateTime($info['teamEventStartTime']) == false) {
                 $jsonMsg = array('status' => 'failure' , 'response' => "event start time invalid");
                 $failure = true;
             } else if($aTeamEvent->ValidateDateTime($info['teamEventEndTime']) == false) {
