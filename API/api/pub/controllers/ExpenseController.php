@@ -57,15 +57,15 @@
             return $arr;
         }
 
-        public function GetReceipt($expenseId)
-        {
-            return $this->SelectReceipt($expenseId);
-        }
+        public function GetReceipt($info)
+        {   
+            return $this->SelectReceipt($info['expenseId'], $info['userId'], $info['teamId']);
+        }   
 
-        public function PutReceipt($expenseId)
-        {
-            return $this->ApplyReceipt($expenseId);
-        }
+        public function PutTheReceipt($type)
+        {   
+            return $this->ApplyReceipt($type);
+        }        
 
         private function arrayToObject($array)
         {

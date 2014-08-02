@@ -67,10 +67,20 @@
             return $id;
         }
 
-        public function ApplyReceipt($expenseId)
-        {
-            return 0;
-        }
+        public function ApplyReceipt($type)
+        {   
+            global $db;
+
+            $receipt = $this->receipt;
+
+            $receipt = 'data:image/' . $type . ';base64,' . base64_encode($receipt);
+            $this->receipt = $receipt;
+
+            $query = "update expense set receipt='" . $this->receipt . "' where expenseId=" . myEsc($this->expenseId);
+    
+            $sql = mysql_query($query, $db);
+            return $sql;
+        }   
 
         public function DeleteExpense($id)
         {
@@ -100,10 +110,32 @@
             return $sql;
         }
 
-        public function SelectReceipt($expenseId)
+        public function SelectReceipt($expenseId, $userId, $teamId)
         {
-            return 0;
-        }
+            global $db;
+
+            $query = sprintf("select receipt from expense where userId=%d and teamId=%d and expenseId=%d",
+                myEsc($userId),
+                myEsc($teamId),
+                myEsc($expenseId));
+
+            $sql = mysql_query($query, $db);
+
+            if (mysql_num_rows($sql) > 0)
+            {
+                $result = array();
+                while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
+                {
+                    $result[] = $rlt;
+                }
+
+                return $result[0]['receipt'];
+            }
+            else
+            {
+                return null;
+            }
+        }        
 
         public function SelectExpense($expenseId, $userId, $teamId)
         {
