@@ -32,7 +32,9 @@ public class TeamMember {
 
 		@Override
 		public int compare(TeamMember a, TeamMember b) {
-			return a.firstName.compareTo(b.firstName);
+			String aName = a.firstName+" "+a.lastName;
+			String bName = b.firstName+" "+b.lastName;
+			return aName.compareTo(bName);
 		}
 
 	};
@@ -40,7 +42,9 @@ public class TeamMember {
 
 		@Override
 		public int compare(TeamMember a, TeamMember b) {
-			return a.lastName.compareTo(b.lastName);
+			String aName = a.lastName+" "+a.firstName;
+			String bName = b.lastName+" "+b.firstName;
+			return aName.compareTo(bName);
 		}
 
 	};

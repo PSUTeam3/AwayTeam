@@ -29,11 +29,6 @@
         android:showAsAction="never"
         android:title="     Add Manager"/>
     <item
-        android:id="@+id/action_delete"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="     Delete This Team"/>
-        <item
         android:enabled="false"
         android:orderInCategory="100"
         android:showAsAction="never"

@@ -202,7 +202,9 @@ public class JoinTeamDialog extends DialogFragment {
 							getActivity(),
 							"Team information will become visible when a Team Manager approves membership",
 							Toast.LENGTH_LONG).show();
-					// indicate that view does not change yet
+					// update view to the same current team
+					((DisplayActivity) getActivity())
+					.refreshTeam(UserSession.getInstance(getActivity()).currentTeamID);
 
 				} else {
 					// Public team selected - pass back team id so it can be

@@ -1,7 +1,11 @@
 package edu.psu.team3.app.awayteam;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.android.gms.maps.model.LatLng;
 
+import edu.psu.team3.app.awayteam.MemberDetailDialog.ActionTask;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -12,9 +16,11 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
@@ -38,12 +44,14 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	private RefreshSpinnerTask mRefreshList = null;
 	private LeaveTeamTask mLeaveTeam = null;
 	public UpdateLocationTask mLocation = null;
+	private ActionTask mAction = null;
 
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	Spinner spinnerView;
 	ViewPager mViewPager;
 	private Menu optionsMenu;
 	Location lastKnownLocation;
+	List<TeamMember> memberPromoteList = new ArrayList<TeamMember>();
 
 	// For testing
 	public DialogFragment currentDialog = null;
@@ -181,6 +189,44 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			DialogFragment newFragment = new EditTeamDialog();
 			newFragment.show(getFragmentManager(), null);
 			return true;
+		}
+		if (id == R.id.action_add_manager) {
+			UserSession s = UserSession.getInstance(this);
+			List<String> promoteNames = new ArrayList<String>();
+			for (TeamMember member : s.activeTeam.teamMembers) {
+				if (!member.manager) {
+					memberPromoteList.add(member);
+					promoteNames.add(member.firstName + " " + member.lastName);
+				}
+			}
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Select a Member make Manager");
+			final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+					android.R.layout.select_dialog_item, promoteNames);
+
+			builder.setNegativeButton("cancel",
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+					});
+
+			builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int selected) {
+					if (mAction == null) {
+						mAction = new ActionTask();
+						mAction.execute(
+								memberPromoteList.get(selected).userName,
+								"promote");
+					}
+				}
+			});
+			builder.show();
+
 		}
 		if (id == R.id.action_create_team) {
 			DialogFragment newFragment = new CreateTeamDialog();
@@ -584,5 +630,38 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			mLocation = null;
 		}
 
+	}
+
+	// background task to take action on a pending user
+	// requires parameters: target username, action
+	// "approve"/"remove"/"promote"/"demote"
+	public class ActionTask extends AsyncTask<Object, Void, Integer> {
+		@Override
+		protected Integer doInBackground(Object... params) {
+			UserSession s = UserSession.getInstance(getBaseContext());
+			String targetUserName = (String) params[0];
+			String action = (String) params[1];
+			Integer result = 0;
+			result = CommUtil.ManagerAction(getBaseContext(), s.getUsername(),
+					s.currentTeamID, targetUserName, action);
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mAction = null;
+			if (result == 1) {// success!
+				refreshTeam(UserSession.getInstance(getBaseContext()).currentTeamID);
+			} else {// some error occured
+				Toast.makeText(getBaseContext(), "Unable to Complete Action",
+						Toast.LENGTH_SHORT).show();
+			}
+
+		}
+
+		@Override
+		protected void onCancelled() {
+			mAction = null;
+		}
 	}
 }

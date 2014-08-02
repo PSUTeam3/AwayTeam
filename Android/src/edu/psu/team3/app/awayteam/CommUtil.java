@@ -681,9 +681,9 @@ public class CommUtil {
 							"teamName");
 					boolean pending = response.getJSONObject(i).getBoolean(
 							"pendingApproval");
-					//if (!pending) {
-						teamList.add(new Object[] { id, name, pending });
-					//}
+
+					teamList.add(new Object[] { id, name, pending });
+
 				}
 				UserSession.getInstance(context).teamList = teamList;
 				return 1;
@@ -1069,7 +1069,7 @@ public class CommUtil {
 		pairs.add(new BasicNameValuePair("teamEventTeamId", Integer
 				.toString(teamID)));
 		pairs.add(new BasicNameValuePair("teamEventId", Integer
-				.toString(teamID)));
+				.toString(eventID)));
 		pairs.add(new BasicNameValuePair("teamEventName", title));
 		pairs.add(new BasicNameValuePair("teamEventLocationString", location));
 		pairs.add(new BasicNameValuePair("teamEventDescription", description));
@@ -1113,8 +1113,7 @@ public class CommUtil {
 		pairs.add(new BasicNameValuePair("teamEventTeamId", Integer
 				.toString(teamID)));
 		pairs.add(new BasicNameValuePair("teamEventId", Integer
-				.toString(teamID)));
-		
+				.toString(eventID)));
 
 		try {
 			result = NetworkTasks.RequestData(true, url, pairs);

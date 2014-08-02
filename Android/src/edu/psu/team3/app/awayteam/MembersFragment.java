@@ -174,7 +174,7 @@ public class MembersFragment extends Fragment {
 				builder.setTitle("Select a Number to Call");
 				final ArrayAdapter<String> adapter = new ArrayAdapter<>(
 						getActivity(),
-						android.R.layout.select_dialog_singlechoice);
+						android.R.layout.select_dialog_item);
 				for (TeamMember member : contacts) {
 					adapter.add(member.phone);
 				}

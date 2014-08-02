@@ -3,6 +3,7 @@ package edu.psu.team3.app.awayteam;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -61,6 +62,7 @@ public class Team {
 				teamMembers.add(new TeamMember(user, first, last, email, phone,
 						lat, lon, manager));
 			}
+			Collections.sort(teamMembers, TeamMember.FirstNameComparator);
 		} catch (Exception e) {
 			Log.e("TEAM", e.toString());
 			throw new Exception("Error building member list");

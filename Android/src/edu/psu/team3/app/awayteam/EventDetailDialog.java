@@ -7,6 +7,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -77,6 +79,28 @@ public class EventDetailDialog extends DialogFragment {
 						DateFormat.SHORT).format(event.endTime));
 		locationV.setText(event.location);
 		descriptionV.setText(event.description);
+		locationV.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				try {
+					String queryLocation = event.location;
+					queryLocation = queryLocation.replace(' ', '+'); // format
+																		// as
+																		// query
+					Intent geoIntent = new Intent(
+							android.content.Intent.ACTION_VIEW, Uri
+									.parse("geo:0,0?q=" + queryLocation)); // Prepare
+																			// intent
+					geoIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					startActivity(geoIntent); // Initiate lookup
+				} catch (Exception e) {
+					Toast.makeText(getActivity(),
+							"Cannot open Map application", Toast.LENGTH_SHORT)
+							.show();
+				}
+			}
+		});
 
 		// Assign tasks to buttons
 		editButton.setOnClickListener(new OnClickListener() {
@@ -85,8 +109,8 @@ public class EventDetailDialog extends DialogFragment {
 			public void onClick(View v) {
 				DialogFragment newFragment = new EventEditDialog();
 				Bundle args = new Bundle();
-			    args.putInt("id",event.id);
-			    newFragment.setArguments(args);
+				args.putInt("id", event.id);
+				newFragment.setArguments(args);
 				newFragment.show(getFragmentManager(), null);
 				getDialog().dismiss();
 			}
@@ -104,7 +128,7 @@ public class EventDetailDialog extends DialogFragment {
 		});
 
 	}
-	
+
 	public class DeleteEventTask extends AsyncTask<Object, Void, Integer> {
 
 		@Override
@@ -123,14 +147,14 @@ public class EventDetailDialog extends DialogFragment {
 		protected void onPostExecute(final Integer result) {
 			mDeleteTask = null;
 			if (result == 1) {// success!
-				Toast.makeText(getActivity().getBaseContext(),
-						"Event Deleted", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity().getBaseContext(), "Event Deleted",
+						Toast.LENGTH_SHORT).show();
 				// callback the team id
-				
+
 				((DisplayActivity) getActivity()).refreshTeam(UserSession
 						.getInstance(getActivity()).currentTeamID);
 				getDialog().dismiss();
-				
+
 			} else {// some error occured
 				Toast.makeText(getActivity().getBaseContext(),
 						"Unable to Delete Event", Toast.LENGTH_SHORT).show();

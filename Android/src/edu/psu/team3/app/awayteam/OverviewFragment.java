@@ -5,6 +5,8 @@ import java.util.List;
 import edu.psu.team3.app.awayteam.TaskFragment.DeleteTask;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -70,6 +72,30 @@ public class OverviewFragment extends Fragment {
 		mTeamNameView.setText(s.activeTeam.name);
 		mTeamLocView.setText(s.activeTeam.location);
 		mDescriptionView.setText(s.activeTeam.description);
+		mTeamLocView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				try {
+					String queryLocation = UserSession
+							.getInstance(getActivity()).activeTeam.location;
+					queryLocation = queryLocation.replace(' ', '+'); // format
+																		// as
+																		// query
+					Intent geoIntent = new Intent(
+							android.content.Intent.ACTION_VIEW, Uri
+									.parse("geo:0,0?q=" + queryLocation)); // Prepare
+																			// intent
+					geoIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					startActivity(geoIntent); // Initiate lookup
+				} catch (Exception e) {
+					Toast.makeText(getActivity(),
+							"Cannot open Map application", Toast.LENGTH_SHORT)
+							.show();
+				}
+			}
+		});
+
 		if (s.activeTeam.managed) {
 			mManagerDivView.setVisibility(View.VISIBLE);
 			mManagerLabelView.setVisibility(View.VISIBLE);
