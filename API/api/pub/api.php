@@ -1526,10 +1526,19 @@
 
             $xExpense->receipt = $data;
 
-            $xExpense = $xExpense->ApplyReceipt($type);
+            $resp = $xExpense->ApplyReceipt($type);
 
             $jsonstr = array();
-            $jsonstr = array('response' => 'ok');
+
+            if ($resp)
+            {
+                $jsonstr = array('response' => 'success');
+            }
+            else
+            {
+                $jsonstr = array('response' => 'failure');
+            }
+
             $this->response($this->json($jsonstr),200);
         }
 
