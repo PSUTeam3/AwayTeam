@@ -953,7 +953,11 @@
                     //email notify user
                     if ($action == "approve")
                     {
-                        $emailmsg = "Hi " .  $info['subjectLoginId'] . ", <br><br> Your membership status for a team has been recently approved. <br><br>" .
+                        $xTu = new TeamUtilities;
+                        $teamName = $xTu->GetTeamName($teamId);
+                        $emailmsg = "Hi " .  $info['subjectLoginId'] . ", <br><br>" .
+                        "Your membership status for a team has been recently approved. <br><br>" .
+                        "Welcome to $teamName! <br><br>" . 
                         "Thanks,<br>AwayTeam Admins";
                         $subject = "AwayTeam - Team Membership Approved";
 

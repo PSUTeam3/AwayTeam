@@ -34,5 +34,20 @@
                 }
             }
         }        
+
+        public function GetTeamName($teamId)
+        {
+            global $db;
+
+            if ($teamId)
+            {
+                $query = "select teamName from team where teamId=" . myEsc($teamId);
+                
+                $sql = mysql_query($query, $db);
+                $data = mysql_fetch_assoc($sql);
+
+                return $data['teamName'];
+            }
+        }
     }
 ?>
