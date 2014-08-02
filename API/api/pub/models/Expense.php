@@ -149,7 +149,7 @@
                 return $tExpense;
             }
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where expenseId=%f and userId=%f and teamId=%f",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId, octet_length(receipt) as receipt from expense where expenseId=%f and userId=%f and teamId=%f",
                 myEsc($expenseId),
                 myEsc($userId),
                 myEsc($teamId));
@@ -167,6 +167,15 @@
                 foreach($result[0] as $item=>$value)
                 {
                     $tExpense->$item = $value;
+                }
+
+                if ($tExpense->receipt == null || $tExpense->receipt <= 0)
+                {
+                    $tExpense->receipt = false;
+                }
+                else
+                {
+                    $tExpense->receipt = true;
                 }
             }
 
@@ -187,7 +196,7 @@
                 return $sExpense;
             }
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where expDate='%s' and userId=%f and teamId=%f",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId, octet_length(receipt) as receipt from expense where expDate='%s' and userId=%f and teamId=%f",
                 myEsc($reqDate),
                 myEsc($userId),
                 myEsc($teamId));
@@ -199,6 +208,15 @@
                 while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
                 {   
                     $sExpense = $rlt;
+                    
+                    if ($sExpense['receipt'] == null || $sExpense['receipt'] <= 0)
+                    {
+                        $sExpense['receipt'] = false;
+                    }
+                    else
+                    {
+                        $sExpense['receipt'] = true;
+                    }
                     
                     array_push($tExpense, $sExpense);
                 }   
@@ -220,7 +238,7 @@
                 return $sExpense;
             }   
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where expType=%f and userId=%f and teamId=%f",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId, octet_length(receipt) as receipt from expense where expType=%f and userId=%f and teamId=%f",
                 myEsc($reqType),
                 myEsc($userId),
                 myEsc($teamId));
@@ -232,6 +250,15 @@
                 while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
                 {   
                     $sExpense = $rlt;
+                    
+                    if ($sExpense['receipt'] == null || $sExpense['receipt'] <= 0)
+                    {
+                        $sExpense['receipt'] = false;
+                    }
+                    else
+                    {
+                        $sExpense['receipt'] = true;
+                    }
 
                     array_push($tExpense, $sExpense);
                 }
@@ -254,7 +281,7 @@
                 return $sExpense;
             }
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where userId=%f and teamId=%f order by expDate",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId, octet_length(receipt) as receipt from expense where userId=%f and teamId=%f order by expDate",
                 myEsc($userId),
                 myEsc($teamId));
 
@@ -265,6 +292,15 @@
                 while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
                 {
                     $sExpense = $rlt;
+                
+                    if ($sExpense['receipt'] == null || $sExpense['receipt'] <= 0)
+                    {
+                        $sExpense['receipt'] = false;
+                    }
+                    else
+                    {
+                        $sExpense['receipt'] = true;
+                    }
 
                     array_push($tExpense, $sExpense);
                 }
