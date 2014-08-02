@@ -1507,6 +1507,7 @@
 
             $info = $this->_request;
             $putData = $_FILES['file'];
+            $authUser = $this->AuthRequired($info);
 
             if (isset($info['loginId']))
             {
