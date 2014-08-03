@@ -18,16 +18,36 @@ root@awayteamDev:/home/awayteam/Desktop/php-5.4.30#
 */
     require_once('/home/awayteam/api/pub/apiconfig.php');
     require_once('/home/awayteam/api/pub/models/TeamMembers.php');
+    require_once('/home/awayteam/api/pub/models/Team.php');
+    require_once('/home/awayteam/api/pub/models/User.php');
     
     class TeamMembersXUnitTest extends PHPUnit_Framework_TestCase
     {
+        var $team0;
+        var $teamMembers0;
+        var $team0Id;
+        var $userId;
+        var $user;
+        
         public function setUp() {
             dbConnect();
-            $teamMembers0 = new TeamMembers;
-            $teamMembers0->teamId = 1;
-            $teamMembers0->userId = 1;
-            $teamMembers0->manager = "false";
-            $teamMembers0->pendingApproval = "false";
+            global $db;
+            
+            $this->user = new User;
+            $this->team0 = new Team;
+            $this->team0->teamName = "chargers";
+            $this->team0->teamDescription = "who dat going to beat those saints";
+            $this->team0->teamLocationName = "la jolla";
+            $this->team0->teamManaged = "false";
+            
+            $team0Id = $this->team0->InsertTeam('vuda1');
+            $user = $this->user->SelectUserFromLoginID('vuda1');
+            
+            $this->teamMembers0 = new TeamMembers;
+            $this->teamMembers0->teamId = $team0Id;
+            $this->teamMembers0->userId = $user->userId;
+            $this->teamMembers0->manager = "false";
+            $this->teamMembers0->pendingApproval = "false";
             
             
         }
@@ -49,30 +69,17 @@ root@awayteamDev:/home/awayteam/Desktop/php-5.4.30#
         }
         
         public function testAddTeamMemberNonManager() {
-            $teamMembers = new TeamMembers;
-            
-            $teamId = 33;
-            $loginId = 'karski';
-            $teamMembers->manager = 0;
             $result = NULL;            
-            $result = $teamMembers->AddteamMember($teamId,$loginId);
+            $result = $teamMembers->AddteamMember($team0Id,'vuda1');
             $this->assertTrue($result > 0);
         }
         
         public function testAddFirstTeamMember() {
-            $teamMembers = new TeamMembers;
-            
-            $teamId = 14;
-            $loginId = 'karski';
-            $result = $teamMembers->AddFirstTeamMember($teamId,$loginId);
+            $result = $teamMembers->AddFirstTeamMember($team0Id,'karski');
             $this->assertTrue($result > 0);
         }
         
         public function testSelectTeamMemberFromId() {
-            $teamMembers = new TeamMembers;
-            
-            $id = 19;
-            $result=NULL;
             $result = $teamMembers->SelectTeamMemberFromId($id);
             $this->assertTrue($result != NULL);
         }
