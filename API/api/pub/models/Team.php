@@ -256,30 +256,9 @@
             }
         }
         
-        public function SelectTeamFromTeamName($teamName, $loginId) {
+        public function SelectTeamFromTeamName($teamName) {
             global $db;
             $tTeam = new Team;
-            $query = "select userId from user where loginId = '" . myEsc($loginId) ."'";
-            $sql = mysql_query($query, $db);
-            if(mysql_num_rows($sql) > 0) {
-                $result = array();
-                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                    $result[] = $rlt;
-                }
-                
-                $userId = $result[0]['userId'];
-            }
-            
-            $query = "select teamId from team where teamName = '" . myEsc($teamName) ."'";
-            $sql = mysql_query($query, $db);
-            if(mysql_num_rows($sql) > 0) {
-                $result = array();
-                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                    $result[] = $rlt;
-                }
-                
-                $teamId = $result[0]['teamId'];
-            }
             
 
             $query = "select * from team where teamName ='" . myEsc($teamName) . "'";
@@ -288,15 +267,12 @@
             if(mysql_num_rows($sql) > 0) {
                 $result = array();
                 
-                while($row = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                    $result[] = $rlt;
+                while($row = mysql_fetch_object($sql)) {
+                    $tTeam = $row;
+                    $result[] = $tTeam;
                 }
                 
-                foreach($result as $item=>$value) {
-                    $tTeam->$item=$value;
-                }
-                
-                return $tTeam;
+                return $result;
             } else {
                 //What do we want to do with empty teamName field?
                 //Error message

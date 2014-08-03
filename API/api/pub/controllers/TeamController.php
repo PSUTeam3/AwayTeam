@@ -22,10 +22,6 @@
             return $this->SelectTeamFromId($teamId,$loginId);
         }
         
-        public function GetTeamFromTeamName($teamName) {
-            return $this->SelectTeamFromTeamName($teamName);          
-        }        
-        
         public function GetTeamListForUser($loginId) {
             return $this->GetTeamList($loginId);
         }

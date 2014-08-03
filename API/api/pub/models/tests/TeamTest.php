@@ -55,28 +55,30 @@
         
         public function testSelectAllTeams() {
             $team = new Team;
-            $result = $team->SelectAllTeams();
+            $result = $this->team0->SelectAllTeams();
             $this->assertNotEmpty($result);
+        }
+        
+        public function testSelectTeamFromTeamName() {
+            $team = new Team;
+            $result = NULL;           
+            $result =$this->team1->SelectTeamFromTeamName("49ers");
+            $this->assertNotNull($result);
         }
         
         public function testSelectTeamFromId() {
             $team = new Team;            
             $result = NULL;
-            $result = $team ->SelectTeamFromId(34,'vuda1');
-            $this->assertNotNull($result);
-        }
-        
-        public function testSelectTeamFromTeamName() {
-            $team = new Team;
-            $result = NULL;
-            $result = $team->SelectTeamFromTeamName('49ers','vuda1');
+            $team = $this->team1->SelectTeamFromTeamName("49ers");
+            $teamId = $team[0]->teamId;
+            $result = $this->team1->SelectTeamFromId($teamId,'vuda1');
             $this->assertNotNull($result);
         }
         
         public function testGetTeamList() {        
             $team = new Team;
             $result = NULL;            
-            $result = $team->GetTeamList($this->userId);
+            $result = $this->team0->GetTeamList($this->userId);
             $this->assertNotNull($result);
         }
         
@@ -86,24 +88,29 @@
             $this->team0->teamDescription = "moved to New Orleans";
             $this->team0->teamManaged = 0;
             $result = NULL;
-            $result = $this->team0->ModifyTeamModel();
+            $result = $this->team0->ModifyTeamModel("vuda1");
             $this->assertNotNull($result);
         }
         
         public function testModifyTeamNameModel() {
             $team = new Team;
             $result = NULL;
-            $result = $team->ModifyTeamNameModel(12,"Saints");
+            $result = $this->team1->ModifyTeamNameModel(12,"Saints");
             $this->assertNotNull($result);
         }
 
         public function testDeleteTeam() {
             $team = new Team;
             $result = NULL;
-            $result = $team->DeleteTeam(57);
+            
+            $team = $this->team0->SelectTeamFromTeamName("saints1");
+            $team0Id = $team[0]->teamId;            
+            $result = $this->team0->DeleteTeam($team0Id);
             $this->assertTrue($result);
             
-            $result = $team->DeleteTeam(58);
+            $team = $this->team1->SelectTeamFromTeamName("49ers");
+            $team1Id = $team[0]->teamId;
+            $result = $this->team1->DeleteTeam($team1Id);
             $this->assertTrue($result);
         }
     }
