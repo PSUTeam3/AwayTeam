@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import edu.psu.team3.app.awayteam.CreateTeamDialog.CreateTeamTask;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
@@ -14,8 +15,11 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +28,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -41,6 +46,9 @@ public class ExpenseCreateDialog extends DialogFragment {
 	Spinner catSpinner;
 	EditText amountView;
 	EditText descView;
+	
+	Button addReceipt;
+	ImageView receiptPreView;
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -121,9 +129,40 @@ public class ExpenseCreateDialog extends DialogFragment {
 					dateDialog.show();
 				}
 			});
+			
+			//init receipt UI
+			addReceipt = (Button) d.findViewById(R.id.expenseAddReceipt);
+			receiptPreView = (ImageView) d.findViewById(R.id.expenseReceiptThumb);
+			addReceipt.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					//Try to take a pic
+					Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+				    if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+				        startActivityForResult(takePictureIntent, 1);
+				    }
+				}
+			});
 		}
+		
+		
+		
 	}
 
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.v("RCPT","Result Code: "+resultCode);
+	    if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+	        Bundle extras = data.getExtras();
+	        Bitmap imageBitmap = (Bitmap) extras.get("data");
+	        receiptPreView.setImageBitmap(imageBitmap);
+	        receiptPreView.setVisibility(View.VISIBLE);
+	        addReceipt.setText("Replace Receipt");
+	    }
+	}
+	
 	private void attemptCreateExpense() {
 		boolean cancel = false;
 		View focusView = null;

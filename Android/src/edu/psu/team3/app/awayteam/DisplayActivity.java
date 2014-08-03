@@ -364,6 +364,12 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		}
 	}
 
+	// catches activity returns and passes them along to the correct fragment
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
 	// Collects the new team ID from a dialog
 	public void refreshTeam(int teamID) {
 		Log.v("DISPLAY", "received team selection: " + teamID);

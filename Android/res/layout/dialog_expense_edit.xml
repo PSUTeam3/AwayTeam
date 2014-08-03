@@ -51,6 +51,28 @@
             android:hint="Description"
             android:inputType="textMultiLine|textCapSentences" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/expenseAddReceipt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:drawableLeft="@drawable/ic_action_attachment"
+                android:text="Add Receipt" />
+
+            <ImageView
+                android:id="@+id/expenseReceiptThumb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/ic_action_attachment"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
     
