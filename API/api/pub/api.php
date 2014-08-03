@@ -1017,7 +1017,10 @@
             } else if(!isset($info['taskDescription'])) {
                 $jsonMsg = array('status' => 'failure','response' => "task description is not filled in");
                 $failure = true;
-            }  else if($tm->VerifyTeamMemberExist($info['taskTeamId'],$user->userId) == false) {
+            } else if(!isset($info['loginId'])) {                
+                $jsonMsg = array('status' => 'failure' ,'response' => "login id is not filled in");
+                $failure = true;
+            } else if($tm->VerifyTeamMemberExist($info['taskTeamId'],$user->userId) == false) {
                 $jsonMsg = array('status' => 'failure', 'response' => "user not on team");
                 $failure = true;
             }
@@ -1094,7 +1097,7 @@
             $this->response($this->json($jsonMsg),200);
         }
         
-        private function TeamTasks_EditTask() {
+        private function TeamTasks_DeleteTask() {
             $teamTask = new TeamTasksController;
             $tm = new TeamMembers;
             $user = new User;
@@ -1113,12 +1116,6 @@
             if(!isset($info['taskId'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "task Id is not filled in");
                 $failure = true;
-            } else if(!isset($info['taskTitle'])) {
-                $jsonMsg = array('status' => 'failure', 'response' => "task title is not filled in");
-                $failure = true;
-            } else if(!isset($info['taskDescription'])) {
-                $jsonMsg = array('status' => 'failure', 'response' => "task description is not filled in");
-                $failure = true;
             } else if(!isset($info['taskTeamId'])) {
                 $jsonMsg = array('status' => 'failure', 'response' => "task team Id is not filled in");
                 $failure = true;
@@ -1131,12 +1128,12 @@
             }
             
             if($failure == false) {
-                $result = $teamTask->ModifyTeamTaskModel($info);
+                $result = $teamTask->RemoveTeamTask($info['taskId']);
                 
                 if($result == true) {
-                    $jsonMsg = array('status' => 'success' , 'response' => "change completed successfully");
+                    $jsonMsg = array('status' => 'success' , 'response' => "deletion successful");
                 } else {
-                    $jsonMsg = array('status' => 'failure' , 'response' => "change couldn't be completed");
+                    $jsonMsg = array('status' => 'failure' , 'response' => "deletion unsuccessful");
                 }
             }
             
