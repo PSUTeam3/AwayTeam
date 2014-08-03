@@ -56,7 +56,7 @@
             global $db;
             $query = sprintf("insert into team_event(teamEventName,teamEventDescription,teamEventLocationString,teamEventStartTime,teamEventEndTime,teamEventTeamId) 
                                 values('%s','%s','%s','%s','%s',%d)",
-                    myEsc(strtolower($this->teamEventName)),                    
+                    myEsc($this->teamEventName),
                     myEsc($this->teamEventDescription),
                     myEsc($this->teamEventLocationString),
                     myEsc($this->teamEventStartTime),
