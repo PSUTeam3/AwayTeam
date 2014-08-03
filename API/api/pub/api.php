@@ -1167,13 +1167,13 @@
                 if ($results->taskId == -999)
                 {    
                     //nothing found
-                    $jsonstr = array('response' => 'no results');
+                    $jsonstr = array('response' => 'failure', 'message' => 'null');
                     $this->response($this->json($jsonstr),200);
                     exit;
                 }    
             }    
             //results found
-            $jsonstr = array('response' => $results);
+            $jsonstr = array('response' => 'success', 'message' => $results);
             $this->response($this->json($jsonstr),200);
         }    
 
