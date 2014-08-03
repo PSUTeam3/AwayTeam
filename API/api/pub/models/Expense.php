@@ -67,10 +67,20 @@
             return $id;
         }
 
-        public function ApplyReceipt($expenseId)
-        {
-            return 0;
-        }
+        public function ApplyReceipt($type)
+        {   
+            global $db;
+
+            $receipt = $this->receipt;
+
+            $receipt = 'data:image/' . $type . ';base64,' . base64_encode($receipt);
+            $this->receipt = $receipt;
+
+            $query = "update expense set receipt='" . $this->receipt . "' where expenseId=" . myEsc($this->expenseId);
+    
+            $sql = mysql_query($query, $db);
+            return $sql;
+        }   
 
         public function DeleteExpense($id)
         {
@@ -100,10 +110,32 @@
             return $sql;
         }
 
-        public function SelectReceipt($expenseId)
+        public function SelectReceipt($expenseId, $userId, $teamId)
         {
-            return 0;
-        }
+            global $db;
+
+            $query = sprintf("select receipt from expense where userId=%d and teamId=%d and expenseId=%d",
+                myEsc($userId),
+                myEsc($teamId),
+                myEsc($expenseId));
+
+            $sql = mysql_query($query, $db);
+
+            if (mysql_num_rows($sql) > 0)
+            {
+                $result = array();
+                while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
+                {
+                    $result[] = $rlt;
+                }
+
+                return $result[0]['receipt'];
+            }
+            else
+            {
+                return null;
+            }
+        }        
 
         public function SelectExpense($expenseId, $userId, $teamId)
         {
@@ -117,7 +149,7 @@
                 return $tExpense;
             }
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where expenseId=%f and userId=%f and teamId=%f",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId, octet_length(receipt) as receipt from expense where expenseId=%f and userId=%f and teamId=%f",
                 myEsc($expenseId),
                 myEsc($userId),
                 myEsc($teamId));
@@ -135,6 +167,15 @@
                 foreach($result[0] as $item=>$value)
                 {
                     $tExpense->$item = $value;
+                }
+
+                if ($tExpense->receipt == null || $tExpense->receipt <= 0)
+                {
+                    $tExpense->receipt = false;
+                }
+                else
+                {
+                    $tExpense->receipt = true;
                 }
             }
 
@@ -155,7 +196,7 @@
                 return $sExpense;
             }
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where expDate='%s' and userId=%f and teamId=%f",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId, octet_length(receipt) as receipt from expense where expDate='%s' and userId=%f and teamId=%f",
                 myEsc($reqDate),
                 myEsc($userId),
                 myEsc($teamId));
@@ -167,6 +208,15 @@
                 while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
                 {   
                     $sExpense = $rlt;
+                    
+                    if ($sExpense['receipt'] == null || $sExpense['receipt'] <= 0)
+                    {
+                        $sExpense['receipt'] = false;
+                    }
+                    else
+                    {
+                        $sExpense['receipt'] = true;
+                    }
                     
                     array_push($tExpense, $sExpense);
                 }   
@@ -188,7 +238,7 @@
                 return $sExpense;
             }   
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where expType=%f and userId=%f and teamId=%f",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId, octet_length(receipt) as receipt from expense where expType=%f and userId=%f and teamId=%f",
                 myEsc($reqType),
                 myEsc($userId),
                 myEsc($teamId));
@@ -200,6 +250,15 @@
                 while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
                 {   
                     $sExpense = $rlt;
+                    
+                    if ($sExpense['receipt'] == null || $sExpense['receipt'] <= 0)
+                    {
+                        $sExpense['receipt'] = false;
+                    }
+                    else
+                    {
+                        $sExpense['receipt'] = true;
+                    }
 
                     array_push($tExpense, $sExpense);
                 }
@@ -222,7 +281,7 @@
                 return $sExpense;
             }
 
-            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId from expense where userId=%f and teamId=%f order by expDate",
+            $query = sprintf("select userId,teamId,description, amount, expDate, expType+0 as expType, expenseId, octet_length(receipt) as receipt from expense where userId=%f and teamId=%f order by expDate",
                 myEsc($userId),
                 myEsc($teamId));
 
@@ -233,6 +292,15 @@
                 while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
                 {
                     $sExpense = $rlt;
+                
+                    if ($sExpense['receipt'] == null || $sExpense['receipt'] <= 0)
+                    {
+                        $sExpense['receipt'] = false;
+                    }
+                    else
+                    {
+                        $sExpense['receipt'] = true;
+                    }
 
                     array_push($tExpense, $sExpense);
                 }
@@ -243,4 +311,3 @@
         }
     }
 ?>
-

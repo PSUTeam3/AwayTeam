@@ -953,7 +953,11 @@
                     //email notify user
                     if ($action == "approve")
                     {
-                        $emailmsg = "Hi " .  $info['subjectLoginId'] . ", <br><br> Your membership status for a team has been recently approved. <br><br>" .
+                        $xTu = new TeamUtilities;
+                        $teamName = $xTu->GetTeamName($teamId);
+                        $emailmsg = "Hi " .  $info['subjectLoginId'] . ", <br><br>" .
+                        "Your membership status for a team has been recently approved. <br><br>" .
+                        "Welcome to $teamName! <br><br>" . 
                         "Thanks,<br>AwayTeam Admins";
                         $subject = "AwayTeam - Team Membership Approved";
 
@@ -1461,8 +1465,87 @@
 
         }
 
-        //GetReceipt(expenseId)
-        //PutReceipt(expenseId)
+        private function Expense_GetReceipt()
+        {    
+            $xExpense = new ExpenseController;
+            $xUser    = new UserController;
+
+            if ($this->get_request_method() != "GET")
+            {    
+                $this->response('', 406);
+            }    
+
+            $info = $this->_request;
+
+            if (isset($info['loginId']))
+            {    
+                $loginId = $info['loginId'];
+                $xUser = $xUser->GetUserFromLoginID($loginId);
+                unset($info['loginId']);
+                $info['userId'] = $xUser->userId;
+            }    
+     
+            $data = $xExpense->GetReceipt($info);
+
+            if ($data != NULL)
+            {    
+                list($junk,$img) = explode(',', $data);
+                $img = base64_decode($img);
+                $img = imagecreatefromstring($img);
+                header('Content-Type: image/jpeg');
+                imagejpeg($img, NULL, 75); 
+                imagedestroy($img);
+                exit;
+            }    
+        }  
+
+        private function Expense_PutReceipt()
+        {
+            $xExpense = new ExpenseController;
+            $xUser    = new UserController;
+
+            if ($this->get_request_method() != "POST")
+            {
+                $this->response('', 406);
+            }
+
+            $info = $this->_request;
+            $putData = $_FILES['file'];
+            $authUser = $this->AuthRequired($info);
+
+            if (isset($info['loginId']))
+            {
+                $loginId = $info['loginId'];
+                $xUser = $xUser->GetUserFromLoginID($loginId);
+                unset($info['loginId']);
+                $info['userId'] = $xUser->userId;
+            }
+
+            $xExpense = $xExpense->GetExpense($info);
+
+            //move_uploaded_file($putData['tmp_name'], "/tmp/newfile.file");
+
+            $type = pathinfo($putData['tmp_name'], PATHINFO_EXTENSION);
+            $type = "jpeg";
+            $data = file_get_contents($putData['tmp_name']);
+
+            $xExpense->receipt = $data;
+
+            $resp = $xExpense->ApplyReceipt($type);
+
+            $jsonstr = array();
+
+            if ($resp)
+            {
+                $jsonstr = array('response' => 'success');
+            }
+            else
+            {
+                $jsonstr = array('response' => 'failure');
+            }
+
+            $this->response($this->json($jsonstr),200);
+        }
 
         private function FQ_GetSpots()
         {
