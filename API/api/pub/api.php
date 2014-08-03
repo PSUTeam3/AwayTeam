@@ -1139,6 +1139,41 @@
             
             $this->response($this->json($jsonMsg),200);
         }
+
+        //added by request
+        private function TeamTasks_GetTasks()
+        {    
+            $xTask = new TeamTasksController;
+
+            if ($this->get_request_method() != "POST")
+            {    
+                $this->response('',406);
+            }    
+
+            $array1         = $this->_request;
+            $authUser       = $this->AuthRequired($array1);
+
+            $results        = $xTask->GetTeamTasks($array1['taskTeamId']);
+
+            if (is_array($results))
+            {    
+               // do nothing... good stuff 
+            }    
+            else 
+            {    
+                if ($results->taskId == -999)
+                {    
+                    //nothing found
+                    $jsonstr = array('response' => 'no results');
+                    $this->response($this->json($jsonstr),200);
+                    exit;
+                }    
+            }    
+            //results found
+            $jsonstr = array('response' => $results);
+            $this->response($this->json($jsonstr),200);
+        }    
+
         
         private function TeamEvent_CreateEvent() {
             $teamEventController = new TeamEventController;

@@ -26,6 +26,12 @@
         public function RemoveTeamTask($taskId) {
             return $this->DeleteTeamTask($taskId);
         }
+
+        //added by request
+        public function GetTeamTasks($teamId)
+        {
+            return $this->SelectTeamTasks($teamId);
+        }
         
         private function arrayToObject($array) {
             $teamTasks = new TeamTasks;

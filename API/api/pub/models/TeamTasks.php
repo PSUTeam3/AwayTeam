@@ -97,5 +97,47 @@
                 return $sql;
             }
         }
+
+        //added by request
+        public function SelectTeamTasks($teamId)
+        {
+            global $db;
+            $tTasks = array(); //whole
+            $sTask  = new TeamTasks; //part
+
+            if (!$teamId)
+            {
+                return $sTask;
+            }
+            
+            $query = "select taskId, taskTitle, taskDescription, taskCompleted, taskTeamId from team_tasks where taskTeamId=" . myEsc($teamId);
+
+            $sql = mysql_query($query, $db);
+
+            if (mysql_num_rows($sql) > 0)
+            {
+                while ($rlt = mysql_fetch_array($sql, MYSQL_ASSOC))
+                {
+                    $sTask = $rlt;
+
+                    if ($sTask['taskCompleted'] == 0)
+                    {
+                        $sTask['taskCompleted'] = false;
+                    }
+                    else
+                    {
+                        $sTask['taskCompleted'] = true;
+                    }
+
+                    array_push($tTasks, $sTask);
+                }
+                
+                return $tTasks;
+            }
+            else
+            {
+                return $sTask;
+            }
+        }
     }
 ?>
