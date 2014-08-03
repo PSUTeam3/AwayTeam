@@ -36,6 +36,7 @@ public class TaskFragment extends Fragment {
 	TaskListAdapter adapter;
 	boolean sort = false;
 	boolean delete = false;
+	ActionMode mMode = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -100,6 +101,7 @@ public class TaskFragment extends Fragment {
 				}
 				// otherwise, hold on to the selection so the background
 				// task can use it
+				mMode = null;
 			}
 
 			@Override
@@ -108,6 +110,7 @@ public class TaskFragment extends Fragment {
 				inflater.inflate(R.menu.multi_select, menu);
 				selectMenu = menu;
 				delete = false;
+				mMode = mode;
 				return true;
 			}
 
@@ -143,7 +146,7 @@ public class TaskFragment extends Fragment {
 					adapter.removeSelection(position);
 				}
 
-				final int checkedCount = mTaskListView.getCheckedItemCount();
+				final int checkedCount = adapter.getSelection().size();
 				switch (checkedCount) {
 				case 0:
 					mode.setSubtitle(null);
@@ -161,7 +164,15 @@ public class TaskFragment extends Fragment {
 			}
 		});
 	}
-
+	
+	@Override
+	public void onPause(){
+		super.onPause();
+		if(mMode!=null){
+			mMode.finish();
+		}
+	}
+	
 	// background task to delete the selected tasks
 	public class DeleteTask extends AsyncTask<Object, Void, Integer> {
 		@Override

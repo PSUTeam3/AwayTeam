@@ -32,6 +32,7 @@ public class ExpenseFragment extends Fragment {
 	ExpenseListAdapter adapter;
 
 	boolean delete = false;
+	ActionMode mMode = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -102,6 +103,7 @@ public class ExpenseFragment extends Fragment {
 						}
 						// otherwise, hold on to the selection so the background
 						// task can use it
+						mMode = null;
 					}
 
 					@Override
@@ -110,6 +112,7 @@ public class ExpenseFragment extends Fragment {
 						inflater.inflate(R.menu.multi_select, menu);
 						selectMenu = menu;
 						delete = false;
+						mMode = mode;
 						return true;
 					}
 
@@ -148,8 +151,7 @@ public class ExpenseFragment extends Fragment {
 							adapter.removeSelection(position);
 						}
 
-						final int checkedCount = expenseListView
-								.getCheckedItemCount();
+						final int checkedCount = adapter.getSelection().size();
 						switch (checkedCount) {
 						case 0:
 							mode.setSubtitle(null);
@@ -186,6 +188,14 @@ public class ExpenseFragment extends Fragment {
 		});
 	}
 
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (mMode != null) {
+			mMode.finish();
+		}
+	}
+
 	// update the expense total field in the window with the total of all items
 	// in the list
 	private void calcExpense(List<TeamExpense> expenses) {
@@ -197,7 +207,7 @@ public class ExpenseFragment extends Fragment {
 		expenseTotalView.setText("$" + formattedAmount);
 	}
 
-	//background task to delete the selected expenses
+	// background task to delete the selected expenses
 	public class DeleteExpenseTask extends AsyncTask<Object, Void, Integer> {
 		@Override
 		protected Integer doInBackground(Object... params) {

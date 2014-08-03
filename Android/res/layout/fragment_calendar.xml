@@ -38,6 +38,7 @@
         android:id="@+id/agenda_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:choiceMode="multipleChoiceModal"
         android:stackFromBottom="false"
         android:transcriptMode="normal" />
 

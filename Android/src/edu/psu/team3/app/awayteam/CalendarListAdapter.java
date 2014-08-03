@@ -1,11 +1,15 @@
 package edu.psu.team3.app.awayteam;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.content.res.XmlResourceParser;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +20,7 @@ import android.widget.TextView;
 public class CalendarListAdapter extends ArrayAdapter<TeamEvent> {
 	Context mContext;
 	List<TeamEvent> eventList;
+	List<TeamEvent> selectedList = new ArrayList<TeamEvent>();
 
 	public CalendarListAdapter(Context context, int resource,
 			List<TeamEvent> objects) {
@@ -46,7 +51,7 @@ public class CalendarListAdapter extends ArrayAdapter<TeamEvent> {
 			boolean header = false;
 
 			// Format for the dates and times
-			//find out if date header is needed for new day
+			// find out if date header is needed for new day
 			if (position == 0) {
 				// fill in the header
 				header = true;
@@ -60,7 +65,7 @@ public class CalendarListAdapter extends ArrayAdapter<TeamEvent> {
 				header = true;
 			}
 
-			//fill in date header
+			// fill in date header
 			if (header) {
 				TextView dateV = (TextView) rowV.findViewById(R.id.date_text);
 				dateV.setVisibility(View.VISIBLE);
@@ -68,7 +73,7 @@ public class CalendarListAdapter extends ArrayAdapter<TeamEvent> {
 						.format(eventList.get(position).startTime));
 			}
 
-			//fill in event times for entry
+			// fill in event times for entry
 			if (start.get(Calendar.DAY_OF_YEAR) == end
 					.get(Calendar.DAY_OF_YEAR)
 					&& start.get(Calendar.YEAR) == end.get(Calendar.YEAR)) {
@@ -89,12 +94,34 @@ public class CalendarListAdapter extends ArrayAdapter<TeamEvent> {
 			}
 			// grey out background if the event is before now
 			if (eventList.get(position).endTime.before(new Date())) {
-				rowV.findViewById(R.id.calendarEntryBack).setBackgroundColor(
-						this.getContext().getResources()
-								.getColor(android.R.color.darker_gray));
+//				int color = Color.argb(100, 150, 150, 150);
+//				rowV.findViewById(R.id.calendarEntryBack).setBackgroundColor(
+//						color);
+//				XmlResourceParser parser = getContext().getResources().getXml(
+//						R.color.past_activated_background);
+//				ColorStateList colors = ColorStateList.createFromXml(
+//						getContext().getResources(), parser);
+				rowV.findViewById(R.id.calendarEntryBack).setBackgroundResource(R.color.past_activated_background);
 			}
 		}
 		return rowV;
 
+	}
+	
+
+	public void addSelection(int position) {
+		selectedList.add(eventList.get(position));
+	}
+
+	public void removeSelection(int postion) {
+		selectedList.remove(eventList.get(postion));
+	}
+
+	public void clearSelection() {
+		selectedList = new ArrayList<TeamEvent>();
+	}
+
+	public List<TeamEvent> getSelection() {
+		return selectedList;
 	}
 }

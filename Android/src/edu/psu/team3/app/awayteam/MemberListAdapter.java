@@ -1,5 +1,6 @@
 package edu.psu.team3.app.awayteam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 public class MemberListAdapter extends ArrayAdapter<TeamMember> {
 	Context mContext;
 	List<TeamMember> memberList;
+	List<TeamMember> selectedList = new ArrayList<TeamMember>();
+
 	
 	public MemberListAdapter(Context context, int resource, List<TeamMember> objects) {
 		super(context, R.layout.team_list_item, objects);
@@ -38,6 +41,41 @@ public class MemberListAdapter extends ArrayAdapter<TeamMember> {
 		}
 		return rowV;
 
+	}
+	
+	public void addSelection(int position) {
+		selectedList.add(memberList.get(position));
+	}
+
+	public void removeSelection(int postion) {
+		selectedList.remove(memberList.get(postion));
+	}
+
+	public void clearSelection() {
+		selectedList = new ArrayList<TeamMember>();
+	}
+
+	public List<TeamMember> getSelection() {
+		return selectedList;
+	}
+	
+	public boolean selectionContainsSelf(){
+		UserSession s = UserSession.getInstance(getContext());
+		for(TeamMember member:selectedList){
+			if(member.userName.equals(s.getUsername())){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean selectionContainsManager(){
+		for(TeamMember member:selectedList){
+			if(member.manager){
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

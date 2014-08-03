@@ -30,8 +30,8 @@ public class EventDetailDialog extends DialogFragment {
 	TextView endV;
 	TextView locationV;
 	TextView descriptionV;
-	Button editButton;
-	ImageButton deleteButton;
+	//Button editButton;
+	//ImageButton deleteButton;
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -65,9 +65,9 @@ public class EventDetailDialog extends DialogFragment {
 		locationV = (TextView) d.findViewById(R.id.calendar_location_text);
 		descriptionV = (TextView) d
 				.findViewById(R.id.calendar_description_text);
-		editButton = (Button) d.findViewById(R.id.calendar_edit_button);
-		deleteButton = (ImageButton) d
-				.findViewById(R.id.calendar_delete_button);
+//		editButton = (Button) d.findViewById(R.id.calendar_edit_button);
+//		deleteButton = (ImageButton) d
+//				.findViewById(R.id.calendar_delete_button);
 
 		// fill data
 		titleV.setText(event.title);
@@ -103,29 +103,29 @@ public class EventDetailDialog extends DialogFragment {
 		});
 
 		// Assign tasks to buttons
-		editButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				DialogFragment newFragment = new EventEditDialog();
-				Bundle args = new Bundle();
-				args.putInt("id", event.id);
-				newFragment.setArguments(args);
-				newFragment.show(getFragmentManager(), null);
-				getDialog().dismiss();
-			}
-		});
-		deleteButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if (mDeleteTask == null) {
-					mDeleteTask = new DeleteEventTask();
-					mDeleteTask.execute();
-				}
-
-			}
-		});
+//		editButton.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				DialogFragment newFragment = new EventEditDialog();
+//				Bundle args = new Bundle();
+//				args.putInt("id", event.id);
+//				newFragment.setArguments(args);
+//				newFragment.show(getFragmentManager(), null);
+//				getDialog().dismiss();
+//			}
+//		});
+//		deleteButton.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				if (mDeleteTask == null) {
+//					mDeleteTask = new DeleteEventTask();
+//					mDeleteTask.execute();
+//				}
+//
+//			}
+//		});
 
 	}
 
