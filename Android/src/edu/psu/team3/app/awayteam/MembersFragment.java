@@ -159,12 +159,17 @@ public class MembersFragment extends Fragment {
 						MenuInflater inflater = getActivity().getMenuInflater();
 						inflater.inflate(R.menu.multi_select_members, menu);
 						if (UserSession.getInstance(getActivity()).activeTeam.userManager) {
-							menu.setGroupVisible(R.id.menu_group_manager, true);
+							menu.setGroupVisible(R.id.menu_group_manager_header, true);
+							menu.setGroupVisible(R.id.menu_group_manager_not_manager, true);
+							menu.setGroupVisible(R.id.menu_group_manager_not_self, true);
 							manager = true;
 						} else {
-							menu.setGroupVisible(R.id.menu_group_manager, false);
+							menu.setGroupVisible(R.id.menu_group_manager_header, false);
+							menu.setGroupVisible(R.id.menu_group_manager_not_manager, false);
+							menu.setGroupVisible(R.id.menu_group_manager_not_self, false);
 							manager = false;
 						}
+						Log.v("MENU","Manager = "+manager);
 						selectMenu = menu;
 						background = false;
 						mMode = mode;
@@ -240,17 +245,17 @@ public class MembersFragment extends Fragment {
 						if (manager) {
 							if (adapter.selectionContainsManager()) {
 								selectMenu.setGroupEnabled(
-										R.id.menu_group_not_manager, false);
+										R.id.menu_group_manager_not_manager, false);
 							} else {
 								selectMenu.setGroupEnabled(
-										R.id.menu_group_not_manager, true);
+										R.id.menu_group_manager_not_manager, true);
 							}
 							if (adapter.selectionContainsSelf()) {
 								selectMenu.setGroupEnabled(
-										R.id.menu_group_not_self, false);
+										R.id.menu_group_manager_not_self, false);
 							} else {
 								selectMenu.setGroupEnabled(
-										R.id.menu_group_not_self, true);
+										R.id.menu_group_manager_not_self, true);
 							}
 
 						}

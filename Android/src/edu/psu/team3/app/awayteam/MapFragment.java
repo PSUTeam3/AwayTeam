@@ -99,15 +99,24 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 		map = mapView.getMap();
 
 		// get current location
+		UserSession s = UserSession.getInstance(getActivity());
 		LocationManager mgr = (LocationManager) getActivity().getSystemService(
 				Context.LOCATION_SERVICE);
 		Location lastKnownLocation = mgr
 				.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		currentLocation = new LatLng(lastKnownLocation.getLatitude(),
-				lastKnownLocation.getLongitude());
-		UserSession s = UserSession.getInstance(getActivity());
-		s.activeTeam.getUser(s.getUsername()).lat = currentLocation.latitude;
-		s.activeTeam.getUser(s.getUsername()).lon = currentLocation.longitude;
+		if (lastKnownLocation != null) {
+			// I have more current location - use that
+			currentLocation = new LatLng(lastKnownLocation.getLatitude(),
+					lastKnownLocation.getLongitude());
+
+			s.activeTeam.getUser(s.getUsername()).lat = currentLocation.latitude;
+			s.activeTeam.getUser(s.getUsername()).lon = currentLocation.longitude;
+		} else {
+			// use stored user location - may be 0,0
+			currentLocation = new LatLng(
+					s.activeTeam.getUser(s.getUsername()).lat,
+					s.activeTeam.getUser(s.getUsername()).lon);
+		}
 
 		// initialize map to user location
 		map.setMyLocationEnabled(true);
@@ -359,6 +368,11 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					.getSystemService(Context.LOCATION_SERVICE);
 			Location lastKnownLocation = mgr
 					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			if (lastKnownLocation == null) {
+				// no location found - report to user
+				return null;
+			}
+			;
 
 			currentLocation = new LatLng(lastKnownLocation.getLatitude(),
 					lastKnownLocation.getLongitude());
@@ -383,6 +397,9 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 				resultArray = result.getJSONArray("response");
 			} catch (Exception e) {
 				e.printStackTrace();
+				Toast.makeText(getActivity(),
+						"Unable to return results. Ensure Location is ON",
+						Toast.LENGTH_SHORT).show();
 				return;
 			}
 			for (int i = 0; i < resultArray.length(); i++) {

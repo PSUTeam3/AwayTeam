@@ -23,14 +23,16 @@ public class TeamExpense {
 	public double amount = 0;
 	public Category category = Category.OTHER;
 	public String description = "";
+	public boolean hasReceipt = false;
 
 	public TeamExpense(int expID, Date expDate, double expAmount,
-			Category expCategory, String expDescription) {
+			Category expCategory, String expDescription, boolean receipt) {
 		id = expID;
 		date = expDate;
 		amount = expAmount;
 		category = expCategory;
 		description = expDescription;
+		hasReceipt = receipt;
 	}
 
 	public TeamExpense() {

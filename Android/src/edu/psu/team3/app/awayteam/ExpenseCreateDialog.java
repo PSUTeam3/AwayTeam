@@ -17,6 +17,7 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -37,6 +38,8 @@ import android.widget.Toast;
 public class ExpenseCreateDialog extends DialogFragment {
 	private CreateExpenseTask mCreateTask = null;
 
+	Uri receiptURI = null;
+
 	private Date date;
 	private double amount = 0;
 	private int category = 0;
@@ -46,7 +49,7 @@ public class ExpenseCreateDialog extends DialogFragment {
 	Spinner catSpinner;
 	EditText amountView;
 	EditText descView;
-	
+
 	Button addReceipt;
 	ImageView receiptPreView;
 
@@ -129,40 +132,46 @@ public class ExpenseCreateDialog extends DialogFragment {
 					dateDialog.show();
 				}
 			});
-			
-			//init receipt UI
+
+			// init receipt UI
 			addReceipt = (Button) d.findViewById(R.id.expenseAddReceipt);
-			receiptPreView = (ImageView) d.findViewById(R.id.expenseReceiptThumb);
+			receiptPreView = (ImageView) d
+					.findViewById(R.id.expenseReceiptThumb);
 			addReceipt.setOnClickListener(new OnClickListener() {
-				
+
 				@Override
 				public void onClick(View v) {
-					//Try to take a pic
-					Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				    if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-				        startActivityForResult(takePictureIntent, 1);
-				    }
+					// Try to take a pic
+					Intent takePictureIntent = new Intent(
+							MediaStore.ACTION_IMAGE_CAPTURE);
+					if (takePictureIntent.resolveActivity(getActivity()
+							.getPackageManager()) != null) {
+						startActivityForResult(takePictureIntent, 1);
+					}
 				}
 			});
 		}
-		
-		
-		
+
 	}
 
-	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.v("RCPT","Result Code: "+resultCode);
-	    if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-	        Bundle extras = data.getExtras();
-	        Bitmap imageBitmap = (Bitmap) extras.get("data");
-	        receiptPreView.setImageBitmap(imageBitmap);
-	        receiptPreView.setVisibility(View.VISIBLE);
-	        addReceipt.setText("Replace Receipt");
-	    }
+		Log.v("RCPT", "Result Code: " + resultCode);
+		if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+			Bundle extras = data.getExtras();
+			Bitmap imageBitmap = (Bitmap) extras.get("data");
+			receiptPreView.setImageBitmap(imageBitmap);
+			receiptPreView.setVisibility(View.VISIBLE);
+			addReceipt.setText("Replace Receipt");
+			receiptURI = data.getData();
+			Toast.makeText(
+					getActivity(),
+					"Receipt Image Saved to: "
+							+ receiptURI.getLastPathSegment(),
+					Toast.LENGTH_SHORT).show();
+		}
 	}
-	
+
 	private void attemptCreateExpense() {
 		boolean cancel = false;
 		View focusView = null;
@@ -195,6 +204,7 @@ public class ExpenseCreateDialog extends DialogFragment {
 	}
 
 	public class CreateExpenseTask extends AsyncTask<Object, Void, Integer> {
+		int secondary = 0;
 
 		@Override
 		protected Integer doInBackground(Object... params) {
@@ -202,6 +212,13 @@ public class ExpenseCreateDialog extends DialogFragment {
 			Integer result = 0;
 			result = CommUtil.CreateExpense(getActivity(), s.getUsername(),
 					s.currentTeamID, date, amount, category, description);
+
+			if (result > 0 && receiptURI != null) {
+				// try to upload the receipt if rest of receipt is uploaded to
+				// attach to
+				secondary = CommUtil.UploadReceipt(getActivity(),
+						s.getUsername(), s.currentTeamID, result, receiptURI);
+			}
 
 			Log.v("Background", "returned from commutil.  result = " + result);
 
@@ -211,7 +228,7 @@ public class ExpenseCreateDialog extends DialogFragment {
 		@Override
 		protected void onPostExecute(final Integer result) {
 			mCreateTask = null;
-			if (result == 1) {// success!
+			if (result > 0) {// success!
 				Toast.makeText(getActivity().getBaseContext(),
 						"New Expense Created", Toast.LENGTH_SHORT).show();
 				// callback the team id
@@ -221,6 +238,10 @@ public class ExpenseCreateDialog extends DialogFragment {
 			} else {// some error occured
 				Toast.makeText(getActivity().getBaseContext(),
 						"Unable to Create Expense", Toast.LENGTH_SHORT).show();
+			}
+			if(secondary==0){
+				Toast.makeText(getActivity().getBaseContext(),
+						"Unable to Upload Receipt", Toast.LENGTH_SHORT).show();
 			}
 
 		}

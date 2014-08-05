@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 public class CommUtil {
@@ -923,7 +924,7 @@ public class CommUtil {
 			result = NetworkTasks.RequestData(true, url, pairs);
 			if (result.getString("response").equals("success")) {
 				// success, report the good news!
-				return 1;
+				return result.getInt("message");
 			} else {
 				// everything else is fail
 				return 0;
@@ -1005,6 +1006,87 @@ public class CommUtil {
 			e.printStackTrace();
 		}
 		return 0;
+
+	}
+	
+	//Upload receipt image file to the given receipt
+	//1=success, 0=fail
+	public static int UploadReceipt(Context context, String userName,
+			int teamID, int expenseID, Uri image) {
+		String url = "https://api.awayteam.redshrt.com/expense/putreceipt";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return 0;
+		}
+
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", userName));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("expenseId", Integer
+				.toString(expenseID)));
+		pairs.add(new NameValuePair() {
+			
+			@Override
+			public String getValue() {
+				//TODO: fill with image?
+				return null;
+			}
+			
+			@Override
+			public String getName() {
+				return "file";
+			}
+		});
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("success")) {
+				// success, report the good news!
+				return 1;
+			} else {
+				// everything else is fail
+				return 0;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+
+	}
+	
+	//Upload receipt image file to the given receipt
+	//1=success, 0=fail
+	//TODO: figure out appropriate return type: either URI or the image itself - probably URI
+	public static Uri GetReceipt(Context context, String userName,
+			int teamID, int expenseID) {
+		String url = "https://api.awayteam.redshrt.com/expense/getreceipt";
+
+		if (!NetworkTasks.NetworkAvailable(context)) {
+			return null;
+		}
+
+		JSONObject result = null;
+		List<NameValuePair> pairs = UserSession.getInstance(context)
+				.createHash();
+		pairs.add(new BasicNameValuePair("loginId", userName));
+		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
+		pairs.add(new BasicNameValuePair("expenseId", Integer
+				.toString(expenseID)));
+		
+		try {
+			result = NetworkTasks.RequestData(true, url, pairs);
+			if (result.getString("response").equals("success")) {
+				// TODO: get the image
+				//return //TODO: Image URI;
+			} else {
+				// everything else is fail
+				return null;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 
 	}
 
@@ -1174,7 +1256,7 @@ public class CommUtil {
 		if (!NetworkTasks.NetworkAvailable(context)) {
 			return 0;
 		}
-		// TODO: debug with API
+		
 		JSONObject result = null;
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();
@@ -1210,7 +1292,6 @@ public class CommUtil {
 			return 0;
 		}
 
-		// TODO: check against API
 		JSONObject result = null;
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();

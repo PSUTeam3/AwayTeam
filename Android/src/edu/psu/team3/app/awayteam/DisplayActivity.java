@@ -410,8 +410,10 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			LocationManager mgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 			lastKnownLocation = mgr
 					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-			mLocation = new UpdateLocationTask();
-			mLocation.execute();
+			if (lastKnownLocation != null) {
+				mLocation = new UpdateLocationTask();
+				mLocation.execute();
+			}
 		}
 	}
 

@@ -23,29 +23,28 @@
         android:showAsAction="ifRoom"
         android:title="Email"/>
 
-    <group android:id="@+id/menu_group_manager" >
+    <group android:id="@+id/menu_group_manager_header" >
         <item
             android:enabled="false"
             android:orderInCategory="1"
             android:showAsAction="never"
             android:title="► Manager Tools"/>
-
-        <group android:id="@+id/menu_group_not_manager" >
-            <item
-                android:id="@+id/action_selected_promote"
-                android:icon="@drawable/ic_action_cc_bcc"
-                android:orderInCategory="1"
-                android:showAsAction="never"
-                android:title="     Make Manager"/>
-        </group>
-        <group android:id="@+id/menu_group_not_self" >
-            <item
-                android:id="@+id/action_selected_remove"
-                android:icon="@drawable/ic_action_cancel"
-                android:orderInCategory="1"
-                android:showAsAction="never"
-                android:title="     Remove from Team"/>
-        </group>
+    </group>
+    <group android:id="@+id/menu_group_manager_not_manager" >
+        <item
+            android:id="@+id/action_selected_promote"
+            android:icon="@drawable/ic_action_cc_bcc"
+            android:orderInCategory="1"
+            android:showAsAction="never"
+            android:title="     Make Manager"/>
+    </group>
+    <group android:id="@+id/menu_group_manager_not_self" >
+        <item
+            android:id="@+id/action_selected_remove"
+            android:icon="@drawable/ic_action_cancel"
+            android:orderInCategory="1"
+            android:showAsAction="never"
+            android:title="     Remove from Team"/>
     </group>
 
 </menu>
