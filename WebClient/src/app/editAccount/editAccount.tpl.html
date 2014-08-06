@@ -1,7 +1,7 @@
   <form class="form-signin" name="editUserForm" role="editUser" ng-submit="editUser(editUserForm)" ng-init="setUserInfo()">
     <h2 class="form-signin-heading"><i class="fa fa-edit"></i>Edit User</h2>
 
-    <div class="form-input firstName">
+    <div class="form-input">
         <label>First Name</label>
       <input type="text" class="form-control" placeholder="First Name" name="firstName" ng-model="editUserObj.firstName" ng-minlength="2" ng-maxlength="32" ng-required="true">
       <div class="errors" ng-class="{ active: editUserForm.firstName.$invalid && editUserForm.firstName.$dirty }">
@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <div class="form-input lastName">
+    <div class="form-input">
         <label>Last Name</label>
       <input type="text" class="form-control" placeholder="Last Name" name="lastName" ng-model="editUserObj.lastName" ng-minlength="2" ng-maxlength="32" ng-required="true">
       <div class="errors" ng-class="{ active: editUserForm.lastName.$invalid && editUserForm.lastName.$dirty }">
@@ -40,9 +40,9 @@
           </div>
       </div>
 
-      <div class="form-input cellPhone">
+      <div class="form-input">
           <label>Cell Phone</label>
-          <input type="text" class="form-control" placeholder="Cell Phone" name="cellPhone" ng-model="editUserObj.cellPhone" ng-minlength="7" ng-maxlength="32" ng-required="true">
+          <input type="text" class="form-control" placeholder="Cell Phone" name="cellPhone" ng-model="editUserObj.cellPhone" ng-minlength="7" ng-maxlength="12" ng-required="true">
           <div class="errors" ng-class="{ active: editUserForm.cellPhone.$invalid && editUserForm.cellPhone.$dirty }">
               <div class="error ng-hide" ng-show="editUserForm.cellPhone.$error.minlength">
                   <p>Provided number is too short!</p>
@@ -53,9 +53,9 @@
           </div>
       </div>
 
-      <div class="form-input cellPhone">
+      <div class="form-input">
           <label>Emergency Phone</label>
-          <input type="text" class="form-control" placeholder="Emergency Phone" name="emergencyPhone" ng-model="editUserObj.emergencyPhone" ng-minlength="7" ng-maxlength="32" ng-required="true">
+          <input type="text" class="form-control" placeholder="Emergency Phone" name="emergencyPhone" ng-model="editUserObj.emergencyPhone" ng-minlength="7" ng-maxlength="12" ng-required="true">
           <div class="errors" ng-class="{ active: editUserForm.emergencyPhone.$invalid && editUserForm.emergencyPhone.$dirty }">
               <div class="error ng-hide" ng-show="editUserForm.emergencyPhone.$error.minlength">
                   <p>Provided number is too short!</p>

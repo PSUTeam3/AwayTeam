@@ -8,10 +8,10 @@
             <div class="form-input">
                 <label>Team Name</label>
                 <input type="text" class="form-control" placeholder="Team Name" name="teamName" ng-model="createTeam.teamName" autofocus="true"
-                       ng-minlength="4" ng-maxlength="30" ng-required="true">
+                       ng-minlength="4" ng-maxlength="30" ng-required="true" ng-disabled="!disableEdit">
                 <div class="errors" ng-class="{ active: createTeamForm.teamName.$invalid && createTeamForm.teamName.$dirty }">
                     <div class="error ng-hide" ng-show="createTeamForm.teamName.$error.minlength">
-                        <p>Username is too short!</p>
+                        <p>Team name is too short!</p>
                     </div>
                     <div class="error ng-hide" ng-show="createTeamForm.teamName.$error.maxlength">
                         <p>Max team name length is 30, please shorten it.</p>
@@ -42,7 +42,7 @@
         </form>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()" ng-disabled="createTeamForm.$invalid || createTeamForm.$pristine || createTeamWorking">OK</button>
-        <button class="btn btn-warning" ng-click="cancel()" ng-disabled="createTeamWorking">Cancel</button>
+        <button class="btn btn-success" ng-click="ok()" ng-disabled="createTeamForm.$invalid || createTeamForm.$pristine || createTeamWorking">OK</button>
+        <button class="btn btn-danger" ng-click="cancel()" ng-disabled="createTeamWorking">Cancel</button>
     </div>
 </div>

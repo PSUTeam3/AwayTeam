@@ -7,5 +7,8 @@
             ng-confirm-click="Are you sure you want to delete the selected expense?">
         <i class="fa icon-minus"></i> Remove Selected
     </button>
+    <div>
+        <strong class="expenseTotal">Expense Total:  <i class="fa icon-dollar"></i>{{expenseTotal}}</strong>
+    </div>
     <div class="gridStyle" ng-grid="expenseGridOptions"></div>
 </div>

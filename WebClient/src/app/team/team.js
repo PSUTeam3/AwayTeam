@@ -27,14 +27,31 @@
 
     // As you add controllers to a module and they grow in size, feel free to place them in their own files.
     //  Let each module grow organically, adding appropriate organization and sub-folders as needed.
-    app.controller('TeamController', ['$scope', '$state', '$modal', 'teamService', 'loginService', function ($scope, $state, $modal, teamService, loginService) {
+    app.controller('TeamController', ['$scope', '$state', '$modal', 'teamService', 'loginService', 'memberService', 'eventService', 'growlNotifications', function ($scope, $state, $modal, teamService, loginService, memberService, eventService, growlNotifications) {
         $scope.teamService = teamService;
         $scope.loginService = loginService;
 
         $scope.selectTeam = function(teamId, pendingApproval){
             if(!pendingApproval){
-                teamService.getTeam(teamId, $scope.login.loginId);
-                $state.go('team');
+                var teamPromise = teamService.getTeam(teamId, loginService.user.loginId);
+                teamPromise.success(function(data){
+                    if (data.status === "success") {
+                        if(data.response.members != null && data.response.members.length > 0){
+                            memberService.setTeamMembers(data.response.members, loginService.user.loginId);
+                        }else{
+                            memberService.setTeamMembers([]);
+                        }
+
+                        if(data.response.events != null && data.response.events.length > 0){
+                            eventService.setTeamEvents(data.response.events);
+                        }else{
+                            eventService.setTeamEvents([]);
+                        }
+                    }
+                });
+                if($state.current.name != "events" && $state.current.name != "expenses" && $state.current.name != "team" && $state.current.name != "members" ){
+                    $state.go('team');
+                }
             }
         };
 
@@ -46,6 +63,20 @@
         };
 
         $scope.teamInit();
+
+        $scope.leaveTeam = function(){
+            var leavePromise = teamService.leaveTeam(loginService.user.loginId, teamService.selectedTeam.teamId, true);
+            leavePromise.success(function(data){
+                if(data.status === "success"){
+                    growlNotifications.add("Successfully left team", "success");
+                    $state.go('home');
+                    return;
+                }
+            });
+            leavePromise.error(function(data){
+                growlNotifications.add("Failed to leave team", "danger");
+            });
+        };
 
         $scope.createTeamModal = function () {
             var modalInstance = $modal.open({
@@ -89,7 +120,7 @@
                 teamService.loadUserTeams(loginService.user.loginId);
             });
             createTeamPromise.error(function () {
-                $scope.createTeamWorking = false; //TODO present error message to the user
+                $scope.createTeamWorking = false;
             });
         };
 
@@ -98,10 +129,11 @@
         };
     }]);
 
-    app.controller('ModifyTeamModalCtrl', ['$scope', '$modalInstance', '$http', 'teamService', 'loginService', 'growlNotifications', function ($scope, $modalInstance, $http, teamService, loginService, growlNotifications) {
+    app.controller('ModifyTeamModalCtrl', ['$scope', '$modalInstance', '$http', 'teamService', 'memberService', 'loginService', 'growlNotifications', function ($scope, $modalInstance, $http, teamService, memberService, loginService, growlNotifications) {
         $scope.modalTitle = "Modify Team";
         $scope.createTeam = teamService.selectedTeam;
         $scope.createTeamWorking = false;
+        $scope.disableEdit = ($scope.createTeam.teamManaged && memberService.currentUserManager) || !$scope.createTeam.teamManaged;
 
         $scope.ok = function () {
             var team = $scope.createTeam;
@@ -137,7 +169,7 @@
             });
             modifyTeamPromise.error(function () {
                 growlNotifications.add('Error Modifying Team!', 'danger');
-                $scope.createTeamWorking = false; //TODO present error message to the user
+                $scope.createTeamWorking = false;
             });
         };
 

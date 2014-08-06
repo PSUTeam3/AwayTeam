@@ -24,8 +24,8 @@ angular.module('expenseService', [])
                 teamExpenses: [],
                 selectedExpense: null,
 
-                createExpense: function(description, amount, expenseDate, teamId, userId, expenseType){
-                    var postData = {description:description, amount:amount, expDate:expenseDate, teamId:teamId, userId:userId, expType:expenseType};
+                createExpense: function(description, amount, expenseDate, teamId, loginId, expenseType){
+                    var postData = {description:description, amount:amount, expDate:expenseDate, teamId:teamId, loginId:loginId, expType:expenseType};
                     var promise = $http({
                         url: "https://api.awayteam.redshrt.com/expense/createexpense",
                         method: "POST",
@@ -34,8 +34,8 @@ angular.module('expenseService', [])
 
                     return promise;
                 },
-                modifyExpense: function(expenseId, description, amount, expenseDate, teamId, userId, expenseType){
-                    var postData = {expenseId:expenseId, description:description, amount:amount, expDate:expenseDate, teamId:teamId, userId:userId, expType:expenseType};
+                modifyExpense: function(expenseId, description, amount, expenseDate, teamId, loginId, expenseType){
+                    var postData = {expenseId:expenseId, description:description, amount:amount, expDate:expenseDate, teamId:teamId, loginId:loginId, expType:expenseType};
                     var promise = $http({
                         url: "https://api.awayteam.redshrt.com/expense/modifyexpense",
                         method: "POST",
@@ -54,23 +54,22 @@ angular.module('expenseService', [])
 
                     return promise;
                 },
-                getTeamExpenses: function(userId, teamId){
-                    var postData = {userId:userId, teamId:teamId};
+                getTeamExpenses: function(loginId, teamId){
+                    var postData = {loginId:loginId, teamId:teamId};
                     var promise = $http({
                         url: "https://api.awayteam.redshrt.com/expense/getexpense",
                         method: "POST",
                         data: postData
                     });
                     promise.success(function(data){
-                      //  if (data.status === "success") {
-                            wrappedService.teamExpenses = data.response;
-                     //   }
+                        wrappedService.selectedExpense = null;
+                        wrappedService.teamExpenses = data.response;
                     });
 
                     return promise;
                 },
-                getExpense: function(userId, teamId, expenseId){
-                    var postData = {userId:userId, teamId:teamId, expenseId:expenseId};
+                getExpense: function(loginId, teamId, expenseId){
+                    var postData = {loginId:loginId, teamId:teamId, expenseId:expenseId};
                     var promise = $http({
                         url: "https://api.awayteam.redshrt.com/expense/getexpense",
                         method: "POST",
@@ -78,8 +77,8 @@ angular.module('expenseService', [])
                     });
                     return promise;
                 },
-                getTeamExpensesByType: function(userId, teamId, reqType){
-                    var postData = {userId:userId, teamId:teamId, reqType:reqType};
+                getTeamExpensesByType: function(loginId, teamId, reqType){
+                    var postData = {loginId:loginId, teamId:teamId, reqType:reqType};
                     var promise = $http({
                         url: "https://api.awayteam.redshrt.com/expense/getexpense",
                         method: "POST",
@@ -88,12 +87,46 @@ angular.module('expenseService', [])
 
                     return promise;
                 },
-                getExpensesByDate: function(userId, teamId, reqDate){
-                    var postData = {userId:userId, teamId:teamId, reqDate:reqDate};
+                getExpensesByDate: function(loginId, teamId, reqDate){
+                    var postData = {loginId:loginId, teamId:teamId, reqDate:reqDate};
                     var promise = $http({
                         url: "https://api.awayteam.redshrt.com/expense/getexpense",
                         method: "POST",
                         data: postData
+                    });
+
+                    return promise;
+                },
+                getReceipt: function(loginId, teamId, expenseId){
+                    var promise = $http({
+                        url: "https://api.awayteam.redshrt.com/Expense/GetReceipt?loginId="+loginId+"&teamId="+teamId+"&expenseId="+expenseId,
+                        method: "GET"
+                    });
+
+                    return promise;
+                },
+                putReceipt: function(loginId, teamId, expenseId, file, auth, authChallenge){
+                    var fd = new FormData();
+                    fd.append('loginId', loginId);
+                    fd.append('teamId', teamId);
+                    fd.append('expenseId', expenseId);
+                    fd.append('file', file);
+                    fd.append('AWT_AUTH', auth);
+                    fd.append('AWT_AUTH_CHALLENGE', authChallenge);
+
+
+                    var promise = $http.post("https://api.awayteam.redshrt.com/expense/putreceipt", fd, {
+                        transformRequest: angular.identity,
+                        headers: {'Content-Type': undefined}
+                    });
+
+                    promise.success(function(data){
+                        $log.info("Successfully uploaded receipt for expense: "+expenseId+" on team: "+teamId);
+                        wrappedService.getTeamExpenses(loginId, teamId);
+                    });
+
+                    promise.error(function(data){
+                        $log.error("Failed to upload receipt for expense: "+expenseId+" on team: "+teamId);
                     });
 
                     return promise;

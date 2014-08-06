@@ -22,8 +22,8 @@ angular.module('taskService', [])
                  * Public properties
                  */
 
-                teamTasks: {},
-                selectedTask: null,
+                teamTasks: [],
+                selectedTask: {},
 
                 createTeamTask: function(loginId, teamId, title, description){
                     var postData = {loginId:loginId, taskTeamId:teamId, taskTitle:title, taskDescription:description};
@@ -33,10 +33,39 @@ angular.module('taskService', [])
                         data: postData
                     });
 
+                    promise.success(function(data){
+                        wrappedService.getTeamTasks(loginId, teamId);
+                    });
+
+                    promise.error(function(){
+                        wrappedService.selectedTask = {};
+                        $log.error("Problem creating team task for teamId = "+teamId);
+                    });
+
                     return promise;
                 },
 
-                updateTeamTask: function(taskId, taskCompleted, taskDeletion, teamId, loginId){
+                editTeamTask: function(loginId, taskId, teamId, title, description){
+                    var postData = {loginId:loginId, taskId:taskId, taskTeamId:teamId, taskTitle:title, taskDescription:description};
+                    var promise = $http({
+                        url: "https://api.awayteam.redshrt.com/teamtasks/edittask",
+                        method: "POST",
+                        data: postData
+                    });
+
+                    promise.success(function(data){
+                        wrappedService.getTeamTasks(loginId, teamId);
+                    });
+
+                    promise.error(function(){
+                        wrappedService.selectedTask = {};
+                        $log.error("Problem editing team task for teamId = "+teamId);
+                    });
+
+                    return promise;
+                },
+
+                updateTeamTask: function(loginId, teamId, taskId, taskCompleted, taskDeletion){
                     var postData = {taskId:taskId, taskCompleted:taskCompleted, taskDeletion:taskDeletion, taskTeamId:teamId, loginId:loginId};
                     var promise = $http({
                         url: "https://api.awayteam.redshrt.com/teamtasks/updatetask",
@@ -44,15 +73,38 @@ angular.module('taskService', [])
                         data: postData
                     });
 
+                    promise.success(function(data){
+                        wrappedService.getTeamTasks(loginId, teamId);
+                    });
+
+                    promise.error(function(){
+                        wrappedService.selectedTask = {};
+                        $log.error("Problem editing team task for teamId = "+teamId);
+                    });
+
                     return promise;
                 },
 
-                editTeamTasks: function(loginId, taskId, teamId, title, description){
-                    var postData = {loginId:loginId, taskId:taskId, taskTeamId:teamId, taskTitle:title, taskDescription:description};
+                getTeamTasks: function(loginId, teamId){
+                    var postData = {loginId:loginId, taskTeamId:teamId};
                     var promise = $http({
-                        url: "https://api.awayteam.redshrt.com/Manager/TakeAction",
+                        url: "https://api.awayteam.redshrt.com/teamtasks/gettasks",
                         method: "POST",
                         data: postData
+                    });
+
+                    promise.success(function(data){
+                        wrappedService.selectedTask = {};
+                        if(data.response === "success"){
+                            wrappedService.teamTasks = data.message;
+                        }else{
+                            wrappedService.teamTasks = [];
+                        }
+                    });
+
+                    promise.error(function(){
+                        wrappedService.selectedTask = {};
+                        $log.error("Problem retrieving team tasks for teamId = "+teamId);
                     });
 
                     return promise;

@@ -64,17 +64,20 @@
     }]);
 
 }(angular.module("AwayTeam", [
-    'AwayTeam.agenda',
+    'angularFileUpload',
     'AwayTeam.header',
     'AwayTeam.home',
     'AwayTeam.editAccount',
     'AwayTeam.error',
     'AwayTeam.expenses',
+    'AwayTeam.events',
     'AwayTeam.members',
+    'AwayTeam.phoneFilter',
     'AwayTeam.register',
     'AwayTeam.router',
     'AwayTeam.resizable',
     'AwayTeam.sidebar',
+    'AwayTeam.tasks',
     'AwayTeam.team',
     'AwayTeam.validators',
     'eventService',
@@ -84,13 +87,13 @@
     'managerService',
     'memberService',
     'ngGrid',
+    'ngMap',
     'ngSanitize',
     'taskService',
     'teamService',
     'templates-app',
     'templates-common',
     'ui.bootstrap',
-    'ui.bootstrap.collapse',
     'ui.router.state',
     'ui.router'
 ])));

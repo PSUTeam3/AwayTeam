@@ -20,13 +20,13 @@
                 <li ng-repeat="user in pendingUsers">
                     <a href="" >
                         <div>
-                            <strong>{{user.loginId}}</strong>
+                            <strong>{{user.firstName}} {{user.lastName}}</strong>
                             <span class="pull-right">
                                 <button class="btn btn-success" tooltip="Approve" ng-click="managerAction(user.teamId, 'approve', user.loginId)"><i class="fa fa-check fa-fw"></i></button>
                                 <button class="btn btn-danger" tooltip="Deny" ng-click="managerAction(user.teamId, 'remove', user.loginId)"><i class="fa fa-times fa-fw"></i></button>
                             </span>
                         </div>
-                        <div>{{user.firstName}} {{user.lastName}} request for {{user.teamId}}</div>
+                        <div> Request for {{user.teamName}}</div>
                     </a>
                 </li>
             </ul>

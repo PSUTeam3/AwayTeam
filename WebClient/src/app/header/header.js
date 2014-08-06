@@ -118,25 +118,26 @@
                 var takeActionPromise = $scope.managerService.takeAction($scope.login.loginId, teamId, action, subjectId);
                 takeActionPromise.success(function(){
                     if(action === "approve"){
-                        growlNotifications.add('Successfully approved '+subjectId +'!', 'success');
+                        growlNotifications.add('Successfully approved user!', 'success');
                         $scope.loadPendingUsers();
                     }else{
-                        growlNotifications.add('Successfully denied '+subjectId +'!', 'success');
+                        growlNotifications.add('Successfully denied user!', 'success');
                         $scope.loadPendingUsers();
                     }
 
                 });
                 takeActionPromise.error(function(){
-                    growlNotifications.add('Failed to take action on user'+subjectId +'!', 'danger');
+                    growlNotifications.add('Failed to take action on user!', 'danger');
                 });
             }
         };
 
         // Function to replicate setInterval using $timeout service.
         $scope.intervalFunction = function(){
+            //load pending users every 5 minutes
             $timeout(function() {
                 $scope.loadPendingUsers();
-            }, 600000);
+            }, 300000);
         };
 
         //start loading pending users periodically

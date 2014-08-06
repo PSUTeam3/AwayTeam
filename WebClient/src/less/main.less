@@ -34,6 +34,7 @@
 @import '../../vendor/bootstrap/less/labels.less';
 @import '../../vendor/bootstrap/less/glyphicons.less';
 @import '../../vendor/bootstrap/less/badges.less';
+@import '../../vendor/bootstrap/less/panels.less';
 
 @import '../../vendor/ng-grid/ng-grid.less';
 
@@ -73,7 +74,10 @@
 @import '../app/register/register.less';
 @import '../app/sidebar/sidebar.less';
 @import '../app/team/team.less';
-
+@import '../app/tasks/tasks.less';
+@import '../app/members/members.less';
+@import '../app/events/events.less';
+@import '../app/expenses/expenses.less';
 
 
 /**
@@ -88,17 +92,21 @@ html, body {
 }
 
 body {
-  padding-top: 60px;
-}
-@media (max-width: 979px) {
-  body {
-    padding-top: 0px;
-  }
+  background-color: #252B52;
+  background-image: url(../assets/images/orlandoSkyline.svg);
 }
 
 @media(max-width:768px) {
-  body {
-    padding-top: 150px;
+  .container{
+    padding-top: 150px !important;
+    margin-left: 0px;
+  }
+}
+
+@media(max-width:1690px) and (min-width:769px){
+  .container{
+    margin-left: 300px;
+    width: 70%;
   }
 }
 
@@ -107,26 +115,34 @@ h1 {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Lobster', Georgia, Times, serif;
+  font-family: 'Century Gothic', Georgia, Times, serif;
+  color: white;
 }
 p, div {
   font-family: 'Droid Sans', Helvetica, Arial, sans-serif;
 }
 
+.container{
+  height: 100%;
+  padding-top: 60px;
+  background-color:rgba(255,255,255,0.4);
+  -webkit-backface-visibility: hidden;
+}
+
+.angular-google-map-container { height: 400px; }
+
 .wrapper {
   min-height: 100%;
-  height: auto !important;
   height: 100%;
   margin: 0 auto -4em;
 }
+
 .footer, .push {
-  height: 4em;
+  padding-top: 56px;
+  height: 100%;
 }
 
 
-.container {
-  -webkit-backface-visibility: hidden;
-}
 .loading-jumbo {
   text-align: center;
   cursor: progress;
@@ -134,6 +150,8 @@ p, div {
 
 .main-jumbo {
   text-align: center;
+  background-color:rgba(0,0,0,0);
+  color: white;
 }
 
 // Utility class to hide elements when in 'sm' or 'xs' bootstrap media size
@@ -164,5 +182,6 @@ p, div {
 }
 
 .footer, .push {
+  color: white;
   height: 155px; /* .push must be the same height as .footer */
 }

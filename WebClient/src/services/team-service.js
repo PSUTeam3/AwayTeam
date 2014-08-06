@@ -89,6 +89,7 @@ angular.module('teamService', [])
                     promise.error(function () { //TODO handle getTeam errors
                         wrappedService.selectedTeam = {};
                     });
+                    return promise;
                 },
 
                 loadUserTeams:  function(loginId) {
@@ -127,6 +128,16 @@ angular.module('teamService', [])
                     var postData = {teamId:teamId, loginId:loginId};
                     var promise =$http({
                         url: "https://api.awayteam.redshrt.com/teammember/jointeam",
+                        method: "POST",
+                        data: postData
+                    });
+                    return promise;
+                },
+
+                leaveTeam:  function(loginId, teamId, confirmed){
+                    var postData = {teamId:teamId, loginId:loginId, confirmed:confirmed};
+                    var promise =$http({
+                        url: "https://api.awayteam.redshrt.com/teammember/leaveteam",
                         method: "POST",
                         data: postData
                     });

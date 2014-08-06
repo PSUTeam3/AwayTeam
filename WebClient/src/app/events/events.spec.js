@@ -4,8 +4,8 @@
  * build process will exclude all '.spec.js' files from the build
  * automatically.
  */
-describe('team section', function () {
-    beforeEach(module('AwayTeam.agenda'));
+describe('event section', function () {
+    beforeEach(module('AwayTeam.events'));
 
     it('should have a dummy test', inject(function() {
         expect(true).toBeTruthy();

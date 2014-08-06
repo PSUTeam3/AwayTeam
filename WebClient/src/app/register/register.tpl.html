@@ -76,7 +76,7 @@
 
    <div class="form-input">
        <label>Cell Phone</label>
-      <input type="text" class="form-control" placeholder="Cell Phone" name="cellPhone" ng-model="registerObj.cellPhone" ng-minlength="7" ng-maxlength="32" ng-required="true">
+      <input type="text" class="form-control" placeholder="Cell Phone" name="cellPhone" ng-model="registerObj.cellPhone" ng-minlength="7" ng-maxlength="12" ng-required="true">
       <div class="errors" ng-class="{ active: registerForm.cellPhone.$invalid && registerForm.cellPhone.$dirty }">
         <div class="error ng-hide" ng-show="registerForm.cellPhone.$error.minlength">
           <p>Provided number is too short!</p>
@@ -89,7 +89,7 @@
 
       <div class="form-input">
           <label>Emergency Phone</label>
-          <input type="text" class="form-control" placeholder="Emergency Phone" name="emergencyPhone" ng-model="registerObj.emergencyPhone" ng-minlength="7" ng-maxlength="32" ng-required="true">
+          <input type="text" class="form-control" placeholder="Emergency Phone" name="emergencyPhone" ng-model="registerObj.emergencyPhone" ng-minlength="7" ng-maxlength="12" ng-required="true">
           <div class="errors" ng-class="{ active: registerForm.emergencyPhone.$invalid && registerForm.emergencyPhone.$dirty }">
               <div class="error ng-hide" ng-show="registerForm.emergencyPhone.$error.minlength">
                   <p>Provided number is too short!</p>
