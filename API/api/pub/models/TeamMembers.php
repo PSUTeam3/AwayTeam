@@ -40,7 +40,7 @@
         
         public function VerifyManagerForUser($teamId, $userId) {
             global $db;
-            if($teamId && userId) {
+            if($teamId && $userId) {
                 $query = "select manager from team_member where teamId = " .myEsc($teamId) . " AND userId = " .myEsc($userId);
                 $sql = mysql_query($query,$db);
                 $data = mysql_fetch_assoc($sql);
