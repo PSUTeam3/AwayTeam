@@ -34,7 +34,7 @@
             <div class="form-input">
                 <label>Event Start Date</label>
                 <p class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="event.teamEventStartTime" is-open="opened1" min-date="minDate" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                    <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="event.teamEventStartTime" is-open="$parent.opened1" min-date="minDate" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
                     <span class="input-group-btn">
                        <button type="button" class="btn btn-default" ng-click="open($event,'opened1')"><i class="fa icon-calendar"></i></button>
                     </span>
@@ -50,7 +50,7 @@
             <div class="form-input">
                 <label>Event End Date</label>
                 <p class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="event.teamEventEndTime" is-open="opened2" min-date="minDate" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
+                    <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="event.teamEventEndTime" is-open="$parent.opened2" min-date="minDate" datepicker-options="dateOptions" ng-required="true" close-text="Close" />
                     <span class="input-group-btn">
                        <button type="button" class="btn btn-default" ng-click="open($event,'opened2')"><i class="fa icon-calendar"></i></button>
                     </span>

@@ -130,8 +130,8 @@
         $scope.ok = function () {
             var event = $scope.event;
             $scope.eventServiceWorking = true;
-            var startDate = event.teamEventStartTime.getFullYear() + "-" + (event.teamEventStartTime.getMonth()+1) + "-" + event.teamEventStartTime.getDate() + " "+ event.teamEventStartTime.getHours() + ":" + event.teamEventStartTime.getMinutes();
-            var endDate = event.teamEventEndTime.getFullYear() + "-" + (event.teamEventEndTime.getMonth()+1) + "-" + event.teamEventEndTime.getDate() + " "+ event.teamEventEndTime.getHours() + ":" + event.teamEventEndTime.getMinutes();
+            var startDate = event.teamEventStartTime.getFullYear() + "-" + (event.teamEventStartTime.getMonth()+1) + "-" + event.teamEventStartTime.getDate() + " "+ (event.teamEventStartTime.getHours()<10?'0':'') + event.teamEventStartTime.getHours() + ":" + (event.teamEventStartTime.getMinutes()<10?'0':'')  + event.teamEventStartTime.getMinutes();
+            var endDate = event.teamEventEndTime.getFullYear() + "-" + (event.teamEventEndTime.getMonth()+1) + "-" + event.teamEventEndTime.getDate() + " "+ (event.teamEventEndTime.getHours()<10?'0':'')  + event.teamEventEndTime.getHours() + ":" + (event.teamEventEndTime.getMinutes()<10?'0':'') + event.teamEventEndTime.getMinutes();
             var addEventPromise = eventService.createTeamEvent(loginService.user.loginId, teamService.selectedTeam.teamId, event.teamEventName, event.teamEventDescription, event.teamEventLocationString, startDate, endDate);
             addEventPromise.success(function(event, status, headers, config) {
                 if(event.status == "success"){
@@ -141,6 +141,7 @@
                     $scope.refreshTeam();
                 }else{
                     growlNotifications.add('Error Adding an Event!', 'danger');
+                    $scope.eventServiceWorking = false;
                 }
 
             });
@@ -208,8 +209,8 @@
         $scope.ok = function () {
             var event = $scope.event;
             $scope.eventServiceWorking = true;
-            var startDate = event.teamEventStartTime.getFullYear() + "-" + (event.teamEventStartTime.getMonth()+1) + "-" + event.teamEventStartTime.getDate() + " "+ event.teamEventStartTime.getHours() + ":" + event.teamEventStartTime.getMinutes();
-            var endDate = event.teamEventEndTime.getFullYear() + "-" + (event.teamEventEndTime.getMonth()+1) + "-" + event.teamEventEndTime.getDate() + " "+ event.teamEventEndTime.getHours() + ":" + event.teamEventEndTime.getMinutes();
+            var startDate = event.teamEventStartTime.getFullYear() + "-" + (event.teamEventStartTime.getMonth()+1) + "-" + event.teamEventStartTime.getDate() + " "+ (event.teamEventStartTime.getHours()<10?'0':'') + event.teamEventStartTime.getHours() + ":" + (event.teamEventStartTime.getMinutes()<10?'0':'')  + event.teamEventStartTime.getMinutes();
+            var endDate = event.teamEventEndTime.getFullYear() + "-" + (event.teamEventEndTime.getMonth()+1) + "-" + event.teamEventEndTime.getDate() + " "+ (event.teamEventEndTime.getHours()<10?'0':'')  + event.teamEventEndTime.getHours() + ":" + (event.teamEventEndTime.getMinutes()<10?'0':'') + event.teamEventEndTime.getMinutes();
             var modifyEventPromise = eventService.editTeamEvent(loginService.user.loginId, teamService.selectedTeam.teamId, event.teamEventName, event.teamEventDescription, event.teamEventLocationString, startDate, endDate, event.teamEventId);
             modifyEventPromise.success(function(event, status, headers, config) {
                 if(event.status == "success"){
@@ -219,6 +220,7 @@
                     $scope.refreshTeam();
                 }else{
                     growlNotifications.add('Error Editing an Event!', 'danger');
+                    $scope.eventServiceWorking = false;
                 }
 
             });
