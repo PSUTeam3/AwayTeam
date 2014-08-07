@@ -1,6 +1,7 @@
 package edu.psu.team3.app.awayteam;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,25 +35,25 @@ import android.util.Log;
 
 public class NetworkTasks {
 
-	//check for network availability 
-	//return true if network is available
+	// check for network availability
+	// return true if network is available
 	public static boolean NetworkAvailable(Context context) {
-		ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		ConnectivityManager connMgr = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
 			return true;
 		} else {
-			Log.v("Network","no network connection");
+			Log.v("Network", "no network connection");
 			return false;
 		}
 	}
-	
-	
-	//Send a message
-	//INPUT:	actionPost - true if the message is POST false if GET
-	//			url	- URL to send request to
-	//			pairs - any data to be dispatched to the server
-	//RETURN:	JSONObject - containing response from server
+
+	// Send a message
+	// INPUT: actionPost - true if the message is POST false if GET
+	// url - URL to send request to
+	// pairs - any data to be dispatched to the server
+	// RETURN: JSONObject - containing response from server
 	public static JSONObject RequestData(boolean actionPost, String url,
 			List<NameValuePair> pairs) {
 		if (url.contains("https://")) {
@@ -119,7 +120,7 @@ public class NetworkTasks {
 	}
 
 	// all this is required to accept a HTTP SSL Certificate
-	private static void doHTTPS() {
+	public static void doHTTPS() {
 		HostnameVerifier hostnameVerifier = org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
 		DefaultHttpClient client = new DefaultHttpClient();
 		SchemeRegistry registry = new SchemeRegistry();
@@ -133,6 +134,25 @@ public class NetworkTasks {
 		DefaultHttpClient httpClient = new DefaultHttpClient(mgr,
 				client.getParams());
 		HttpsURLConnection.setDefaultHostnameVerifier(hostnameVerifier);
+	}
+
+	public static byte[] readBytes(InputStream inputStream) throws IOException {
+		// this dynamically extends to take the bytes you read
+		ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+
+		// this is storage overwritten on each iteration with bytes
+		int bufferSize = 1024;
+		byte[] buffer = new byte[bufferSize];
+
+		// we need to know how may bytes were read to write them to the
+		// byteBuffer
+		int len = 0;
+		while ((len = inputStream.read(buffer)) != -1) {
+			byteBuffer.write(buffer, 0, len);
+		}
+
+		// and then we can return your byte array.
+		return byteBuffer.toByteArray();
 	}
 
 }

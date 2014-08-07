@@ -152,7 +152,8 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 				map.setOnCameraChangeListener(null);
 			}
 		});
-		// TODO: keep or remove
+
+
 		// teamButton.setChecked(false); // Since a background task is updating
 		// team info, it may not be available.
 		// don't try to get it

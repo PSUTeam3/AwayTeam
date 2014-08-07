@@ -46,6 +46,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	public UpdateLocationTask mLocation = null;
 	private ActionTask mAction = null;
 
+	ActionBar actionBar;
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	Spinner spinnerView;
 	ViewPager mViewPager;
@@ -64,10 +65,47 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		setContentView(R.layout.activity_display);
 
 		// Set up the action bar. For tabs
-		final ActionBar actionBar = getActionBar();
+		actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
+		// Create the adapter that will return a fragment for each of the
+		// primary sections of the activity.
+		mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
+
+		// Set up the ViewPager with the sections adapter.
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		mViewPager.setAdapter(mSectionsPagerAdapter);
+
+		// When swiping between different sections, select the corresponding
+		// tab. We can also use ActionBar.Tab#select() to do this if we have
+		// a reference to the Tab.
+		mViewPager
+				.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+					@Override
+					public void onPageSelected(int position) {
+						actionBar.setSelectedNavigationItem(position);
+					}
+				});
+
+		// For each of the sections in the app, add a tab to the action bar.
+		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+			// Create a tab with text corresponding to the page title defined by
+			// the adapter. Also specify this Activity object, which implements
+			// the TabListener interface, as the callback (listener) for when
+			// this tab is selected.
+			actionBar.addTab(actionBar.newTab()
+					.setText(mSectionsPagerAdapter.getPageTitle(i))
+					.setTabListener(this));
+		}
+		
+		initActionBar();
+
+	}
+
+	public void initActionBar() {
 		// Add dropdown to action bar
+		actionBar = getActionBar();
+		actionBar.show();
 		int titleId = Resources.getSystem().getIdentifier("action_bar_title",
 				"id", "android");
 		View titleView = findViewById(titleId);
@@ -107,38 +145,15 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 					}
 				});
 
-		// Create the adapter that will return a fragment for each of the
-		// primary sections of the activity.
-		mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
-
-		// Set up the ViewPager with the sections adapter.
-		mViewPager = (ViewPager) findViewById(R.id.pager);
-		mViewPager.setAdapter(mSectionsPagerAdapter);
-
-		// When swiping between different sections, select the corresponding
-		// tab. We can also use ActionBar.Tab#select() to do this if we have
-		// a reference to the Tab.
-		mViewPager
-				.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-					@Override
-					public void onPageSelected(int position) {
-						actionBar.setSelectedNavigationItem(position);
-					}
-				});
-
-		// For each of the sections in the app, add a tab to the action bar.
-		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-			// Create a tab with text corresponding to the page title defined by
-			// the adapter. Also specify this Activity object, which implements
-			// the TabListener interface, as the callback (listener) for when
-			// this tab is selected.
-			actionBar.addTab(actionBar.newTab()
-					.setText(mSectionsPagerAdapter.getPageTitle(i))
-					.setTabListener(this));
+		// populate spinner if there are teams available
+		if (UserSession.getInstance(this).teamList != null) {
+			refreshTeamSpinner();
 		}
 
 		// Request the team information
-		refreshTeam(UserSession.getInstance(this).currentTeamID);
+		if (UserSession.getInstance(this).activeTeam == null) {
+			refreshTeam(UserSession.getInstance(this).currentTeamID);
+		}
 	}
 
 	@Override
@@ -411,6 +426,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			lastKnownLocation = mgr
 					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 			if (lastKnownLocation != null) {
+				//TODO: consider checking distance traveled since last update
 				mLocation = new UpdateLocationTask();
 				mLocation.execute();
 			}

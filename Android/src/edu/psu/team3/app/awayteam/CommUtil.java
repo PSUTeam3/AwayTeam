@@ -1,18 +1,39 @@
 package edu.psu.team3.app.awayteam;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.entity.mime.*;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.app.DownloadManager;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
 
 public class CommUtil {
@@ -1008,9 +1029,9 @@ public class CommUtil {
 		return 0;
 
 	}
-	
-	//Upload receipt image file to the given receipt
-	//1=success, 0=fail
+
+	// Upload receipt image file to the given receipt
+	// 1=success, 0=fail
 	public static int UploadReceipt(Context context, String userName,
 			int teamID, int expenseID, Uri image) {
 		String url = "https://api.awayteam.redshrt.com/expense/putreceipt";
@@ -1020,27 +1041,61 @@ public class CommUtil {
 		}
 
 		JSONObject result = null;
-		List<NameValuePair> pairs = UserSession.getInstance(context)
-				.createHash();
-		pairs.add(new BasicNameValuePair("loginId", userName));
-		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
-		pairs.add(new BasicNameValuePair("expenseId", Integer
-				.toString(expenseID)));
-		pairs.add(new NameValuePair() {
-			
-			@Override
-			public String getValue() {
-				//TODO: fill with image?
-				return null;
-			}
-			
-			@Override
-			public String getName() {
-				return "file";
-			}
-		});
+		// get the file into the post and add the other parts as text
 		try {
-			result = NetworkTasks.RequestData(true, url, pairs);
+			NetworkTasks.doHTTPS();
+			HttpClient client = new DefaultHttpClient();
+			HttpPost post = new HttpPost(url);
+			MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+			builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+			// getting a file directly from storage doesn't work
+			// final File file = new File(image.getPath());
+			// FileBody fbody = new FileBody(file);
+
+			InputStream inStream = context.getContentResolver()
+					.openInputStream(image);
+			byte[] imageBytes = NetworkTasks.readBytes(inStream);
+			InputStreamBody inputStreamBody = new InputStreamBody(
+					new ByteArrayInputStream(imageBytes), image
+							.getLastPathSegment().toString());
+
+			List<NameValuePair> pairs = UserSession.getInstance(context)
+					.createHash();
+			// builder.addPart("file", fbody);
+			builder.addPart("file", inputStreamBody);
+			builder.addTextBody("loginId", userName);
+			builder.addTextBody("teamId", Integer.toString(teamID));
+			builder.addTextBody("expenseId", Integer.toString(expenseID));
+			builder.addTextBody(pairs.get(0).getName(), pairs.get(0).getValue());
+			builder.addTextBody(pairs.get(1).getName(), pairs.get(1).getValue());
+
+			final HttpEntity postEntity = builder.build();
+			post.setEntity(postEntity);
+			HttpResponse response = client.execute(post);
+
+			// collect reply
+			StringBuilder replyBuilder = new StringBuilder();
+			StatusLine statusLine = response.getStatusLine();
+			int statusCode = statusLine.getStatusCode();
+			if (statusCode == 200 || statusCode == 401) {
+				// FYI 200 is good - auth passed
+				// 401 is bad - auth failed
+				HttpEntity entity = response.getEntity();
+				InputStream content = entity.getContent();
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(content));
+				String line;
+				while ((line = reader.readLine()) != null) {
+					replyBuilder.append(line);
+				}
+				Log.v("ReceiptTask", "Returned Message: " + replyBuilder.toString()); // response
+				// data
+			} else {
+				Log.e("NetTask", "Failed to download file");
+			}
+
+			result = new JSONObject(replyBuilder.toString());
 			if (result.getString("response").equals("success")) {
 				// success, report the good news!
 				return 1;
@@ -1048,47 +1103,16 @@ public class CommUtil {
 				// everything else is fail
 				return 0;
 			}
+
 		} catch (Exception e) {
+			Log.e("Receipt", e.toString());
 			e.printStackTrace();
+			return 0;
 		}
-		return 0;
 
 	}
-	
-	//Upload receipt image file to the given receipt
-	//1=success, 0=fail
-	//TODO: figure out appropriate return type: either URI or the image itself - probably URI
-	public static Uri GetReceipt(Context context, String userName,
-			int teamID, int expenseID) {
-		String url = "https://api.awayteam.redshrt.com/expense/getreceipt";
 
-		if (!NetworkTasks.NetworkAvailable(context)) {
-			return null;
-		}
 
-		JSONObject result = null;
-		List<NameValuePair> pairs = UserSession.getInstance(context)
-				.createHash();
-		pairs.add(new BasicNameValuePair("loginId", userName));
-		pairs.add(new BasicNameValuePair("teamId", Integer.toString(teamID)));
-		pairs.add(new BasicNameValuePair("expenseId", Integer
-				.toString(expenseID)));
-		
-		try {
-			result = NetworkTasks.RequestData(true, url, pairs);
-			if (result.getString("response").equals("success")) {
-				// TODO: get the image
-				//return //TODO: Image URI;
-			} else {
-				// everything else is fail
-				return null;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-
-	}
 
 	// Create event for the user
 	// returns the success of the operation 1= success 0=error
@@ -1256,7 +1280,7 @@ public class CommUtil {
 		if (!NetworkTasks.NetworkAvailable(context)) {
 			return 0;
 		}
-		
+
 		JSONObject result = null;
 		List<NameValuePair> pairs = UserSession.getInstance(context)
 				.createHash();

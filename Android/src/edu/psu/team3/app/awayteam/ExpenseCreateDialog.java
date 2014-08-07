@@ -1,5 +1,7 @@
 package edu.psu.team3.app.awayteam;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,11 +17,13 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,10 +41,11 @@ import android.widget.Toast;
 
 public class ExpenseCreateDialog extends DialogFragment {
 	private CreateExpenseTask mCreateTask = null;
+	private UploadReceiptTask mReceiptTask = null;
 
 	Uri receiptURI = null;
 
-	private Date date;
+	private Date date = null;
 	private double amount = 0;
 	private int category = 0;
 	private String description = null;
@@ -95,44 +100,49 @@ public class ExpenseCreateDialog extends DialogFragment {
 					attemptCreateExpense();
 				}
 			});
+
 			// init UI elements
-			date = new Date();
-			dateView = (Button) d.findViewById(R.id.expenseEditDate);
-			dateView.setText(DateFormat.getDateInstance(DateFormat.MEDIUM)
-					.format(date));
-			catSpinner = (Spinner) d.findViewById(R.id.expenseEditCategory);
-			catSpinner.setSelection(4);
-			amountView = (EditText) d.findViewById(R.id.expenseEditAmount);
-			amountView.setText("0.00");
-			descView = (EditText) d.findViewById(R.id.expenseEditDescription);
-			// implement picker
-			dateView.setOnClickListener(new OnClickListener() {
+			if (date == null) {
+				date = new Date();
+				dateView = (Button) d.findViewById(R.id.expenseEditDate);
+				dateView.setText(DateFormat.getDateInstance(DateFormat.MEDIUM)
+						.format(date));
+				catSpinner = (Spinner) d.findViewById(R.id.expenseEditCategory);
+				catSpinner.setSelection(4);
+				amountView = (EditText) d.findViewById(R.id.expenseEditAmount);
+				amountView.setText("0.00");
+				descView = (EditText) d
+						.findViewById(R.id.expenseEditDescription);
+				// implement picker
+				dateView.setOnClickListener(new OnClickListener() {
 
-				@Override
-				public void onClick(View v) {
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(date);
-					DatePickerDialog dateDialog = new DatePickerDialog(
-							getActivity(),
-							new DatePickerDialog.OnDateSetListener() {
+					@Override
+					public void onClick(View v) {
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(date);
+						DatePickerDialog dateDialog = new DatePickerDialog(
+								getActivity(),
+								new DatePickerDialog.OnDateSetListener() {
 
-								@Override
-								public void onDateSet(DatePicker view,
-										int year, int monthOfYear,
-										int dayOfMonth) {
-									Calendar cal = Calendar.getInstance();
-									cal.set(year, monthOfYear, dayOfMonth);
-									date = cal.getTime();
-									dateView.setText(DateFormat
-											.getDateInstance(DateFormat.MEDIUM)
-											.format(date));
-								}
-							}, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),
-							cal.get(Calendar.DAY_OF_MONTH));
-					dateDialog.show();
-				}
-			});
-
+									@Override
+									public void onDateSet(DatePicker view,
+											int year, int monthOfYear,
+											int dayOfMonth) {
+										Calendar cal = Calendar.getInstance();
+										cal.set(year, monthOfYear, dayOfMonth);
+										date = cal.getTime();
+										dateView.setText(DateFormat
+												.getDateInstance(
+														DateFormat.MEDIUM)
+												.format(date));
+									}
+								}, cal.get(Calendar.YEAR), cal
+										.get(Calendar.MONTH), cal
+										.get(Calendar.DAY_OF_MONTH));
+						dateDialog.show();
+					}
+				});
+			}
 			// init receipt UI
 			addReceipt = (Button) d.findViewById(R.id.expenseAddReceipt);
 			receiptPreView = (ImageView) d
@@ -144,6 +154,8 @@ public class ExpenseCreateDialog extends DialogFragment {
 					// Try to take a pic
 					Intent takePictureIntent = new Intent(
 							MediaStore.ACTION_IMAGE_CAPTURE);
+
+					// Continue only if camera is available
 					if (takePictureIntent.resolveActivity(getActivity()
 							.getPackageManager()) != null) {
 						startActivityForResult(takePictureIntent, 1);
@@ -154,27 +166,29 @@ public class ExpenseCreateDialog extends DialogFragment {
 
 	}
 
+	// listen for the dialog to be closed to reinit actionbar as required
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+		super.onDismiss(dialog);
+		((DisplayActivity) getActivity()).initActionBar();
+	}
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v("RCPT", "Result Code: " + resultCode);
 		if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+			Log.v("RESULT", data.getDataString());
 			Bundle extras = data.getExtras();
 			Bitmap imageBitmap = (Bitmap) extras.get("data");
 			receiptPreView.setImageBitmap(imageBitmap);
 			receiptPreView.setVisibility(View.VISIBLE);
 			addReceipt.setText("Replace Receipt");
 			receiptURI = data.getData();
-			Toast.makeText(
-					getActivity(),
-					"Receipt Image Saved to: "
-							+ receiptURI.getLastPathSegment(),
-					Toast.LENGTH_SHORT).show();
 		}
 	}
 
 	private void attemptCreateExpense() {
 		boolean cancel = false;
-		View focusView = null;
 		amount = Double.parseDouble(amountView.getText().toString());
 		description = descView.getText().toString();
 		category = catSpinner.getSelectedItemPosition() + 1;
@@ -184,9 +198,8 @@ public class ExpenseCreateDialog extends DialogFragment {
 		if (amount <= 0) {
 			cancel = true;
 			amountView.setError("Check valid amount. Must be more than 0");
-			focusView = amountView;
+			amountView.requestFocus();
 		}
-		DateFormat formatter = new SimpleDateFormat("M/d/y");
 
 		Date now = new Date();
 		if (date.compareTo(now) > 0) {
@@ -204,7 +217,6 @@ public class ExpenseCreateDialog extends DialogFragment {
 	}
 
 	public class CreateExpenseTask extends AsyncTask<Object, Void, Integer> {
-		int secondary = 0;
 
 		@Override
 		protected Integer doInBackground(Object... params) {
@@ -212,13 +224,6 @@ public class ExpenseCreateDialog extends DialogFragment {
 			Integer result = 0;
 			result = CommUtil.CreateExpense(getActivity(), s.getUsername(),
 					s.currentTeamID, date, amount, category, description);
-
-			if (result > 0 && receiptURI != null) {
-				// try to upload the receipt if rest of receipt is uploaded to
-				// attach to
-				secondary = CommUtil.UploadReceipt(getActivity(),
-						s.getUsername(), s.currentTeamID, result, receiptURI);
-			}
 
 			Log.v("Background", "returned from commutil.  result = " + result);
 
@@ -229,6 +234,12 @@ public class ExpenseCreateDialog extends DialogFragment {
 		protected void onPostExecute(final Integer result) {
 			mCreateTask = null;
 			if (result > 0) {// success!
+				//try to upload image
+				if(receiptURI!=null && mReceiptTask==null){
+					mReceiptTask = new UploadReceiptTask();
+					mReceiptTask.execute(result,receiptURI);
+				}
+				//report good news
 				Toast.makeText(getActivity().getBaseContext(),
 						"New Expense Created", Toast.LENGTH_SHORT).show();
 				// callback the team id
@@ -239,16 +250,52 @@ public class ExpenseCreateDialog extends DialogFragment {
 				Toast.makeText(getActivity().getBaseContext(),
 						"Unable to Create Expense", Toast.LENGTH_SHORT).show();
 			}
-			if(secondary==0){
-				Toast.makeText(getActivity().getBaseContext(),
-						"Unable to Upload Receipt", Toast.LENGTH_SHORT).show();
-			}
 
 		}
 
 		@Override
 		protected void onCancelled() {
 			mCreateTask = null;
+		}
+	}
+	
+
+	//uploads receipt image - requires 2 parameters: expense ID #, receipt URI
+	public class UploadReceiptTask extends AsyncTask<Object, Void, Integer> {
+
+
+		@Override
+		protected Integer doInBackground(Object... params) {
+			UserSession s = UserSession.getInstance(getActivity());
+			int id = (int) params[0];
+			Uri receiptPath = (Uri) params[1];
+			Integer result = 0;
+			if (id > 0 && receiptURI != null) {
+				// try to upload the receipt if rest of receipt is uploaded to
+				// attach to
+				result = CommUtil.UploadReceipt(getActivity(),
+						s.getUsername(), s.currentTeamID, id, receiptPath);
+			}
+
+			Log.v("Receipt", "returned from commutil.  result = " + result);
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mReceiptTask = null;
+			if (result == 0) {
+				Toast.makeText(getActivity().getBaseContext(),
+						"Unable to Upload Receipt", Toast.LENGTH_SHORT).show();
+			}
+			
+
+		}
+
+		@Override
+		protected void onCancelled() {
+			mReceiptTask = null;
 		}
 	}
 
