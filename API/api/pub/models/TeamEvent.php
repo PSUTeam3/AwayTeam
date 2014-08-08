@@ -78,12 +78,18 @@
             global $db;
             
             $query = "select * from event";            
-            mysql_query($query, $db);
-            $id = mysql_insert_id();
+            $sql = mysql_query($query, $db);
+            $eventList = array();
             
-            if($id >= 0) {
-                
+            if(mysql_num_rows($sql) > 0) {                
+                while($row = mysql_fetch_object($sql)) {
+                    $anEvent = $row;
+                    $eventList[] = $anEvent;                  
+                }            
             }
+            
+            return $eventList;
+           
         }
         
         public function SelectEventFromEventId($eventId) {
