@@ -2,6 +2,7 @@
 
     require_once('/home/awayteam/api/pub/apiconfig.php');
     require_once('/home/awayteam/api/pub/models/TeamEvent.php');
+    require_once('/home/awayteam/api/pub/models/Team.php');
     
     class TeamEventXUnitTest extends PHPUnit_Framework_TestCase 
     {
@@ -56,8 +57,27 @@
             $this->assertTrue($result != NULL);
         }
         
+        public function testSelectEventFromEventName() {
+            $result = $this->teamEvent->SelectEventFromEventName($this->teamEvent->teamEventName);
+            $this->assertTrue($result != NULL);
+        }
         
+        public function testModifyEvent() {
+            $this->teamEvent->teamEventName = "testing modify event";
+            $this->teamEvent->teamEventDescription = "testing modify event description";
+            $result = $this->teamEvent->ModifyEvent();
+            $this->assertTrue($result != NULL);
+        }
         
+        public function testModifyEventName() {
+            $result = $this->teamEvent->ModifyEventName($this->teamEventId, "modify event name");
+            $this->assertTrue($result != NULL);            
+        }
+        
+        public function testDeleteEvent() {
+            $result = $this->teamEvent->DeleteEvent($this->teamEventId);
+            $this->assertTrue($result != NULL);
+        }       
     }
     
     
