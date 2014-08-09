@@ -1,8 +1,6 @@
 package edu.psu.team3.app.awayteam;
 
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -18,14 +16,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-import edu.psu.team3.app.awayteam.ExpenseCreateDialog.CreateExpenseTask;
 
 public class EventEditDialog extends DialogFragment {
 	private EditEventTask mEditTask = null;
@@ -84,6 +80,9 @@ public class EventEditDialog extends DialogFragment {
 							// it after this point
 		AlertDialog d = (AlertDialog) getDialog();
 		if (d != null) {
+			// resize to prevent keyboard from covering dialog buttons
+			d.getWindow().setSoftInputMode(
+					WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 			// override create button action to prevent closing immediately
 			Button positiveButton = (Button) d
 					.getButton(Dialog.BUTTON_POSITIVE);
@@ -312,8 +311,8 @@ public class EventEditDialog extends DialogFragment {
 		protected void onPostExecute(final Integer result) {
 			mEditTask = null;
 			if (result == 1) {// success!
-				Toast.makeText(getActivity().getBaseContext(),
-						"Event Updated", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity().getBaseContext(), "Event Updated",
+						Toast.LENGTH_SHORT).show();
 				// callback the team id
 				((DisplayActivity) getActivity()).refreshTeam(UserSession
 						.getInstance(getActivity()).currentTeamID);

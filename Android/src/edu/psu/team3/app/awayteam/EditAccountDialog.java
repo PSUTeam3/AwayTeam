@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -64,6 +65,9 @@ public class EditAccountDialog extends DialogFragment {
 							// it after this point
 		AlertDialog d = (AlertDialog) getDialog();
 		if (d != null) {
+			// resize to prevent keyboard from covering dialog buttons
+			d.getWindow().setSoftInputMode(
+					WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 			// fill fields with current data
 			mNameView = (EditText) d.findViewById(R.id.edit_name_input);
 			mEmailView = (EditText) d.findViewById(R.id.edit_email_input);

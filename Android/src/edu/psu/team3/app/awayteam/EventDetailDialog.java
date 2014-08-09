@@ -2,7 +2,6 @@ package edu.psu.team3.app.awayteam;
 
 import java.text.DateFormat;
 
-import edu.psu.team3.app.awayteam.EventCreateDialog.CreateEventTask;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -15,8 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageButton;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,8 +28,9 @@ public class EventDetailDialog extends DialogFragment {
 	TextView endV;
 	TextView locationV;
 	TextView descriptionV;
-	//Button editButton;
-	//ImageButton deleteButton;
+
+	// Button editButton;
+	// ImageButton deleteButton;
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -54,78 +53,59 @@ public class EventDetailDialog extends DialogFragment {
 	public void onStart() {
 		super.onStart();
 		Dialog d = getDialog();
-		// get target team event
-		event = UserSession.getInstance(getActivity()).activeTeam.teamEvents
-				.get(getArguments().getInt("position"));
+		if (d != null) {
+			// resize to prevent keyboard from covering dialog buttons
+			d.getWindow().setSoftInputMode(
+					WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+			// get target team event
+			event = UserSession.getInstance(getActivity()).activeTeam.teamEvents
+					.get(getArguments().getInt("position"));
 
-		// assing UI elements
-		titleV = (TextView) d.findViewById(R.id.event_title_text);
-		startV = (TextView) d.findViewById(R.id.calendar_start_time_text);
-		endV = (TextView) d.findViewById(R.id.calendar_end_time_text);
-		locationV = (TextView) d.findViewById(R.id.calendar_location_text);
-		descriptionV = (TextView) d
-				.findViewById(R.id.calendar_description_text);
-//		editButton = (Button) d.findViewById(R.id.calendar_edit_button);
-//		deleteButton = (ImageButton) d
-//				.findViewById(R.id.calendar_delete_button);
+			// assing UI elements
+			titleV = (TextView) d.findViewById(R.id.event_title_text);
+			startV = (TextView) d.findViewById(R.id.calendar_start_time_text);
+			endV = (TextView) d.findViewById(R.id.calendar_end_time_text);
+			locationV = (TextView) d.findViewById(R.id.calendar_location_text);
+			descriptionV = (TextView) d
+					.findViewById(R.id.calendar_description_text);
+			// editButton = (Button) d.findViewById(R.id.calendar_edit_button);
+			// deleteButton = (ImageButton) d
+			// .findViewById(R.id.calendar_delete_button);
 
-		// fill data
-		titleV.setText(event.title);
-		startV.setText("Start: "
-				+ DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-						DateFormat.SHORT).format(event.startTime));
-		endV.setText("  End: "
-				+ DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-						DateFormat.SHORT).format(event.endTime));
-		locationV.setText(event.location);
-		descriptionV.setText(event.description);
-		locationV.setOnClickListener(new OnClickListener() {
+			// fill data
+			titleV.setText(event.title);
+			startV.setText("Start: "
+					+ DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
+							DateFormat.SHORT).format(event.startTime));
+			endV.setText("  End: "
+					+ DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
+							DateFormat.SHORT).format(event.endTime));
+			locationV.setText(event.location);
+			descriptionV.setText(event.description);
+			locationV.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				try {
-					String queryLocation = event.location;
-					queryLocation = queryLocation.replace(' ', '+'); // format
-																		// as
-																		// query
-					Intent geoIntent = new Intent(
-							android.content.Intent.ACTION_VIEW, Uri
-									.parse("geo:0,0?q=" + queryLocation)); // Prepare
-																			// intent
-					geoIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					startActivity(geoIntent); // Initiate lookup
-				} catch (Exception e) {
-					Toast.makeText(getActivity(),
-							"Cannot open Map application", Toast.LENGTH_SHORT)
-							.show();
+				@Override
+				public void onClick(View v) {
+					try {
+						String queryLocation = event.location;
+						queryLocation = queryLocation.replace(' ', '+'); // format
+																			// as
+																			// query
+						Intent geoIntent = new Intent(
+								android.content.Intent.ACTION_VIEW, Uri
+										.parse("geo:0,0?q=" + queryLocation)); // Prepare
+																				// intent
+						geoIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						startActivity(geoIntent); // Initiate lookup
+					} catch (Exception e) {
+						Toast.makeText(getActivity(),
+								"Cannot open Map application",
+								Toast.LENGTH_SHORT).show();
+					}
 				}
-			}
-		});
+			});
 
-		// Assign tasks to buttons
-//		editButton.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				DialogFragment newFragment = new EventEditDialog();
-//				Bundle args = new Bundle();
-//				args.putInt("id", event.id);
-//				newFragment.setArguments(args);
-//				newFragment.show(getFragmentManager(), null);
-//				getDialog().dismiss();
-//			}
-//		});
-//		deleteButton.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				if (mDeleteTask == null) {
-//					mDeleteTask = new DeleteEventTask();
-//					mDeleteTask.execute();
-//				}
-//
-//			}
-//		});
+		}
 
 	}
 

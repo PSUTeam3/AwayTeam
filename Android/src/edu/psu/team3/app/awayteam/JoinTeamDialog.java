@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
@@ -58,6 +59,9 @@ public class JoinTeamDialog extends DialogFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
+		// resize to prevent keyboard from covering dialog buttons
+		getDialog().getWindow().setSoftInputMode(
+				WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		mTeamListView = (ListView) getDialog().findViewById(R.id.teamListView);
 		mSearchView = (SearchView) getDialog()
 				.findViewById(R.id.teamSearchView);
@@ -203,8 +207,8 @@ public class JoinTeamDialog extends DialogFragment {
 							"Team information will become visible when a Team Manager approves membership",
 							Toast.LENGTH_LONG).show();
 					// update view to the same current team
-					((DisplayActivity) getActivity())
-					.refreshTeam(UserSession.getInstance(getActivity()).currentTeamID);
+					((DisplayActivity) getActivity()).refreshTeam(UserSession
+							.getInstance(getActivity()).currentTeamID);
 
 				} else {
 					// Public team selected - pass back team id so it can be

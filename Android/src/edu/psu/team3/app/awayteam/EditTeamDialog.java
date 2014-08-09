@@ -1,6 +1,5 @@
 package edu.psu.team3.app.awayteam;
 
-import edu.psu.team3.app.awayteam.CreateTeamDialog.CreateTeamTask;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -10,12 +9,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class EditTeamDialog extends DialogFragment {
 	private EditTeamTask mEditTask = null;
@@ -63,6 +61,9 @@ public class EditTeamDialog extends DialogFragment {
 		AlertDialog d = (AlertDialog) getDialog();
 		UserSession s = UserSession.getInstance(getActivity());
 		if (d != null) {
+			// resize to prevent keyboard from covering dialog buttons
+			d.getWindow().setSoftInputMode(
+					WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 			// assign UI elements
 			mTeamNameView = (EditText) d.findViewById(R.id.teamNameInput);
 			mLocNameView = (EditText) d.findViewById(R.id.teamLocationInput);

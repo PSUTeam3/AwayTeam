@@ -3,10 +3,6 @@ package edu.psu.team3.app.awayteam;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.psu.team3.app.awayteam.JoinTeamDialog.JoinTask;
-import edu.psu.team3.app.awayteam.MemberDetailDialog.ActionTask;
-import edu.psu.team3.app.awayteam.TaskFragment.DeleteTask;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -24,18 +20,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TableLayout;
 import android.widget.Toast;
-import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class MembersFragment extends Fragment {
-	private ActionTask mAction = null;
+	// private ActionTask mAction = null;
 
 	// UI references
 	private Spinner mGroupSpinner;
@@ -159,17 +154,23 @@ public class MembersFragment extends Fragment {
 						MenuInflater inflater = getActivity().getMenuInflater();
 						inflater.inflate(R.menu.multi_select_members, menu);
 						if (UserSession.getInstance(getActivity()).activeTeam.userManager) {
-							menu.setGroupVisible(R.id.menu_group_manager_header, true);
-							menu.setGroupVisible(R.id.menu_group_manager_not_manager, true);
-							menu.setGroupVisible(R.id.menu_group_manager_not_self, true);
+							menu.setGroupVisible(
+									R.id.menu_group_manager_header, true);
+							menu.setGroupVisible(
+									R.id.menu_group_manager_not_manager, true);
+							menu.setGroupVisible(
+									R.id.menu_group_manager_not_self, true);
 							manager = true;
 						} else {
-							menu.setGroupVisible(R.id.menu_group_manager_header, false);
-							menu.setGroupVisible(R.id.menu_group_manager_not_manager, false);
-							menu.setGroupVisible(R.id.menu_group_manager_not_self, false);
+							menu.setGroupVisible(
+									R.id.menu_group_manager_header, false);
+							menu.setGroupVisible(
+									R.id.menu_group_manager_not_manager, false);
+							menu.setGroupVisible(
+									R.id.menu_group_manager_not_self, false);
 							manager = false;
 						}
-						Log.v("MENU","Manager = "+manager);
+						Log.v("MENU", "Manager = " + manager);
 						selectMenu = menu;
 						background = false;
 						mMode = mode;
@@ -196,17 +197,24 @@ public class MembersFragment extends Fragment {
 							mode.finish();
 							break;
 						case R.id.action_selected_promote:
-							if (mAction == null) {
+							if (((DisplayActivity) getActivity()).mAction == null) {
 								background = true;
-								mAction = new ActionTask();
-								mAction.execute("promote");							}
+								((DisplayActivity) getActivity())
+										.initActionTask();
+								// mAction = new ActionTask();
+								((DisplayActivity) getActivity()).mAction
+										.execute("promote");
+							}
 							mode.finish();
 							break;
 						case R.id.action_selected_remove:
-							if (mAction == null) {
+							if (((DisplayActivity) getActivity()).mAction == null) {
 								background = true;
-								mAction = new ActionTask();
-								mAction.execute("remove");
+								// mAction = new ActionTask();
+								((DisplayActivity) getActivity())
+										.initActionTask();
+								((DisplayActivity) getActivity()).mAction
+										.execute("remove");
 							}
 							mode.finish();
 							break;
@@ -245,14 +253,18 @@ public class MembersFragment extends Fragment {
 						if (manager) {
 							if (adapter.selectionContainsManager()) {
 								selectMenu.setGroupEnabled(
-										R.id.menu_group_manager_not_manager, false);
+										R.id.menu_group_manager_not_manager,
+										false);
 							} else {
 								selectMenu.setGroupEnabled(
-										R.id.menu_group_manager_not_manager, true);
+										R.id.menu_group_manager_not_manager,
+										true);
 							}
 							if (adapter.selectionContainsSelf()) {
-								selectMenu.setGroupEnabled(
-										R.id.menu_group_manager_not_self, false);
+								selectMenu
+										.setGroupEnabled(
+												R.id.menu_group_manager_not_self,
+												false);
 							} else {
 								selectMenu.setGroupEnabled(
 										R.id.menu_group_manager_not_self, true);
@@ -390,39 +402,39 @@ public class MembersFragment extends Fragment {
 		}
 
 	}
-	
+
 	// background task to take action on a pending user
 	// will complete action for all selected members
 	// requires parameter:action "approve"/"remove"/"promote"/"demote"
-	public class ActionTask extends AsyncTask<Object, Void, Integer> {
-		@Override
-		protected Integer doInBackground(Object... params) {
-			UserSession s = UserSession.getInstance(getActivity());
-			String action = (String) params[0];
-			Integer result = 0;
-			for(TeamMember member:adapter.getSelection())
-			result = CommUtil.ManagerAction(getActivity(), s.getUsername(),
-					s.currentTeamID, member.userName, action);
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(final Integer result) {
-			mAction = null;
-			if (result == 1) {// success!
-				((DisplayActivity) getActivity()).refreshTeam(UserSession
-						.getInstance(getActivity()).currentTeamID);
-			} else {// some error occured
-				Toast.makeText(getActivity().getBaseContext(),
-						"Unable to Complete Action", Toast.LENGTH_SHORT).show();
-			}
-
-		}
-
-		@Override
-		protected void onCancelled() {
-			mAction = null;
-		}
-	}
+//	public class ActionTask extends AsyncTask<Object, Void, Integer> {
+//		@Override
+//		protected Integer doInBackground(Object... params) {
+//			UserSession s = UserSession.getInstance(getActivity());
+//			String action = (String) params[0];
+//			Integer result = 0;
+//			for (TeamMember member : adapter.getSelection())
+//				result = CommUtil.ManagerAction(getActivity(), s.getUsername(),
+//						s.currentTeamID, member.userName, action);
+//			return result;
+//		}
+//
+//		@Override
+//		protected void onPostExecute(final Integer result) {
+//			mAction = null;
+//			if (result == 1) {// success!
+//				((DisplayActivity) getActivity()).refreshTeam(UserSession
+//						.getInstance(getActivity()).currentTeamID);
+//			} else {// some error occured
+//				Toast.makeText(getActivity().getBaseContext(),
+//						"Unable to Complete Action", Toast.LENGTH_SHORT).show();
+//			}
+//
+//		}
+//
+//		@Override
+//		protected void onCancelled() {
+//			mAction = null;
+//		}
+//	}
 
 }

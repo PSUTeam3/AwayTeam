@@ -1,13 +1,9 @@
 package edu.psu.team3.app.awayteam;
 
-import java.text.DateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
-import edu.psu.team3.app.awayteam.EventDetailDialog.DeleteEventTask;
-import edu.psu.team3.app.awayteam.TaskFragment.DeleteTask;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.os.AsyncTask;
@@ -21,8 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.AbsListView.MultiChoiceModeListener;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -103,6 +99,8 @@ public class CalendarFragment extends Fragment {
 						switch (item.getItemId()) {
 						case R.id.action_selected_delete:
 							delete = true;
+							((DisplayActivity) getActivity())
+									.setRefreshActionButtonState(true);
 							mDeleteTask = new DeleteTask();
 							mDeleteTask.execute();
 							mode.finish();
@@ -187,12 +185,20 @@ public class CalendarFragment extends Fragment {
 			}
 		});
 	}
-	
+
 	@Override
-	public void onPause(){
+	public void onPause() {
 		super.onPause();
-		if(mMode!=null){
+		if (mMode != null) {
 			mMode.finish();
+		}
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mDeleteTask != null) {
+			mDeleteTask.cancel(true);
 		}
 	}
 
@@ -210,7 +216,8 @@ public class CalendarFragment extends Fragment {
 
 				if (loud) {
 					eventsListView.setSelection(i);
-					eventsListView.smoothScrollToPosition(i);//.smoothScrollToPositionFromTop(i, 0, 1000);
+					eventsListView.smoothScrollToPosition(i);// .smoothScrollToPositionFromTop(i,
+																// 0, 1000);
 				} else {
 					eventsListView.setSelectionFromTop(i, 0);
 				}
@@ -244,21 +251,28 @@ public class CalendarFragment extends Fragment {
 			mDeleteTask = null;
 			delete = false;
 			if (result == 1) {// success!
-				
-				if (adapter.getSelection().size() == 1) {
-					Toast.makeText(getActivity().getBaseContext(),
-							"Event Deleted", Toast.LENGTH_SHORT).show();
-				} else {
-					Toast.makeText(getActivity().getBaseContext(),
-							adapter.getSelection().size() + " Events Deleted",
-							Toast.LENGTH_SHORT).show();
-				}
-				adapter.clearSelection();
+				try {
+					if (adapter.getSelection().size() == 1) {
+						Toast.makeText(getActivity().getBaseContext(),
+								"Event Deleted", Toast.LENGTH_SHORT).show();
+					} else {
+						Toast.makeText(
+								getActivity().getBaseContext(),
+								adapter.getSelection().size()
+										+ " Events Deleted", Toast.LENGTH_SHORT)
+								.show();
+					}
+					adapter.clearSelection();
 
-				((DisplayActivity) getActivity()).refreshTeam(UserSession
-						.getInstance(getActivity()).currentTeamID);
+					((DisplayActivity) getActivity()).refreshTeam(UserSession
+							.getInstance(getActivity()).currentTeamID);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
 			} else {// some error occured
+				((DisplayActivity) getActivity())
+						.setRefreshActionButtonState(false);
 				Toast.makeText(getActivity().getBaseContext(),
 						"Unable to Delete Event", Toast.LENGTH_SHORT).show();
 			}

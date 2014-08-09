@@ -100,6 +100,8 @@ public class ExpenseFragment extends Fragment {
 						switch (item.getItemId()) {
 						case R.id.action_selected_delete:
 							delete = true;
+							((DisplayActivity) getActivity())
+									.setRefreshActionButtonState(true);
 							mDeleteTask = new DeleteExpenseTask();
 							mDeleteTask.execute();
 							mode.finish();
@@ -174,6 +176,14 @@ public class ExpenseFragment extends Fragment {
 		}
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mDeleteTask != null) {
+			mDeleteTask.cancel(true);
+		}
+	}
+
 	// update the expense total field in the window with the total of all items
 	// in the list
 	private void calcExpense(List<TeamExpense> expenses) {
@@ -206,19 +216,26 @@ public class ExpenseFragment extends Fragment {
 			mDeleteTask = null;
 			delete = false;
 			if (result == 1) {// success!
-				if (adapter.getSelection().size() == 1) {
-					Toast.makeText(getActivity().getBaseContext(),
-							"Expense Deleted", Toast.LENGTH_SHORT).show();
-				} else {
-					Toast.makeText(
-							getActivity().getBaseContext(),
-							adapter.getSelection().size() + " Expenses Deleted",
-							Toast.LENGTH_SHORT).show();
+				try {
+					if (adapter.getSelection().size() == 1) {
+						Toast.makeText(getActivity().getBaseContext(),
+								"Expense Deleted", Toast.LENGTH_SHORT).show();
+					} else {
+						Toast.makeText(
+								getActivity().getBaseContext(),
+								adapter.getSelection().size()
+										+ " Expenses Deleted",
+								Toast.LENGTH_SHORT).show();
+					}
+					adapter.clearSelection();
+					((DisplayActivity) getActivity()).refreshTeam(UserSession
+							.getInstance(getActivity()).currentTeamID);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				adapter.clearSelection();
-				((DisplayActivity) getActivity()).refreshTeam(UserSession
-						.getInstance(getActivity()).currentTeamID);
 			} else {// some error occured
+				((DisplayActivity) getActivity())
+						.setRefreshActionButtonState(false);
 				Toast.makeText(getActivity().getBaseContext(),
 						"Unable to Delete Expense", Toast.LENGTH_SHORT).show();
 			}
@@ -231,5 +248,4 @@ public class ExpenseFragment extends Fragment {
 		}
 	}
 
-	
 }

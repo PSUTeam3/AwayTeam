@@ -1,9 +1,12 @@
 package edu.psu.team3.app.awayteam;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -11,26 +14,34 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ExpenseEditDialog extends DialogFragment {
 	private EditExpenseTask mEditTask = null;
 
 	Uri receiptURI = null;
+
+	private final int IMAGE_FROM_FILE = 2;
+	private final int IMAGE_FROM_CAMERA = 1;
 
 	private Date date;
 	private double amount = 0;
@@ -44,6 +55,7 @@ public class ExpenseEditDialog extends DialogFragment {
 
 	Button addReceipt;
 	ImageView receiptPreView;
+	TextView receiptPathView;
 
 	TeamExpense expense = null;
 
@@ -85,6 +97,10 @@ public class ExpenseEditDialog extends DialogFragment {
 							// it after this point
 		AlertDialog d = (AlertDialog) getDialog();
 		if (d != null) {
+			// resize to prevent keyboard from covering dialog buttons
+			d.getWindow().setSoftInputMode(
+					WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
 			// override create button action to prevent closing immediately
 			Button positiveButton = (Button) d
 					.getButton(Dialog.BUTTON_POSITIVE);
@@ -137,6 +153,8 @@ public class ExpenseEditDialog extends DialogFragment {
 			addReceipt = (Button) d.findViewById(R.id.expenseAddReceipt);
 			receiptPreView = (ImageView) d
 					.findViewById(R.id.expenseReceiptThumb);
+			receiptPathView = (TextView) d
+					.findViewById(R.id.expenseReceiptPath);
 			if (expense.hasReceipt) {
 				addReceipt.setText("Replace Receipt");
 			}
@@ -144,15 +162,64 @@ public class ExpenseEditDialog extends DialogFragment {
 
 				@Override
 				public void onClick(View v) {
-					// Try to take a pic
-					Intent takePictureIntent = new Intent(
-							MediaStore.ACTION_IMAGE_CAPTURE);
+					// give user a choice between camera or file
+					List<Object[]> choices = new ArrayList<Object[]>();
+					choices.add(new Object[] { "Take Picture",
+							R.drawable.ic_action_camera });
+					choices.add(new Object[] { "Select From File",
+							R.drawable.ic_action_collection });
+					ListAdapter adapter = new InputListAdapter(getActivity(),
+							R.layout.input_entry, choices);
+					AlertDialog.Builder builder = new AlertDialog.Builder(
+							getActivity());
+					builder.setTitle("Choose Image Source");
+					builder.setIcon(getActivity().getResources().getDrawable(
+							R.drawable.ic_action_new_picture));
+					builder.setNegativeButton("cancel",
+							new DialogInterface.OnClickListener() {
 
-					// Continue only if camera is available
-					if (takePictureIntent.resolveActivity(getActivity()
-							.getPackageManager()) != null) {
-						startActivityForResult(takePictureIntent, 1);
-					}
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									dialog.dismiss();
+								}
+							});
+
+					builder.setAdapter(adapter,
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									switch (which) {
+									case 0:// camera
+											// Try to take a pic
+										Intent takePictureIntent = new Intent(
+												MediaStore.ACTION_IMAGE_CAPTURE);
+
+										// Continue only if camera is available
+										if (takePictureIntent
+												.resolveActivity(getActivity()
+														.getPackageManager()) != null) {
+											startActivityForResult(
+													takePictureIntent,
+													IMAGE_FROM_CAMERA);
+										}
+										break;
+									case 1: // file
+										// try to get a picture from gallery:
+										Intent photoPickerIntent = new Intent(
+												Intent.ACTION_PICK);
+										photoPickerIntent.setType("image/*");
+										startActivityForResult(
+												photoPickerIntent,
+												IMAGE_FROM_FILE);
+										break;
+									}
+
+								}
+							});
+					builder.create().show();
 				}
 			});
 		}
@@ -162,26 +229,68 @@ public class ExpenseEditDialog extends DialogFragment {
 	@Override
 	public void onDismiss(DialogInterface dialog) {
 		super.onDismiss(dialog);
-		((DisplayActivity) getActivity()).initActionBar();
+		try {
+			((DisplayActivity) getActivity()).initActionBar();
+		} catch (Exception e) {
+			Log.e("EXPENSE",
+					"Error trying to re-init actionbar: " + e.toString());
+			e.printStackTrace();
+		}
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v("RCPT", "Result Code: " + resultCode);
 		try {
-			if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-				Log.v("RESULT", data.getDataString());
+			if ((requestCode == IMAGE_FROM_CAMERA || requestCode == IMAGE_FROM_FILE)
+					&& resultCode == Activity.RESULT_OK) {
+				// collect the image URI from the activity
+
 				Bundle extras = data.getExtras();
-				Bitmap imageBitmap = (Bitmap) extras.get("data");
-				receiptPreView.setImageBitmap(imageBitmap);
-				receiptPreView.setVisibility(View.VISIBLE);
+				Bitmap imageBitmap = null;
+				try {
+					// try to display a thumbnail if it is provided
+					imageBitmap = (Bitmap) extras.get("data");
+					receiptPreView.setImageBitmap(imageBitmap);
+					receiptPreView.setVisibility(View.VISIBLE);
+					receiptPathView.setVisibility(View.GONE);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				try {
+					// showing the picture didn't work, let's settle for the
+					// file name
+					if (imageBitmap == null
+							&& android.os.Build.VERSION.SDK_INT >= 16) {
+						// This will only work with newer SDKs (>=16)
+						Cursor cursor = getActivity().getContentResolver()
+								.query(data.getData(), null, null, null, null,
+										null);
+						if (cursor != null && cursor.moveToFirst()) {
+							String displayName = cursor
+									.getString(cursor
+											.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+							Log.i("IMAGE", "Display Name: " + displayName);
+							receiptPathView.setText(displayName);
+							receiptPreView.setVisibility(View.GONE);
+							receiptPathView.setVisibility(View.VISIBLE);
+						}
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
 				addReceipt.setText("Replace Receipt");
 				receiptURI = data.getData();
+				Log.v("RESULT",
+						"ReceiptURI="
+								+ ((receiptURI == null) ? "null" : receiptURI
+										.toString()));
 			}
 		} catch (Exception e) {
-			Log.e("GetPic", "Unable to get image from camera: " + e.toString());
+			Log.e("GetPic", "Unable to get image: " + e.toString());
 			e.printStackTrace();
-			Toast.makeText(getActivity(), "Unable to get image from Camera",
+			Toast.makeText(getActivity(), "Unable to get Image",
 					Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -210,23 +319,35 @@ public class ExpenseEditDialog extends DialogFragment {
 
 		if (!cancel && mEditTask == null) {
 			mEditTask = new EditExpenseTask();
-			mEditTask.execute();
+			mEditTask.execute(receiptURI);
 		}
 
 	}
 
+	// edit an expense - receipt is optional parameter
 	public class EditExpenseTask extends AsyncTask<Object, Void, Integer> {
+		Uri receiptPath = null;
+		int expenseID = 0;
 
 		@Override
 		protected Integer doInBackground(Object... params) {
-			UserSession s = UserSession.getInstance(getActivity());
 			Integer result = 0;
-			result = CommUtil.EditExpense(getActivity(), s.getUsername(),
-					s.currentTeamID, expense.id, date, amount, category,
-					description);
+			expenseID = expense.id;
+			try {
+				if (params.length > 0) {
+					receiptPath = (Uri) params[0];
+				}
+				UserSession s = UserSession.getInstance(getActivity());
 
-			Log.v("Background", "returned from commutil.  result = " + result);
+				result = CommUtil.EditExpense(getActivity(), s.getUsername(),
+						s.currentTeamID, expenseID, date, amount, category,
+						description);
 
+				Log.v("Background", "returned from commutil.  result = "
+						+ result);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			return result;
 		}
 
@@ -235,11 +356,17 @@ public class ExpenseEditDialog extends DialogFragment {
 			mEditTask = null;
 			if (result == 1) {// success!
 				// try to upload image
-				if (receiptURI != null
-						&& ((DisplayActivity) getActivity()).mReceiptTask == null) {
-					((DisplayActivity) getActivity()).initReceiptTask();
-					((DisplayActivity) getActivity()).mReceiptTask.execute(
-							expense.id, receiptURI);
+				try {
+					if (receiptPath != null
+							&& ((DisplayActivity) getActivity()).mReceiptTask == null) {
+						((DisplayActivity) getActivity()).initReceiptTask();
+						((DisplayActivity) getActivity()).mReceiptTask.execute(
+								expenseID, receiptPath);
+					}
+				} catch (Exception e) {
+					Log.e("RECEIPT",
+							"Error trying to initate UploadReceiptTask: "
+									+ e.toString());
 				}
 				// report good news
 				Toast.makeText(getActivity().getBaseContext(),
@@ -250,7 +377,7 @@ public class ExpenseEditDialog extends DialogFragment {
 				getDialog().dismiss();
 			} else {// some error occured
 				Toast.makeText(getActivity().getBaseContext(),
-						"Unable to Create Expense", Toast.LENGTH_SHORT).show();
+						"Unable to Update Expense", Toast.LENGTH_SHORT).show();
 			}
 
 		}

@@ -3,13 +3,10 @@ package edu.psu.team3.app.awayteam;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.android.gms.maps.model.LatLng;
-
-import edu.psu.team3.app.awayteam.MemberDetailDialog.ActionTask;
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -37,14 +34,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	private GetTeamTask mGetTeam = null;
 	private RefreshSpinnerTask mRefreshList = null;
 	private LeaveTeamTask mLeaveTeam = null;
 	public UpdateLocationTask mLocation = null;
-	private ActionTask mAction = null;
+	public ActionTask mAction = null;
 	public UploadReceiptTask mReceiptTask = null;
 
 	ActionBar actionBar;
@@ -515,6 +511,10 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 				UserSession s = UserSession.getInstance(getBaseContext());
 				int id = (int) params[0];
 				Uri receiptURI = (Uri) params[1];
+				Log.v("UPLOAD",
+						"ReceiptURI="
+								+ ((receiptURI == null) ? "null" : receiptURI
+										.toString()));
 
 				if (id > 0 && receiptURI != null) {
 					// try to upload the receipt if rest of receipt is uploaded
@@ -744,15 +744,25 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 
 	}
 
+	public void initActionTask() {
+		mAction = new ActionTask();
+	}
+
 	// background task to take action on a pending user
 	// requires parameters: target username, action
 	// "approve"/"remove"/"promote"/"demote"
+	// optional input: dialog so that it may be dismissed
 	public class ActionTask extends AsyncTask<Object, Void, Integer> {
+		Dialog d = null;
+
 		@Override
 		protected Integer doInBackground(Object... params) {
 			UserSession s = UserSession.getInstance(getBaseContext());
 			String targetUserName = (String) params[0];
 			String action = (String) params[1];
+			if (params.length > 2) {
+				d = (Dialog) params[2];
+			}
 			Integer result = 0;
 			result = CommUtil.ManagerAction(getBaseContext(), s.getUsername(),
 					s.currentTeamID, targetUserName, action);
@@ -763,6 +773,13 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 		protected void onPostExecute(final Integer result) {
 			mAction = null;
 			if (result == 1) {// success!
+				try {
+					if (d != null) {
+						d.dismiss();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				refreshTeam(UserSession.getInstance(getBaseContext()).currentTeamID);
 			} else {// some error occured
 				Toast.makeText(getBaseContext(), "Unable to Complete Action",

@@ -1,9 +1,7 @@
 package edu.psu.team3.app.awayteam;
 
-import edu.psu.team3.app.awayteam.ExpenseFragment.DeleteExpenseTask;
 import android.app.DialogFragment;
 import android.app.Fragment;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,17 +12,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView.MultiChoiceModeListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
-import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class TaskFragment extends Fragment {
@@ -119,6 +111,8 @@ public class TaskFragment extends Fragment {
 				switch (item.getItemId()) {
 				case R.id.action_selected_delete:
 					delete = true;
+					((DisplayActivity) getActivity())
+							.setRefreshActionButtonState(true);
 					mDeleteTask = new DeleteTask();
 					mDeleteTask.execute();
 					mode.finish();
@@ -164,15 +158,23 @@ public class TaskFragment extends Fragment {
 			}
 		});
 	}
-	
+
 	@Override
-	public void onPause(){
+	public void onPause() {
 		super.onPause();
-		if(mMode!=null){
+		if (mMode != null) {
 			mMode.finish();
 		}
 	}
-	
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mDeleteTask != null) {
+			mDeleteTask.cancel(true);
+		}
+	}
+
 	// background task to delete the selected tasks
 	public class DeleteTask extends AsyncTask<Object, Void, Integer> {
 		@Override
@@ -194,18 +196,26 @@ public class TaskFragment extends Fragment {
 			mDeleteTask = null;
 			delete = false;
 			if (result == 1) {// success!
-				if (adapter.getSelection().size() == 1) {
-					Toast.makeText(getActivity().getBaseContext(),
-							"Task Deleted", Toast.LENGTH_SHORT).show();
-				} else {
-					Toast.makeText(getActivity().getBaseContext(),
-							adapter.getSelection().size() + " Tasks Deleted",
-							Toast.LENGTH_SHORT).show();
+				try {
+					if (adapter.getSelection().size() == 1) {
+						Toast.makeText(getActivity().getBaseContext(),
+								"Task Deleted", Toast.LENGTH_SHORT).show();
+					} else {
+						Toast.makeText(
+								getActivity().getBaseContext(),
+								adapter.getSelection().size()
+										+ " Tasks Deleted", Toast.LENGTH_SHORT)
+								.show();
+					}
+					adapter.clearSelection();
+					((DisplayActivity) getActivity()).refreshTeam(UserSession
+							.getInstance(getActivity()).currentTeamID);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				adapter.clearSelection();
-				((DisplayActivity) getActivity()).refreshTeam(UserSession
-						.getInstance(getActivity()).currentTeamID);
 			} else {// some error occured
+				((DisplayActivity) getActivity())
+						.setRefreshActionButtonState(false);
 				Toast.makeText(getActivity().getBaseContext(),
 						"Unable to Delete Task", Toast.LENGTH_SHORT).show();
 			}

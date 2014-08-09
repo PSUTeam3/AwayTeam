@@ -1,8 +1,5 @@
 package edu.psu.team3.app.awayteam;
 
-import com.google.android.gms.internal.de;
-
-import edu.psu.team3.app.awayteam.ExpenseCreateDialog.CreateExpenseTask;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -12,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -57,6 +55,9 @@ public class TaskCreateDialog extends DialogFragment {
 							// it after this point
 		AlertDialog d = (AlertDialog) getDialog();
 		if (d != null) {
+			// resize to prevent keyboard from covering dialog buttons
+			d.getWindow().setSoftInputMode(
+					WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 			// override create button action to prevent closing immediately
 			Button positiveButton = (Button) d
 					.getButton(Dialog.BUTTON_POSITIVE);

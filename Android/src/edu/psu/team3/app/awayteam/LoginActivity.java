@@ -123,6 +123,14 @@ public class LoginActivity extends Activity {
 	}
 
 	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mAuthTask != null) {
+			mAuthTask.cancel(true);
+		}
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		getMenuInflater().inflate(R.menu.login, menu);
@@ -218,7 +226,7 @@ public class LoginActivity extends Activity {
 	/**
 	 * Shows the progress UI and hides the login form.
 	 */
-//	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+	// @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 	private void showProgress(final boolean show) {
 		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
 		// for very easy animations. If available, use these APIs to fade-in
@@ -249,12 +257,12 @@ public class LoginActivity extends Activity {
 		// }
 		// });
 		// } else {
-			// The ViewPropertyAnimator APIs are not available, so simply show
-			// and hide the relevant UI components.
-		//UPDATE: simply show the logo - forget animations and such
-			mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-			mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-//		}
+		// The ViewPropertyAnimator APIs are not available, so simply show
+		// and hide the relevant UI components.
+		// UPDATE: simply show the logo - forget animations and such
+		mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+		mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+		// }
 
 	}
 
@@ -313,7 +321,13 @@ public class LoginActivity extends Activity {
 		@Override
 		protected void onCancelled() {
 			mAuthTask = null;
-			showProgress(false);
+			try {
+				showProgress(false);
+			} catch (Exception e) {
+				Log.e("LOGIN",
+						"Error on login caught - it appears the display is not available: "
+								+ e.toString());
+			}
 		}
 	}
 

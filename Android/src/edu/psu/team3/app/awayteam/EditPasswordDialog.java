@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -24,7 +25,7 @@ public class EditPasswordDialog extends DialogFragment {
 	private EditText mOldPassView;
 	private EditText mPass1View;
 	private EditText mPass2View;
-	
+
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -50,8 +51,7 @@ public class EditPasswordDialog extends DialogFragment {
 
 		return builder.create();
 	}
-	
-	
+
 	@Override
 	public void onStart() {
 		super.onStart(); // super.onStart() is where dialog.show() is actually
@@ -59,6 +59,9 @@ public class EditPasswordDialog extends DialogFragment {
 							// it after this point
 		AlertDialog d = (AlertDialog) getDialog();
 		if (d != null) {
+			// resize to prevent keyboard from covering dialog buttons
+			d.getWindow().setSoftInputMode(
+					WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 			// fill fields with current data
 			mOldPassView = (EditText) d.findViewById(R.id.password_old);
 			mPass1View = (EditText) d.findViewById(R.id.password1_change);
@@ -75,20 +78,19 @@ public class EditPasswordDialog extends DialogFragment {
 		}
 	}
 
-	
-	//check for errors and if none, change the password
-	private void attemptChangePass(){
-		if(mPassTask!=null){
+	// check for errors and if none, change the password
+	private void attemptChangePass() {
+		if (mPassTask != null) {
 			return;
 		}
-		
+
 		boolean cancel = false;
 		View focusView = null;
-		
+
 		mOldPass = mOldPassView.getText().toString();
 		mPassword1 = mPass1View.getText().toString();
 		mPassword2 = mPass2View.getText().toString();
-		
+
 		// Check valid password
 		if (TextUtils.isEmpty(mPassword1)) {
 			mPass1View.setError(getString(R.string.error_field_required));
@@ -109,24 +111,23 @@ public class EditPasswordDialog extends DialogFragment {
 			focusView = mPass2View;
 			cancel = true;
 		}
-		
-		
-		
-		//Check old password is correct
+
+		// Check old password is correct
 		if (TextUtils.isEmpty(mOldPass)) {
 			mOldPassView.setError(getString(R.string.error_field_required));
 			focusView = mOldPassView;
 			cancel = true;
-		} else if (!mOldPass.equals(UserSession.getInstance(getActivity()).getPassword())) {
+		} else if (!mOldPass.equals(UserSession.getInstance(getActivity())
+				.getPassword())) {
 			mOldPassView.setError("Incorrect Password");
 			focusView = mOldPassView;
 			cancel = true;
 		}
-		
-		if(cancel){
+
+		if (cancel) {
 			focusView.requestFocus();
 			return;
-		}else{
+		} else {
 			if (mPassTask == null) {
 				try {
 					mPassTask = new PassChangeTask();
@@ -137,10 +138,7 @@ public class EditPasswordDialog extends DialogFragment {
 			}
 		}
 
-		
 	}
-	
-	
 
 	// change password based on the value of mPassword1
 	public class PassChangeTask extends AsyncTask<Object, Void, Integer> {

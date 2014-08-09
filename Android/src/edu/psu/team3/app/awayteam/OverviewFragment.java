@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 public class OverviewFragment extends Fragment {
 	private PendingTask mPendingTask = null;
-	private ActionTask mAction = null;
+	//private ActionTask mAction = null;
 
 	TextView mTeamNameView;
 	TextView mTeamLocView;
@@ -140,6 +140,14 @@ public class OverviewFragment extends Fragment {
 		}
 	}
 
+	// Clean up before exiting
+	public void onDestroy() {
+		super.onDestroy();
+		if (mPendingTask != null) {
+			mPendingTask.cancel(true);
+		}
+	}
+
 	// background task to collect pending members
 	public class PendingTask extends AsyncTask<Object, Void, List<Object[]>> {
 		String username;
@@ -185,9 +193,11 @@ public class OverviewFragment extends Fragment {
 									Log.v("pending",
 											"accepting member: "
 													+ v.getContentDescription());
-									if (mAction == null) {
-										mAction = new ActionTask();
-										mAction.execute(
+									if (((DisplayActivity) getActivity()).mAction == null) {
+										// mAction = new ActionTask();
+										((DisplayActivity) getActivity())
+												.initActionTask();
+										((DisplayActivity) getActivity()).mAction.execute(
 												v.getContentDescription(),
 												"approve");
 									}
@@ -202,9 +212,11 @@ public class OverviewFragment extends Fragment {
 									Log.v("pending",
 											"rejecting member: "
 													+ v.getContentDescription());
-									if (mAction == null) {
-										mAction = new ActionTask();
-										mAction.execute(
+									if (((DisplayActivity) getActivity()).mAction == null) {
+										// mAction = new ActionTask();
+										((DisplayActivity) getActivity())
+												.initActionTask();
+										((DisplayActivity) getActivity()).mAction.execute(
 												v.getContentDescription(),
 												"remove");
 									}
@@ -226,35 +238,35 @@ public class OverviewFragment extends Fragment {
 	// background task to take action on a pending user
 	// requires parameters: target username, action
 	// "approve"/"remove"/"promote"/"demote"
-	public class ActionTask extends AsyncTask<Object, Void, Integer> {
-		@Override
-		protected Integer doInBackground(Object... params) {
-			UserSession s = UserSession.getInstance(getActivity());
-			String targetUserName = (String) params[0];
-			String action = (String) params[1];
-			Integer result = 0;
-			result = CommUtil.ManagerAction(getActivity(), s.getUsername(),
-					s.currentTeamID, targetUserName, action);
-
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(final Integer result) {
-			mAction = null;
-			if (result == 1) {// success!
-				((DisplayActivity) getActivity()).refreshTeam(UserSession
-						.getInstance(getActivity()).currentTeamID);
-			} else {// some error occured
-				Toast.makeText(getActivity().getBaseContext(),
-						"Unable to Complete Action", Toast.LENGTH_SHORT).show();
-			}
-
-		}
-
-		@Override
-		protected void onCancelled() {
-			mAction = null;
-		}
-	}
+	// public class ActionTask extends AsyncTask<Object, Void, Integer> {
+	// @Override
+	// protected Integer doInBackground(Object... params) {
+	// UserSession s = UserSession.getInstance(getActivity());
+	// String targetUserName = (String) params[0];
+	// String action = (String) params[1];
+	// Integer result = 0;
+	// result = CommUtil.ManagerAction(getActivity(), s.getUsername(),
+	// s.currentTeamID, targetUserName, action);
+	//
+	// return result;
+	// }
+	//
+	// @Override
+	// protected void onPostExecute(final Integer result) {
+	// mAction = null;
+	// if (result == 1) {// success!
+	// ((DisplayActivity) getActivity()).refreshTeam(UserSession
+	// .getInstance(getActivity()).currentTeamID);
+	// } else {// some error occured
+	// Toast.makeText(getActivity().getBaseContext(),
+	// "Unable to Complete Action", Toast.LENGTH_SHORT).show();
+	// }
+	//
+	// }
+	//
+	// @Override
+	// protected void onCancelled() {
+	// mAction = null;
+	// }
+	// }
 }
