@@ -6,21 +6,29 @@
 
     <LinearLayout
         android:id="@+id/login_status"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:visibility="gone" >
 
+        <ImageView 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:gravity="center_horizontal"
+            android:src="@drawable/big_logo"/>
         <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
+            style="?android:attr/progressBarStyle"
+            android:gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp" />
 
         <TextView
             android:id="@+id/login_status_message"
+            android:gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"

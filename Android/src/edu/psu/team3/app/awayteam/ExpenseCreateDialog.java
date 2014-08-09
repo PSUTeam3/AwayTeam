@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import edu.psu.team3.app.awayteam.CreateTeamDialog.CreateTeamTask;
+import edu.psu.team3.app.awayteam.DisplayActivity.UploadReceiptTask;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -41,7 +42,6 @@ import android.widget.Toast;
 
 public class ExpenseCreateDialog extends DialogFragment {
 	private CreateExpenseTask mCreateTask = null;
-	private UploadReceiptTask mReceiptTask = null;
 
 	Uri receiptURI = null;
 
@@ -177,13 +177,22 @@ public class ExpenseCreateDialog extends DialogFragment {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v("RCPT", "Result Code: " + resultCode);
 		if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-			Log.v("RESULT", data.getDataString());
-			Bundle extras = data.getExtras();
-			Bitmap imageBitmap = (Bitmap) extras.get("data");
-			receiptPreView.setImageBitmap(imageBitmap);
-			receiptPreView.setVisibility(View.VISIBLE);
-			addReceipt.setText("Replace Receipt");
-			receiptURI = data.getData();
+			try {
+				Log.v("RESULT", data.getDataString());
+				Bundle extras = data.getExtras();
+				Bitmap imageBitmap = (Bitmap) extras.get("data");
+				receiptPreView.setImageBitmap(imageBitmap);
+				receiptPreView.setVisibility(View.VISIBLE);
+				addReceipt.setText("Replace Receipt");
+				receiptURI = data.getData();
+			} catch (Exception e) {
+				Log.e("GetPic",
+						"Unable to get image from camera: " + e.toString());
+				e.printStackTrace();
+				Toast.makeText(getActivity(),
+						"Unable to get image from Camera", Toast.LENGTH_SHORT)
+						.show();
+			}
 		}
 	}
 
@@ -234,12 +243,21 @@ public class ExpenseCreateDialog extends DialogFragment {
 		protected void onPostExecute(final Integer result) {
 			mCreateTask = null;
 			if (result > 0) {// success!
-				//try to upload image
-				if(receiptURI!=null && mReceiptTask==null){
-					mReceiptTask = new UploadReceiptTask();
-					mReceiptTask.execute(result,receiptURI);
+				// try to upload image
+				try {
+					if (receiptURI != null
+							&& ((DisplayActivity) getActivity()).mReceiptTask == null) {
+						// TODO: trying to reference inner class
+						((DisplayActivity) getActivity()).initReceiptTask();
+						((DisplayActivity) getActivity()).mReceiptTask.execute(
+								result, receiptURI);
+					}
+				} catch (Exception e) {
+					Log.e("RECEIPT",
+							"Error trying to initate UploadReceiptTask: "
+									+ e.toString());
 				}
-				//report good news
+				// report good news
 				Toast.makeText(getActivity().getBaseContext(),
 						"New Expense Created", Toast.LENGTH_SHORT).show();
 				// callback the team id
@@ -256,46 +274,6 @@ public class ExpenseCreateDialog extends DialogFragment {
 		@Override
 		protected void onCancelled() {
 			mCreateTask = null;
-		}
-	}
-	
-
-	//uploads receipt image - requires 2 parameters: expense ID #, receipt URI
-	public class UploadReceiptTask extends AsyncTask<Object, Void, Integer> {
-
-
-		@Override
-		protected Integer doInBackground(Object... params) {
-			UserSession s = UserSession.getInstance(getActivity());
-			int id = (int) params[0];
-			Uri receiptPath = (Uri) params[1];
-			Integer result = 0;
-			if (id > 0 && receiptURI != null) {
-				// try to upload the receipt if rest of receipt is uploaded to
-				// attach to
-				result = CommUtil.UploadReceipt(getActivity(),
-						s.getUsername(), s.currentTeamID, id, receiptPath);
-			}
-
-			Log.v("Receipt", "returned from commutil.  result = " + result);
-
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(final Integer result) {
-			mReceiptTask = null;
-			if (result == 0) {
-				Toast.makeText(getActivity().getBaseContext(),
-						"Unable to Upload Receipt", Toast.LENGTH_SHORT).show();
-			}
-			
-
-		}
-
-		@Override
-		protected void onCancelled() {
-			mReceiptTask = null;
 		}
 	}
 

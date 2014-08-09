@@ -1,20 +1,14 @@
 package edu.psu.team3.app.awayteam;
 
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import edu.psu.team3.app.awayteam.CreateTeamDialog.CreateTeamTask;
-import edu.psu.team3.app.awayteam.ExpenseCreateDialog.UploadReceiptTask;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.DatePickerDialog.OnDateSetListener;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -27,18 +21,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 public class ExpenseEditDialog extends DialogFragment {
 	private EditExpenseTask mEditTask = null;
-	private UploadReceiptTask mReceiptTask = null;
 
 	Uri receiptURI = null;
 
@@ -178,14 +168,21 @@ public class ExpenseEditDialog extends DialogFragment {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v("RCPT", "Result Code: " + resultCode);
-		if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-			Log.v("RESULT", data.getDataString());
-			Bundle extras = data.getExtras();
-			Bitmap imageBitmap = (Bitmap) extras.get("data");
-			receiptPreView.setImageBitmap(imageBitmap);
-			receiptPreView.setVisibility(View.VISIBLE);
-			addReceipt.setText("Replace Receipt");
-			receiptURI = data.getData();
+		try {
+			if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+				Log.v("RESULT", data.getDataString());
+				Bundle extras = data.getExtras();
+				Bitmap imageBitmap = (Bitmap) extras.get("data");
+				receiptPreView.setImageBitmap(imageBitmap);
+				receiptPreView.setVisibility(View.VISIBLE);
+				addReceipt.setText("Replace Receipt");
+				receiptURI = data.getData();
+			}
+		} catch (Exception e) {
+			Log.e("GetPic", "Unable to get image from camera: " + e.toString());
+			e.printStackTrace();
+			Toast.makeText(getActivity(), "Unable to get image from Camera",
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -238,9 +235,11 @@ public class ExpenseEditDialog extends DialogFragment {
 			mEditTask = null;
 			if (result == 1) {// success!
 				// try to upload image
-				if (receiptURI != null && mReceiptTask == null) {
-					mReceiptTask = new UploadReceiptTask();
-					mReceiptTask.execute(expense.id, receiptURI);
+				if (receiptURI != null
+						&& ((DisplayActivity) getActivity()).mReceiptTask == null) {
+					((DisplayActivity) getActivity()).initReceiptTask();
+					((DisplayActivity) getActivity()).mReceiptTask.execute(
+							expense.id, receiptURI);
 				}
 				// report good news
 				Toast.makeText(getActivity().getBaseContext(),
@@ -259,43 +258,6 @@ public class ExpenseEditDialog extends DialogFragment {
 		@Override
 		protected void onCancelled() {
 			mEditTask = null;
-		}
-	}
-
-	// uploads receipt image - requires 2 parameters: expense ID #, receipt URI
-	public class UploadReceiptTask extends AsyncTask<Object, Void, Integer> {
-
-		@Override
-		protected Integer doInBackground(Object... params) {
-			UserSession s = UserSession.getInstance(getActivity());
-			int id = (int) params[0];
-			Uri receiptPath = (Uri) params[1];
-			Integer result = 0;
-			if (id > 0 && receiptURI != null) {
-				// try to upload the receipt if rest of receipt is uploaded to
-				// attach to
-				result = CommUtil.UploadReceipt(getActivity(), s.getUsername(),
-						s.currentTeamID, id, receiptPath);
-			}
-
-			Log.v("Receipt", "returned from commutil.  result = " + result);
-
-			return result;
-		}
-
-		@Override
-		protected void onPostExecute(final Integer result) {
-			mReceiptTask = null;
-			if (result == 0) {
-				Toast.makeText(getActivity().getBaseContext(),
-						"Unable to Upload Receipt", Toast.LENGTH_SHORT).show();
-			}
-
-		}
-
-		@Override
-		protected void onCancelled() {
-			mReceiptTask = null;
 		}
 	}
 

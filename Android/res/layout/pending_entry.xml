@@ -55,7 +55,7 @@
 
                 <Button
                     android:id="@+id/pendingAcceptButton"
-                    android:layout_width="112dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:drawableLeft="@drawable/ic_action_accept"
@@ -63,8 +63,9 @@
 
                 <Button
                     android:id="@+id/pendingRejectButton"
-                    android:layout_width="112dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="right"
                     android:layout_weight="0"
                     android:drawableLeft="@drawable/ic_action_cancel"
                     android:text="Reject" />

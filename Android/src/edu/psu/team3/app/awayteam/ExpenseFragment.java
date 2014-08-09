@@ -14,8 +14,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -63,28 +63,6 @@ public class ExpenseFragment extends Fragment {
 				s.activeTeam.teamExpenses);
 		// Attach the adapter to a ListView
 		expenseListView.setAdapter(adapter);
-		// Assign listener to event long clicks
-		// expenseListView.setOnGroupClickListener(new OnGroupClickListener() {
-		//
-		// @Override
-		// public boolean onGroupClick(ExpandableListView parent, View v,
-		// int groupPosition, long id) {
-		// if (selectionMode
-		// && !expenseListView.isItemChecked(groupPosition)) {
-		// expenseListView.setItemChecked(groupPosition, true);
-		// selectedExpenses.add((TeamExpense) adapter
-		// .getGroup(groupPosition));
-		// return true;
-		// } else if (selectionMode
-		// && expenseListView.isItemChecked(groupPosition)) {
-		// expenseListView.setItemChecked(groupPosition, false);
-		// selectedExpenses.remove((TeamExpense) adapter
-		// .getGroup(groupPosition));
-		// return true;
-		// }
-		// return false;
-		// }
-		// });
 
 		expenseListView
 				.setMultiChoiceModeListener(new MultiChoiceModeListener() {
@@ -252,4 +230,6 @@ public class ExpenseFragment extends Fragment {
 			mDeleteTask = null;
 		}
 	}
+
+	
 }

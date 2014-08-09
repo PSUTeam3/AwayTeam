@@ -45,6 +45,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	private LeaveTeamTask mLeaveTeam = null;
 	public UpdateLocationTask mLocation = null;
 	private ActionTask mAction = null;
+	public UploadReceiptTask mReceiptTask = null;
 
 	ActionBar actionBar;
 	SectionsPagerAdapter mSectionsPagerAdapter;
@@ -97,7 +98,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
-		
+
 		initActionBar();
 
 	}
@@ -146,13 +147,44 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 				});
 
 		// populate spinner if there are teams available
-		if (UserSession.getInstance(this).teamList != null) {
-			refreshTeamSpinner();
-		}
+		try {
+			if (UserSession.getInstance(this).teamList != null) {
+				refreshTeamSpinner();
+			}
 
-		// Request the team information
-		if (UserSession.getInstance(this).activeTeam == null) {
-			refreshTeam(UserSession.getInstance(this).currentTeamID);
+			// Request the team information
+			if (UserSession.getInstance(this).activeTeam == null) {
+				refreshTeam(UserSession.getInstance(this).currentTeamID);
+			}
+		} catch (Exception e) {
+			Log.e("INIT",
+					"Caught an error trying to start the actionbar Spinner: "
+							+ e.toString());
+		}
+	}
+
+	// Catch exit conditions and cancel background tasks in an orderly fashion
+	// to prevent background tasks crashing in unpredictable ways
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mGetTeam != null) {
+			mGetTeam.cancel(true);
+		}
+		if (mRefreshList != null) {
+			mRefreshList.cancel(true);
+		}
+		if (mLeaveTeam != null) {
+			mLeaveTeam.cancel(true);
+		}
+		if (mLocation != null) {
+			mLocation.cancel(true);
+		}
+		if (mAction != null) {
+			mAction.cancel(true);
+		}
+		if (mReceiptTask != null) {
+			mReceiptTask.cancel(false);
 		}
 	}
 
@@ -426,7 +458,6 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			lastKnownLocation = mgr
 					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 			if (lastKnownLocation != null) {
-				//TODO: consider checking distance traveled since last update
 				mLocation = new UpdateLocationTask();
 				mLocation.execute();
 			}
@@ -444,9 +475,14 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 				UserSession.getInstance(this).teamList);
 		spinnerView.setAdapter(adapter);
 		// set the spinner to the correct location
-		UserSession s = UserSession.getInstance(this);
-		if (s.currentTeamID > 0) {
-			spinnerView.setSelection(s.getTeamListPosition(s.currentTeamID));
+		try {
+			UserSession s = UserSession.getInstance(this);
+			if (s.currentTeamID > 0) {
+				spinnerView
+						.setSelection(s.getTeamListPosition(s.currentTeamID));
+			}
+		} catch (Exception e) {
+			Log.e("Spinner", "Error while refreshing spinner: " + e.toString());
 		}
 	}
 
@@ -462,6 +498,58 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 					refreshItem.setActionView(null);
 				}
 			}
+		}
+	}
+
+	public void initReceiptTask() {
+		mReceiptTask = new UploadReceiptTask();
+	}
+
+	// uploads receipt image - requires 2 parameters: expense ID #, receipt URI
+	public class UploadReceiptTask extends AsyncTask<Object, Void, Integer> {
+
+		@Override
+		protected Integer doInBackground(Object... params) {
+			Integer result = 0;
+			try {
+				UserSession s = UserSession.getInstance(getBaseContext());
+				int id = (int) params[0];
+				Uri receiptURI = (Uri) params[1];
+
+				if (id > 0 && receiptURI != null) {
+					// try to upload the receipt if rest of receipt is uploaded
+					// to
+					// attach to
+					result = CommUtil.UploadReceipt(getBaseContext(),
+							s.getUsername(), s.currentTeamID, id, receiptURI);
+				}
+
+				Log.v("Receipt", "returned from commutil.  result = " + result);
+			} catch (Exception e) {
+				Log.e("RECEIPT", "Failed to upload receipt: " + e.toString());
+			}
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(final Integer result) {
+			mReceiptTask = null;
+			if (result == 0) {
+				Toast.makeText(getBaseContext(), "Unable to Upload Receipt",
+						Toast.LENGTH_SHORT).show();
+			}
+
+		}
+
+		@Override
+		protected void onCancelled() {
+			Log.v("Upload", "Receipt upload was canceled. Status = "
+					+ mReceiptTask.getStatus().toString());
+			if (!mReceiptTask.getStatus().equals(AsyncTask.Status.FINISHED)) {
+				Toast.makeText(getBaseContext(), "Unable to Upload Receipt",
+						Toast.LENGTH_SHORT).show();
+			}
+			mReceiptTask = null;
 		}
 	}
 
@@ -688,4 +776,5 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 			mAction = null;
 		}
 	}
+
 }
