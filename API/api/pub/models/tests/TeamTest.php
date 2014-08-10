@@ -95,7 +95,9 @@
         public function testModifyTeamNameModel() {
             $team = new Team;
             $result = NULL;
-            $result = $this->team1->ModifyTeamNameModel(12,"Saints");
+            $team = $this->team1->SelectTeamFromTeamName("Saints");
+            $teamId = $team[0]->teamId;
+            $result = $this->team1->ModifyTeamNameModel($teamId,"baylor");
             $this->assertNotNull($result);
         }
 
@@ -103,7 +105,7 @@
             $team = new Team;
             $result = NULL;
             
-            $team = $this->team0->SelectTeamFromTeamName("saints1");
+            $team = $this->team0->SelectTeamFromTeamName("baylor");
             $team0Id = $team[0]->teamId;            
             $result = $this->team0->DeleteTeam($team0Id);
             $this->assertTrue($result);
