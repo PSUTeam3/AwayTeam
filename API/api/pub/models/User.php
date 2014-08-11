@@ -195,7 +195,7 @@
             }
 
             $sql = mysql_query($query, $db);
-            return $result;
+            return $sql;
         }
 
         public function ValidatePasswordHash($password)
