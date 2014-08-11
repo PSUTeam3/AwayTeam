@@ -57,44 +57,104 @@
         public function testAddTeamMemberNonManager() {
             $result = NULL;
             $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
-            $result = $this->teamMembers0->AddteamMember($team[0]->'teamId','karski');
+            $result = $this->teamMembers0->AddteamMember($team[0]->teamId,'karski');
             $this->assertTrue($result > 0);
         }
         
-        /*
+        
         public function testSelectTeamMemberFromId() {
-            $result = $this->teamMembers0->SelectTeamMemberFromId($this->teamMemberId);
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $teamMemberId = $this->teamMembers0->AddteamMember($team[0]->teamId,'naimols');
+            $result = $this->teamMembers0->SelectTeamMemberFromId($teamMemberId);
             $this->assertTrue($result != NULL);
         }
         
         public function testSelectTeamMemberFromTeamId() {
-            $result = $this->teamMembers0->SelectTeamMemberFromTeamId($this->team0Id);
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $result = $this->teamMembers0->SelectTeamMemberFromTeamId($team[0]->teamId);
             $this->assertNotEmpty($result);
         }
         
         public function testModifyTeamMember() {
-            $this->teamMembers0->manager = "false";
-            $this->teamMembers0->pendingApproval = "true"; 
+            $teamMember1 = new TeamMembers;
+            $newUser = new User;
             
-            $result = $this->teamMembers0->ModifyTeamMember();
+            $newUser->loginId = "testModifyTeamMemberUser";
+            $newUser->email   = "test@test.com";
+            $newUser->firstName = "john";
+            $newUser->lastName = "doe";
+            $newUser->password = "1234";
+            $newUser->cellPhone = "5555555555";
+            $newUser->emergencyPhone = "55555555";
+            
+            $id = $newUser->InsertUser();
+        
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $teamMember1->teamId = $team[0]->teamId;
+            $teamMember1->userId = $id;
+            $teamMember1->manager = false;
+            $teamMember1->pendingApproval = false;
+
+            $teamMember1->teamMemberId = $teamMember1->InsertTeamMember();
+            $teamMember1->pendingApproval = true;
+            $teamMember1->manager = true;
+            
+            $result = $teamMember1->ModifyTeamMember();
             $this->assertTrue($result != NULL);
         }
+        
         
         public function testModifyManagerAttribute() {
-            $result = $this->teamMembers0->ModifyManagerAttribute($this->teamMemberId,0);
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $teamMemberId = $this->teamMembers0->AddteamMember($team[0]->teamId,'naimols');
+            $result = $this->teamMembers0->ModifyManagerAttribute($teamMemberId,0);
             $this->assertTrue($result != NULL);
         }
+        
         
         public function testModifyPendingApproval() {
-            $result = $this->teamMembers0->ModifyPendingApproval($this->teamMemberId,0);
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $teamMemberId = $this->teamMembers0->AddteamMember($team[0]->teamId,'naimols');
+            $result = $this->teamMembers0->ModifyPendingApproval($teamMemberId,0);
             $this->assertTrue($result != NULL);
         }
+        
         
         public function testModifyTeamMemberTeamId() {
-            $result = $this->teamMembers0->ModifyTeamMemberTeamId($this->teamMemberId,1);
-            $this->assertTrue($result != NULL);
+            $team1 = new Team;
+            $newUser = new User;
+            $newTeamMember = new TeamMembers;
+
+            $team1->teamName = "team member modify team id test";
+            $team1->teamDescription = "who dat going to beat those saints";
+            $team1->teamLocationName = "la jolla";
+            $team1->teamManaged = "false";
+            
+            $newUser->loginId = "testModifyTeamMemberTeamIdUser";
+            $newUser->email   = "testewr@test.com";
+            $newUser->firstName = "john whatever";
+            $newUser->lastName = "doe";
+            $newUser->password = "123412332432";
+            $newUser->cellPhone = "5555555522255";
+            $newUser->emergencyPhone = "55555522255";
+            
+            $id = $newUser->InsertUser();
+            
+            $result = $team1->InsertTeam('testModifyTeamMemberTeamIdUser');
+            $newTeamMember->teamMemberId = $result['teamMemberId'];
+            $team1->teamId = $result['teamId'];    
+
+            $team2 = $team1->SelectTeamFromTeamName("team member unit test");
+            
+            $result = $this->teamMembers0->ModifyTeamMemberTeamId($newTeamMember->teamMemberId,$team2[0]->teamId);
+            $this->assertTrue($result != false);
+            
+            $this->teamMembers0->ModifyTeamMemberTeamId($newTeamMember->teamMemberId,$team1->teamId);
+            $team1->DeleteTeam($team1->teamId);
+            $newUser->DeleteUser($id);
         }
         
+        /*
         public function testTeamMemberIdExists() {
             $result = $this->teamMembers0->TeamMemberIdExists($this->teamMemberId);
             $this->assertTrue($result == true);
