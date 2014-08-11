@@ -21,6 +21,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.*;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
@@ -31,6 +32,8 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.CompressFormat;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Base64;
@@ -1055,21 +1058,40 @@ public class CommUtil {
 
 			InputStream inStream = context.getContentResolver()
 					.openInputStream(image);
-			byte[] imageBytes = NetworkTasks.readBytes(inStream);
-			InputStreamBody inputStreamBody = new InputStreamBody(
-					new ByteArrayInputStream(imageBytes), image
-							.getLastPathSegment().toString());
+			// byte[] imageBytes = NetworkTasks.readBytes(inStream);
+			// InputStreamBody inputStreamBody = new InputStreamBody(
+			// new ByteArrayInputStream(imageBytes), image
+			// .getLastPathSegment().toString());
 
-			List<NameValuePair> pairs = UserSession.getInstance(context)
-					.createHash();
+			// TODO: try compression
+			InputStreamBody inputStreamBody = new InputStreamBody(inStream, "receipt.jpg");
+			ConnectivityManager connMgr = (ConnectivityManager) context
+					.getSystemService(Context.CONNECTIVITY_SERVICE);
+			if (connMgr.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_MOBILE) {
+				// try compression
+				Bitmap bmp = BitmapFactory.decodeStream(inStream);
+				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+				bmp.compress(CompressFormat.JPEG, 70, outStream);
+
+				InputStream in = new ByteArrayInputStream(
+						outStream.toByteArray());
+				inputStreamBody = new InputStreamBody(in, "receipt.jpg");
+			}
+
+			// InputStreamBody inputStreamBody = new InputStreamBody(inStream,
+			// ContentType.DEFAULT_BINARY);
+
 			// builder.addPart("file", fbody);
 			builder.addPart("file", inputStreamBody);
 			builder.addTextBody("loginId", userName);
 			builder.addTextBody("teamId", Integer.toString(teamID));
 			builder.addTextBody("expenseId", Integer.toString(expenseID));
+			List<NameValuePair> pairs = UserSession.getInstance(context)
+					.createHash();
 			builder.addTextBody(pairs.get(0).getName(), pairs.get(0).getValue());
 			builder.addTextBody(pairs.get(1).getName(), pairs.get(1).getValue());
 
+			Log.v("Comm", url);
 			final HttpEntity postEntity = builder.build();
 			post.setEntity(postEntity);
 			HttpResponse response = client.execute(post);
@@ -1089,7 +1111,8 @@ public class CommUtil {
 				while ((line = reader.readLine()) != null) {
 					replyBuilder.append(line);
 				}
-				Log.v("ReceiptTask", "Returned Message: " + replyBuilder.toString()); // response
+				Log.v("ReceiptTask",
+						"Returned Message: " + replyBuilder.toString()); // response
 				// data
 			} else {
 				Log.e("NetTask", "Failed to download file");
@@ -1111,8 +1134,6 @@ public class CommUtil {
 		}
 
 	}
-
-
 
 	// Create event for the user
 	// returns the success of the operation 1= success 0=error

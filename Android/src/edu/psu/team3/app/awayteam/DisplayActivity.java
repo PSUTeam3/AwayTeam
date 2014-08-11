@@ -57,7 +57,7 @@ public class DisplayActivity extends Activity implements ActionBar.TabListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+//TODO: catch this
 		// set the activity that will host fragments
 		setContentView(R.layout.activity_display);
 

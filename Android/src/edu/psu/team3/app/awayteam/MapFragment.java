@@ -96,193 +96,211 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 	public void onStart() {
 		super.onStart();
 		// Get a handle to the Map Fragment
-		map = mapView.getMap();
+		try {
+			map = mapView.getMap();
 
-		// get current location
-		UserSession s = UserSession.getInstance(getActivity());
-		LocationManager mgr = (LocationManager) getActivity().getSystemService(
-				Context.LOCATION_SERVICE);
-		Location lastKnownLocation = mgr
-				.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		if (lastKnownLocation != null) {
-			// I have more current location - use that
-			currentLocation = new LatLng(lastKnownLocation.getLatitude(),
-					lastKnownLocation.getLongitude());
-
-			s.activeTeam.getUser(s.getUsername()).lat = currentLocation.latitude;
-			s.activeTeam.getUser(s.getUsername()).lon = currentLocation.longitude;
-		} else {
-			// use stored user location - may be 0,0
-			currentLocation = new LatLng(
-					s.activeTeam.getUser(s.getUsername()).lat,
-					s.activeTeam.getUser(s.getUsername()).lon);
-		}
-
-		// initialize map to user location
-		map.setMyLocationEnabled(true);
-		map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 10));
-		map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
-		map.setOnInfoWindowClickListener(this);
-
-		// setup map layer buttons
-		teamButton = (ToggleButton) getView().findViewById(R.id.mapTeamLayer);
-		teamButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				if (isChecked) {
-					// show map items
-					plotTeamLocations();
-				} else {
-					// remove map items
-					removeMarkerCategory(CategoryID.TEAM);
-				}
-
-			}
-		});
-		map.setOnCameraChangeListener(new OnCameraChangeListener() {
-
-			@Override
-			public void onCameraChange(CameraPosition arg0) {
-				// see if team needs to be drawn
-				if (teamButton.isChecked()) {
-					plotTeamLocations();
-				}
-				map.setOnCameraChangeListener(null);
-			}
-		});
-
-
-		// teamButton.setChecked(false); // Since a background task is updating
-		// team info, it may not be available.
-		// don't try to get it
-		foodButton = (ToggleButton) getView().findViewById(R.id.mapFoodLayer);
-		foodButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				if (isChecked) {
-					// show map items
-					if (foodTask == null) {
-						foodTask = new FourSquareTask();
-						foodTask.execute(CategoryID.FOOD, "food");
-						buttonView.setEnabled(false);
-					} else {
-						buttonView.setChecked(false);
-					}
-				} else {
-					// remove map items
-					removeMarkerCategory(CategoryID.FOOD);
-				}
-
-			}
-		});
-		if (foodButton.isChecked()) {
-			if (foodTask == null) {
-				foodTask = new FourSquareTask();
-				foodTask.execute(CategoryID.FOOD, "food");
-				foodButton.setEnabled(false);
+			// get current location
+			UserSession s = UserSession.getInstance(getActivity());
+			LocationManager mgr = (LocationManager) getActivity()
+					.getSystemService(Context.LOCATION_SERVICE);
+			Location lastKnownLocation = mgr
+					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			if (lastKnownLocation != null) {
+				// I have more current location - use that
+				currentLocation = new LatLng(lastKnownLocation.getLatitude(),
+						lastKnownLocation.getLongitude());
+				// TODO: catch this all
+				s.activeTeam.getUser(s.getUsername()).lat = currentLocation.latitude;
+				s.activeTeam.getUser(s.getUsername()).lon = currentLocation.longitude;
 			} else {
-				foodButton.setChecked(false);
+				// use stored user location - may be 0,0
+				currentLocation = new LatLng(s.activeTeam.getUser(s
+						.getUsername()).lat, s.activeTeam.getUser(s
+						.getUsername()).lon);
 			}
-		}
-		travelButton = (ToggleButton) getView().findViewById(
-				R.id.mapTravelLayer);
-		travelButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				if (isChecked) {
-					// show map items
-					if (travelTask == null) {
-						travelTask = new FourSquareTask();
-						travelTask.execute(CategoryID.TRAVEL, "travTrans");
-						buttonView.setEnabled(false);
-					} else {
-						buttonView.setChecked(false);
+			// initialize map to user location
+			map.setMyLocationEnabled(true);
+			map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation,
+					10));
+			map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+			map.setOnInfoWindowClickListener(this);
+
+			// setup map layer buttons
+			teamButton = (ToggleButton) getView().findViewById(
+					R.id.mapTeamLayer);
+			teamButton
+					.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+						@Override
+						public void onCheckedChanged(CompoundButton buttonView,
+								boolean isChecked) {
+							if (isChecked) {
+								// show map items
+								plotTeamLocations();
+							} else {
+								// remove map items
+								removeMarkerCategory(CategoryID.TEAM);
+							}
+
+						}
+					});
+			map.setOnCameraChangeListener(new OnCameraChangeListener() {
+
+				@Override
+				public void onCameraChange(CameraPosition arg0) {
+					// see if team needs to be drawn
+					if (teamButton.isChecked()) {
+						plotTeamLocations();
 					}
-				} else {
-					// remove map items
-					removeMarkerCategory(CategoryID.TRAVEL);
+					map.setOnCameraChangeListener(null);
 				}
+			});
 
-			}
-		});
-		if (travelButton.isChecked()) {
-			if (travelTask == null) {
+			// teamButton.setChecked(false); // Since a background task is
+			// updating
+			// team info, it may not be available.
+			// don't try to get it
+			foodButton = (ToggleButton) getView().findViewById(
+					R.id.mapFoodLayer);
+			foodButton
+					.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
-				travelTask = new FourSquareTask();
-				travelTask.execute(CategoryID.TRAVEL, "travTrans");
-				travelButton.setEnabled(false);
-			} else {
-				travelButton.setChecked(false);
-			}
-		}
-		shopButton = (ToggleButton) getView().findViewById(R.id.mapShopLayer);
-		shopButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+						@Override
+						public void onCheckedChanged(CompoundButton buttonView,
+								boolean isChecked) {
+							if (isChecked) {
+								// show map items
+								if (foodTask == null) {
+									foodTask = new FourSquareTask();
+									foodTask.execute(CategoryID.FOOD, "food");
+									buttonView.setEnabled(false);
+								} else {
+									buttonView.setChecked(false);
+								}
+							} else {
+								// remove map items
+								removeMarkerCategory(CategoryID.FOOD);
+							}
 
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				if (isChecked) {
-					// show map items
-					if (shopTask == null) {
-						shopTask = new FourSquareTask();
-						shopTask.execute(CategoryID.SHOP, "shopServ");
-						buttonView.setEnabled(false);
-					} else {
-						buttonView.setChecked(false);
-					}
+						}
+					});
+			if (foodButton.isChecked()) {
+				if (foodTask == null) {
+					foodTask = new FourSquareTask();
+					foodTask.execute(CategoryID.FOOD, "food");
+					foodButton.setEnabled(false);
 				} else {
-					// remove map items
-					removeMarkerCategory(CategoryID.SHOP);
+					foodButton.setChecked(false);
 				}
-
 			}
-		});
-		if (shopButton.isChecked()) {
-			if (shopTask == null) {
-				shopTask = new FourSquareTask();
-				shopTask.execute(CategoryID.SHOP, "shopServ");
-				shopButton.setEnabled(false);
-			} else {
-				shopButton.setChecked(false);
-			}
-		}
-		eventsButton = (ToggleButton) getView().findViewById(
-				R.id.mapEventsLayer);
-		eventsButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			travelButton = (ToggleButton) getView().findViewById(
+					R.id.mapTravelLayer);
+			travelButton
+					.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				if (isChecked) {
-					// show map items
-					if (eventTask == null) {
-						eventTask = new FourSquareTask();
-						eventTask.execute(CategoryID.EVENT, "artsEnt");
-						buttonView.setEnabled(false);
-					} else {
-						buttonView.setChecked(false);
-					}
+						@Override
+						public void onCheckedChanged(CompoundButton buttonView,
+								boolean isChecked) {
+							if (isChecked) {
+								// show map items
+								if (travelTask == null) {
+									travelTask = new FourSquareTask();
+									travelTask.execute(CategoryID.TRAVEL,
+											"travTrans");
+									buttonView.setEnabled(false);
+								} else {
+									buttonView.setChecked(false);
+								}
+							} else {
+								// remove map items
+								removeMarkerCategory(CategoryID.TRAVEL);
+							}
+
+						}
+					});
+			if (travelButton.isChecked()) {
+				if (travelTask == null) {
+
+					travelTask = new FourSquareTask();
+					travelTask.execute(CategoryID.TRAVEL, "travTrans");
+					travelButton.setEnabled(false);
 				} else {
-					// remove map items
-					removeMarkerCategory(CategoryID.EVENT);
+					travelButton.setChecked(false);
 				}
+			}
+			shopButton = (ToggleButton) getView().findViewById(
+					R.id.mapShopLayer);
+			shopButton
+					.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
+						@Override
+						public void onCheckedChanged(CompoundButton buttonView,
+								boolean isChecked) {
+							if (isChecked) {
+								// show map items
+								if (shopTask == null) {
+									shopTask = new FourSquareTask();
+									shopTask.execute(CategoryID.SHOP,
+											"shopServ");
+									buttonView.setEnabled(false);
+								} else {
+									buttonView.setChecked(false);
+								}
+							} else {
+								// remove map items
+								removeMarkerCategory(CategoryID.SHOP);
+							}
+
+						}
+					});
+			if (shopButton.isChecked()) {
+				if (shopTask == null) {
+					shopTask = new FourSquareTask();
+					shopTask.execute(CategoryID.SHOP, "shopServ");
+					shopButton.setEnabled(false);
+				} else {
+					shopButton.setChecked(false);
+				}
 			}
-		});
-		if (eventsButton.isChecked()) {
-			if (eventTask == null) {
-				eventTask = new FourSquareTask();
-				eventTask.execute(CategoryID.EVENT, "artsEnt");
-				eventsButton.setEnabled(false);
-			} else {
-				eventsButton.setChecked(false);
+			eventsButton = (ToggleButton) getView().findViewById(
+					R.id.mapEventsLayer);
+			eventsButton
+					.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+						@Override
+						public void onCheckedChanged(CompoundButton buttonView,
+								boolean isChecked) {
+							if (isChecked) {
+								// show map items
+								if (eventTask == null) {
+									eventTask = new FourSquareTask();
+									eventTask.execute(CategoryID.EVENT,
+											"artsEnt");
+									buttonView.setEnabled(false);
+								} else {
+									buttonView.setChecked(false);
+								}
+							} else {
+								// remove map items
+								removeMarkerCategory(CategoryID.EVENT);
+							}
+
+						}
+					});
+			if (eventsButton.isChecked()) {
+				if (eventTask == null) {
+					eventTask = new FourSquareTask();
+					eventTask.execute(CategoryID.EVENT, "artsEnt");
+					eventsButton.setEnabled(false);
+				} else {
+					eventsButton.setChecked(false);
+				}
 			}
+
+		} catch (Exception e) {
+			Log.e("MAP", "Error initializing map fragment: " + e.toString());
+			e.printStackTrace();
 		}
 
 	}
