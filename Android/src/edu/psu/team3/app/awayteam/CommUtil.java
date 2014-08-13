@@ -516,6 +516,7 @@ public class CommUtil {
 	// 0 = unknown error or connection failure
 	// -1 = team does not exist
 	// -2 = already a member of the team
+	// -3 = tried to join a team where you are pending
 	public static int JoinTeam(Context context, int teamID, String userName) {
 		String url = "https://api.awayteam.redshrt.com/teammember/jointeam";
 
@@ -541,6 +542,8 @@ public class CommUtil {
 					return -1;
 				case "team member already exists":
 					return -2;
+				case "team membership already pending":
+					return -3;
 				default:
 					return 0;
 				}
@@ -1064,19 +1067,19 @@ public class CommUtil {
 			// .getLastPathSegment().toString());
 
 			// TODO: try compression
-			InputStreamBody inputStreamBody = new InputStreamBody(inStream, "receipt.jpg");
-			ConnectivityManager connMgr = (ConnectivityManager) context
-					.getSystemService(Context.CONNECTIVITY_SERVICE);
-			if (connMgr.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_MOBILE) {
+			//InputStreamBody inputStreamBody = new InputStreamBody(inStream, "receipt.jpg");
+			//ConnectivityManager connMgr = (ConnectivityManager) context
+			//		.getSystemService(Context.CONNECTIVITY_SERVICE);
+			//if (connMgr.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_MOBILE) {
 				// try compression
 				Bitmap bmp = BitmapFactory.decodeStream(inStream);
 				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-				bmp.compress(CompressFormat.JPEG, 70, outStream);
+				bmp.compress(CompressFormat.JPEG, 50, outStream);
 
 				InputStream in = new ByteArrayInputStream(
 						outStream.toByteArray());
-				inputStreamBody = new InputStreamBody(in, "receipt.jpg");
-			}
+				InputStreamBody inputStreamBody = new InputStreamBody(in, "receipt.jpg");
+			//}
 
 			// InputStreamBody inputStreamBody = new InputStreamBody(inStream,
 			// ContentType.DEFAULT_BINARY);

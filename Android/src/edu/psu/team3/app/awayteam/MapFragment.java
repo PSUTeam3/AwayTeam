@@ -72,25 +72,31 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		try {
+			View rootView = inflater.inflate(R.layout.fragment_map, container,
+					false);
+			mapView = (MapView) rootView.findViewById(R.id.mapview);
+			mapView.onCreate(savedInstanceState);
 
-		View rootView = inflater.inflate(R.layout.fragment_map, container,
-				false);
-		mapView = (MapView) rootView.findViewById(R.id.mapview);
-		mapView.onCreate(savedInstanceState);
+			// Gets to GoogleMap from the MapView and does initialization stuff
+			map = mapView.getMap();
+			map.getUiSettings().setMyLocationButtonEnabled(true);
+			map.setMyLocationEnabled(true);
 
-		// Gets to GoogleMap from the MapView and does initialization stuff
-		map = mapView.getMap();
-		map.getUiSettings().setMyLocationButtonEnabled(true);
-		map.setMyLocationEnabled(true);
+			MapsInitializer.initialize(this.getActivity());
 
-		MapsInitializer.initialize(this.getActivity());
+			// Updates the location and zoom of the MapView
+			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+					new LatLng(0, 0), 10);
+			map.animateCamera(cameraUpdate);
 
-		// Updates the location and zoom of the MapView
-		CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-				new LatLng(0, 0), 10);
-		map.animateCamera(cameraUpdate);
+			return rootView;
+		} catch (Exception e) {
+			Log.e("MAP", "error creating map view: " + e.toString());
+			e.printStackTrace();
+			return null;
+		}
 
-		return rootView;
 	}
 
 	public void onStart() {
@@ -105,6 +111,7 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 					.getSystemService(Context.LOCATION_SERVICE);
 			Location lastKnownLocation = mgr
 					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			try{
 			if (lastKnownLocation != null) {
 				// I have more current location - use that
 				currentLocation = new LatLng(lastKnownLocation.getLatitude(),
@@ -124,7 +131,11 @@ public class MapFragment extends Fragment implements OnInfoWindowClickListener {
 			map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation,
 					10));
 			map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
-			map.setOnInfoWindowClickListener(this);
+			map.setOnInfoWindowClickListener(this);}catch(Exception ex){
+				currentLocation = null;
+				Log.e("MAP","unable to collect user location yet. "+ex.toString());
+				ex.printStackTrace();
+			}
 
 			// setup map layer buttons
 			teamButton = (ToggleButton) getView().findViewById(

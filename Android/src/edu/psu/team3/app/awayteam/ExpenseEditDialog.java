@@ -246,7 +246,7 @@ public class ExpenseEditDialog extends DialogFragment {
 			if ((requestCode == IMAGE_FROM_CAMERA || requestCode == IMAGE_FROM_FILE)
 					&& resultCode == Activity.RESULT_OK) {
 				// collect the image URI from the activity
-
+				receiptURI = data.getData();
 				Bundle extras = data.getExtras();
 				Bitmap imageBitmap = null;
 				try {
@@ -281,7 +281,7 @@ public class ExpenseEditDialog extends DialogFragment {
 					ex.printStackTrace();
 				}
 				addReceipt.setText("Replace Receipt");
-				receiptURI = data.getData();
+
 				Log.v("RESULT",
 						"ReceiptURI="
 								+ ((receiptURI == null) ? "null" : receiptURI
@@ -318,6 +318,8 @@ public class ExpenseEditDialog extends DialogFragment {
 		}
 
 		if (!cancel && mEditTask == null) {
+			Log.v("Expense", "Starting ExpenseTask. ReceiptURI = "
+					+ ((receiptURI == null) ? "null" : receiptURI.toString()));
 			mEditTask = new EditExpenseTask();
 			mEditTask.execute(receiptURI);
 		}
@@ -345,6 +347,10 @@ public class ExpenseEditDialog extends DialogFragment {
 
 				Log.v("Background", "returned from commutil.  result = "
 						+ result);
+				Log.v("Background",
+						"ReceiptPath = "
+								+ ((receiptPath == null) ? "null" : receiptPath
+										.toString()));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -357,8 +363,18 @@ public class ExpenseEditDialog extends DialogFragment {
 			if (result == 1) {// success!
 				// try to upload image
 				try {
+					Log.v("Expense",
+							"Entering onPostExecute. ReceiptPath = "
+									+ ((receiptPath == null) ? "null"
+											: receiptPath.toString()));
 					if (receiptPath != null
 							&& ((DisplayActivity) getActivity()).mReceiptTask == null) {
+						Log.v("Expense",
+								"Launching ReceiptUploadTask("
+										+ expenseID
+										+ ","
+										+ ((receiptPath == null) ? "null"
+												: receiptPath.toString()) + ")");
 						((DisplayActivity) getActivity()).initReceiptTask();
 						((DisplayActivity) getActivity()).mReceiptTask.execute(
 								expenseID, receiptPath);

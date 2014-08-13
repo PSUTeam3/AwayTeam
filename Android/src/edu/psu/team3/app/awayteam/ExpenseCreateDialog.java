@@ -241,7 +241,7 @@ public class ExpenseCreateDialog extends DialogFragment {
 			if ((requestCode == IMAGE_FROM_CAMERA || requestCode == IMAGE_FROM_FILE)
 					&& resultCode == Activity.RESULT_OK) {
 				// collect the image URI from the activity
-
+				receiptURI = data.getData();
 				Bundle extras = data.getExtras();
 				Bitmap imageBitmap = null;
 				try {

@@ -226,6 +226,11 @@ public class JoinTeamDialog extends DialogFragment {
 				((DisplayActivity) getActivity())
 						.refreshTeam((int) JoinTeamDialog.mSelection[0]);
 				getDialog().dismiss();
+			}else if(result==-3){
+				Toast.makeText(getActivity().getBaseContext(),
+						"Membership Pending for this team.", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity().getBaseContext(),
+						"A Team Manager must approve your membership", Toast.LENGTH_SHORT).show();
 			} else {// some error occured
 				Toast.makeText(getActivity().getBaseContext(),
 						"Unable to Join Team", Toast.LENGTH_SHORT).show();
