@@ -1,5 +1,6 @@
 package edu.psu.team3.app.awayteam;
 
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,10 +13,12 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,8 +27,8 @@ import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -39,6 +42,7 @@ public class ExpenseEditDialog extends DialogFragment {
 	private EditExpenseTask mEditTask = null;
 
 	Uri receiptURI = null;
+	Uri newReceiptURI = null;
 
 	private final int IMAGE_FROM_FILE = 2;
 	private final int IMAGE_FROM_CAMERA = 1;
@@ -63,6 +67,7 @@ public class ExpenseEditDialog extends DialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
 		// get the passed expenseID
 		Bundle args = getArguments();
 		expense = UserSession.getInstance(getActivity()).activeTeam
@@ -196,6 +201,29 @@ public class ExpenseEditDialog extends DialogFragment {
 											// Try to take a pic
 										Intent takePictureIntent = new Intent(
 												MediaStore.ACTION_IMAGE_CAPTURE);
+										try {
+											ContentValues values = new ContentValues();
+											values.put(
+													MediaStore.Images.Media.TITLE,
+													"Receipt.jpg");
+											newReceiptURI = getActivity()
+													.getContentResolver()
+													.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+															values);
+
+											Log.v("CAMERA",
+													"TempImage Uri saved as = "
+															+ newReceiptURI
+																	.toString());
+										} catch (Exception e) {
+											Log.e("CAMERA",
+													"Error creating image file: "
+															+ e.toString());
+											e.printStackTrace();
+										}
+										takePictureIntent.putExtra(
+												MediaStore.EXTRA_OUTPUT,
+												newReceiptURI);
 
 										// Continue only if camera is available
 										if (takePictureIntent
@@ -241,15 +269,27 @@ public class ExpenseEditDialog extends DialogFragment {
 	@SuppressLint("NewApi")
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.v("RCPT", "Result Code: " + resultCode);
+		Log.v("RESULT", "Result Code: " + resultCode);
 		try {
-			if ((requestCode == IMAGE_FROM_CAMERA || requestCode == IMAGE_FROM_FILE)
-					&& resultCode == Activity.RESULT_OK) {
-				// collect the image URI from the activity
-				receiptURI = data.getData();
-				Bundle extras = data.getExtras();
+			if (resultCode == Activity.RESULT_OK) {
+				if (requestCode == IMAGE_FROM_CAMERA && newReceiptURI == null) {
+					// collect the image URI from the activity
+					Log.v("RESULT", "stored newReceiptURI was null");
+					receiptURI = data.getData();
+				} else if (requestCode == IMAGE_FROM_CAMERA) {
+					receiptURI = newReceiptURI;
+				}
+				if (requestCode == IMAGE_FROM_FILE) {
+					receiptURI = data.getData();
+				}
+				Log.v("RESULT",
+						"ReceiptURI="
+								+ ((receiptURI == null) ? "null" : receiptURI
+										.toString()));
+
 				Bitmap imageBitmap = null;
 				try {
+					Bundle extras = data.getExtras();
 					// try to display a thumbnail if it is provided
 					imageBitmap = (Bitmap) extras.get("data");
 					receiptPreView.setImageBitmap(imageBitmap);
@@ -259,14 +299,31 @@ public class ExpenseEditDialog extends DialogFragment {
 					ex.printStackTrace();
 				}
 				try {
+					//if the camera didn't deliver the bitmap, try getting from file
+					if (imageBitmap == null && receiptURI != null) {
+						InputStream inStream = getActivity()
+								.getContentResolver().openInputStream(
+										receiptURI);
+						 BitmapFactory.Options bmOptions = new
+						 BitmapFactory.Options();
+						 bmOptions.inSampleSize = 8;
+						imageBitmap = BitmapFactory.decodeStream(inStream,null,bmOptions);
+						receiptPreView.setImageBitmap(imageBitmap);
+						receiptPreView.setVisibility(View.VISIBLE);
+						receiptPathView.setVisibility(View.GONE);
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+				try {
 					// showing the picture didn't work, let's settle for the
 					// file name
 					if (imageBitmap == null
 							&& android.os.Build.VERSION.SDK_INT >= 16) {
 						// This will only work with newer SDKs (>=16)
-						Cursor cursor = getActivity().getContentResolver()
-								.query(data.getData(), null, null, null, null,
-										null);
+						Cursor cursor = getActivity()
+								.getContentResolver()
+								.query(receiptURI, null, null, null, null, null);
 						if (cursor != null && cursor.moveToFirst()) {
 							String displayName = cursor
 									.getString(cursor
@@ -276,6 +333,10 @@ public class ExpenseEditDialog extends DialogFragment {
 							receiptPreView.setVisibility(View.GONE);
 							receiptPathView.setVisibility(View.VISIBLE);
 						}
+					} else if (imageBitmap == null) {
+						receiptPathView.setText("Receipt.jpg");
+						receiptPreView.setVisibility(View.GONE);
+						receiptPathView.setVisibility(View.VISIBLE);
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
@@ -289,6 +350,8 @@ public class ExpenseEditDialog extends DialogFragment {
 			}
 		} catch (Exception e) {
 			Log.e("GetPic", "Unable to get image: " + e.toString());
+			Log.v("RESULT", "ReceiptURI="
+					+ ((receiptURI == null) ? "null" : receiptURI.toString()));
 			e.printStackTrace();
 			Toast.makeText(getActivity(), "Unable to get Image",
 					Toast.LENGTH_SHORT).show();

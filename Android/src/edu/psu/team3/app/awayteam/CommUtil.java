@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -625,11 +627,15 @@ public class CommUtil {
 					boolean managed = response.getJSONObject(i)
 							.getString("teamManaged").equals("1"); // this is
 																	// kind of a
-																	// hack -
-																	// should be
-																	// fixed
+																	// hack
 					teamList.add(new Object[] { id, name, location, managed });
 				}
+				//sort the list alphabetically by name (the second entry/index 1)
+				Collections.sort(teamList, new Comparator<Object[]>() {
+					public int compare(Object[] a, Object[] b){
+						return ((String)a[1]).compareTo(((String)b[1]));
+					}
+				});
 				return teamList;
 			} else if (result.getString("status").equals("failure")) {
 				return null;
