@@ -62,6 +62,27 @@
                 }
             }
         }       
+
+        public function VerifyTeamMemberPending($teamId, $userId)
+        {
+            global $db;
+
+            if($teamId && $userId)
+            {
+                $query = "select count(teamMemberId) as num from team_member where teamId = " . myEsc($teamId) . " and userId = " . myEsc($userId) . " and pendingApproval=1";
+                $sql = mysql_query($query, $db);
+                $data = mysql_fetch_assoc($sql);
+    
+                if($data['num'] == 0) 
+                {
+                    return false;
+                } 
+                else 
+                {
+                    return true;
+                }   
+            }
+        }
         
         public function GetNumberOfTeamMembersRemaining($teamId) {
             global $db;

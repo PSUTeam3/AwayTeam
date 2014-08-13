@@ -357,6 +357,9 @@
             } else if($tm->VerifyTeamMemberExist($info['teamId'], $user->userId) == true) {
                 $jsonMsg = array('status' => 'failure' ,'response' => "team member already exists");
                 $failure = true;
+            } else if($tm->VerifyTeamMemberPending($info['teamId'], $user->userId) == true) {
+                $jsonMsg = array('status' => 'failure' ,'response' => "team membership already pending");
+                $failure = true;
             }
             
             if($failure == false ) {               
