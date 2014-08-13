@@ -14,33 +14,41 @@
             dbConnect();
             global $db;
             
+            $this->team0 = new Team;
             $this->team0->teamName = "team task test team";
             $this->team0->teamLocationName = "san diego";
             $this->team0->teamDescription = "team task test team";
             $this->team0->teamManaged = 0;
             
-            $this->teamId = $this->team0->InsertTeam('vuda1');
-            
+            $this->teamTask0 = new TeamTasks;
             $this->teamTask0->taskTitle = "unit test create task";
             $this->teamTask0->taskDescription = "unit testing team task class";
             $this->teamTask0->taskCompleted = false;
             $this->teamTask0->taskTeamId = $this->teamId;
         }
         
-        public function testTeamInit(){
-            $team = new Team;
+        public function testTeamInit(){        
+            $result = $this->team0->InsertTeam('vuda1');
+            $this->team0Id = $result['teamId'];
+            $teamTasks = new TeamTasks;
             
-            $this->assertEquals(-999, $team->teamId);
-            $this->assertEquals("", $team->teamName);
-            $this->assertEquals("", $team->teamLocationName);
-            $this->assertEquals("", $team->teamDescription);
-            $this->assertEquals(false,$team->teamManaged);
+            $this->assertEquals(-999, $teamTasks->taskId);
+            $this->assertEquals("", $teamTasks->taskTitle);
+            $this->assertEquals("", $teamTasks->taskDescription);
+            $this->assertEquals("", $teamTasks->taskCompleted);
+            $this->assertEquals(-999,$teamTasks->taskTeamId);
         }
         
         public function testInsertTeamTasks() {            
-            $this->teamTaskId = $this->teamTask0->InsertTeamTasks();
+            $this->teamTaskId = $this->teamTask0->InsertTeamTask();
             $this->assertTrue($this->teamTaskId> 0);
         }
+        
+        public function testSelectTeamTasks() {
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $result = $this->teamTask0->SelectTeamTasks($team[0]->teamId);
+            $this->assertNotNull($result);
+        }    
         
         public function testModifyTeamTask() {            
             $this->teamTask0->taskTitle = "unit testing modify team task";
@@ -50,18 +58,19 @@
         }
         
         public function testMarkTeamTaskComplete() {
-            $result  $this->teamTask0->MarkTeamTaskComplete($this->teamTaskId,"true");
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $teamTasks = $this->teamTask0->SelectTeamTasks($team[0]->teamId);            
+            $result = $this->teamTask0->MarkTeamTaskComplete($teamTasks->taskTeamId,"true");
             $this->assertTrue($result != NULL);
         }
         
-        public function testDeleteTeamTask() {          
-            $result = $this->teamTask0->DeleteTeamTask($this->teamTaskId);
+        public function testDeleteTeamTask() {  
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $teamTasks = $this->teamTask0->SelectTeamTasks($team[0]->teamId);  
+            $result = $this->teamTask0->DeleteTeamTask($teamTasks->taskTeamId);
             $this->assertNotNull($result);
         }
         
-        public function testSelectTeamTasks() {
-            $result = $this->teamTask0->SelectTeamTasks($this->teamId);
-            $this->assertNotNull($result);
-        }       
+   
     }
 ?>

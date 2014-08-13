@@ -101,6 +101,9 @@
             
             $result = $teamMember1->ModifyTeamMember();
             $this->assertTrue($result != NULL);
+            
+            $teamMember1->DeleteTeamMember($team[0]->teamId,$teamMember1->userId);
+            $newUser->DeleteUser($id);
         }
         
         
@@ -121,9 +124,9 @@
         
         
         public function testModifyTeamMemberTeamId() {
-            $team1 = new Team;
             $newUser = new User;
             $newTeamMember = new TeamMembers;
+            $team1 = new Team;
 
             $team1->teamName = "team member modify team id test";
             $team1->teamDescription = "who dat going to beat those saints";
@@ -154,40 +157,102 @@
             $newUser->DeleteUser($id);
         }
         
-        /*
+        
         public function testTeamMemberIdExists() {
-            $result = $this->teamMembers0->TeamMemberIdExists($this->teamMemberId);
+            $newUser = new User;
+            $newTeamMember = new TeamMembers;
+            $team1 = new Team;
+            
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            
+            $newUser->loginId = "testTeamMemberIdExistsUser";
+            $newUser->email   = "blah@test.com";
+            $newUser->firstName = "john blah";
+            $newUser->lastName = "doe";
+            $newUser->password = "12321321332432";
+            $newUser->cellPhone = "55532131522255";
+            $newUser->emergencyPhone = "555522255";
+            
+            $id = $newUser->InsertUser();            
+
+            $teamMemberId = $this->teamMembers0->AddteamMember($team[0]->teamId,'testTeamMemberIdExistsUser');
+            
+            $result = $this->teamMembers0->TeamMemberIdExists($teamMemberId);
             $this->assertTrue($result == true);
+            
+            $newTeamMember->DeleteTeamMember($team[0]->teamId,$id);
+            $newUser->DeleteUser($id);
         }       
-
+        
+        
         public function testVerifyManagerForUser() {
-            $result = $this->teamMembers0->VerifyManagerForUser($this->team0Id, $this->user->userId);
+            $user = new User;
+            
+            $user = $user->SelectUserFromLoginID('naimols');
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            
+            $result = $this->teamMembers0->VerifyManagerForUser($team[0]->teamId, $user->userId);
             $this->assertTrue($result == 0);
-        }        
+        }
 
+        
         public function testVerifyTeamMemberExist() {
-            $result = $this->teamMembers0->VerifyTeamMemberExist($this->team0Id, $this->user->userId);
-            $this->assertTrue($result != NULL);
+            $user = new User;
+            
+            $user = $user->SelectUserFromLoginID('naimols');
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            
+            $result = $this->teamMembers0->VerifyTeamMemberExist($team[0]->teamId, $user->userId);
+            $this->assertTrue($result == true);
         }
         
         public function testGetNumberOfTeamMembersRemaining() {
-            $result = $this->teamMembers0->GetNumberOfTeamMembersRemaining($this->team0Id);
-            $this->assertTrue($result >= 0);
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $result = $this->teamMembers0->GetNumberOfTeamMembersRemaining($team[0]->teamId);
+            $this->assertTrue($result > 0);
         }
+        
         
         public function testGetNumberOfTeamManager() {
-            $result = $this->teamMembers0->GetNumberOfTeamManager($this->team0Id);
-            $this->assertTrue($result >= 0);
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $teamMemberId = $this->teamMembers0->AddteamMember($team[0]->teamId,'naimols');
+            $this->teamMembers0->ModifyManagerAttribute($teamMemberId,1);
+            $result = $this->teamMembers0->GetNumberOfTeamManager($team[0]->teamId);
+            $this->assertTrue($result >= 1);
         }
         
-        public function testDeleteTeamMember() {
-            $result = $this->teamMembers0->DeleteTeamMember($this->team0Id, $this->user->userId);
-            $this->assertTrue($result != NULL);
+        
+        public function testDeleteTeamMember1() {
+            $user = new User;
+            $user = $user->SelectUserFromLoginID('naimols');
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $result = $this->teamMembers0->DeleteTeamMember($team[0]->teamId, $user->userId);
+            $this->assertTrue($result ==1);
+        }        
+                
+        public function testDeleteTeamMember2() {
+            $user = new User;
+            $user = $user->SelectUserFromLoginID('karski');
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $result = $this->teamMembers0->DeleteTeamMemberConfirmation($team[0]->teamId, $user->userId);
+            $this->assertTrue($result ==1);
         }
         
-        public function testDeleteTeamMemberRemove() {
-            $result = $this->teamMembers0->DeleteTeamMemberTeamRemove($this->team0Id, $this->user->userId);
+        public function testDeleteTeamMember3() {
+            $user = new User;
+            $user = $user->SelectUserFromLoginID('vuda1');
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $result = $this->teamMembers0->DeleteTeamMemberConfirmation($team[0]->teamId, $user->userId);
+            $this->assertTrue($result ==0);
+        }
+        
+        
+        public function testDeleteTeamMemberTeamRemove() {
+            $user = new User;
+            $user = $user->SelectUserFromLoginID('vuda1');
+            $team = $this->team0->SelectTeamFromTeamName($this->team0->teamName);
+            $result = $this->teamMembers0->DeleteTeamMemberTeamRemove($team[0]->teamId, $user->userId);
             $this->assertTrue($result == 2);
-        }*/
+        }
     }
 ?>
