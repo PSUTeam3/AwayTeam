@@ -77,7 +77,7 @@
         public function SelectAllEvents() {
             global $db;
             
-            $query = "select * from event";            
+            $query = "select * from team_event";            
             $sql = mysql_query($query, $db);
             $eventList = array();
             
@@ -89,46 +89,41 @@
             }
             
             return $eventList;
-           
         }
         
         public function SelectEventFromEventId($eventId) {
             global $db;
             
-            $anEvent = new Event;            
-            $query = "select * from event where eventId = " . myEsc($eventID);
+            $anEvent = new TeamEvent;            
+            $query = "select * from team_event where teamEventId = " . myEsc($eventId);
             $sql = mysql_query($query, $db);
             if(mysql_num_rows($sql) > 0) {
                 $result = array();
-                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                    $result[] = $rlt;
+                
+                while($row = mysql_fetch_object($sql)) {
+                    $anEvent = $row;
+                    $result[] = $anEvent;
                 }
                 
-                foreach($result[0] as $column=>$value) {
-                    $anEvent->$item = $value;
-                }
-                
-                return $anEvent;                
+                return $result;
             }
         }
         
         public function SelectEventFromEventName($eventName) {
             global $db;
             
-            $anEvent = new Event;
-            $query = "select * from event where eventName = " . myEsc($eventName);
+            $anEvent = new TeamEvent;
+            $query = "select * from team_event where teamEventName = '" . myEsc($eventName) . "'";
             $sql = mysql_query($query, $db);
             if(mysql_num_rows($sql) > 0) {
                 $result = array();
-                while($rlt = mysql_fetch_array($sql, MYSQL_ASSOC)) {
-                    $result[] = $rlt;
+                
+                while($row = mysql_fetch_object($sql)) {
+                    $anEvent = $row;
+                    $result[] = $anEvent;
                 }
                 
-                foreach($result[0] as $column->$value) {
-                    $anEvent->$item = $value;
-                }
-                
-                return $anEvent;
+                return $result;
             }
         }       
         
@@ -150,11 +145,11 @@
         public function ModifyEventName($teamEventId, $newEventName) {  
             global $db;
             
-            if($teamEventId = -999) {
+            if($teamEventId == -999) {
                 return false;
             } else if ( $newEventName) {            
-                $query = "update event set eventName = " . myEsc($newEventName)  .
-                        "where eventId = " . myEsc($teamEventId);
+                $query = "update team_event set teamEventName = '" . myEsc($newEventName)  .
+                        "' where teamEventId = " . myEsc($teamEventId);
                 $sql = mysql_query($query, $db);
                 return $sql;
             } else {
